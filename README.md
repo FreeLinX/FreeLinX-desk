@@ -1,4 +1,4 @@
-# FreeLinX/desktop
+# FreeLinX/Desktop
 
 FreeLinX is a from-scratch, musl-based Linux distribution. This repository
 holds the **desktop** work: the boot-time graphical stack (X11 + Openbox) and
