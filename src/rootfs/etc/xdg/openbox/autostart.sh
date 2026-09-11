@@ -1,0 +1,20 @@
+#!/bin/sh
+# FreeLinX Retro Desktop Autostart
+
+# Set retro dark charcoal desktop background
+if command -v xsetroot >/dev/null 2>&1; then
+    xsetroot -solid "#2d2d2d" 2>/dev/null
+fi
+
+# Top-Left uxterm running vim on .config/openbox/rc.xml
+(cd /root && /usr/bin/uxterm -g 76x23+15+15 -e vim .config/openbox/rc.xml) &
+
+sleep 0.2
+
+# Top-Right uxterm at shell prompt with retro session history
+(cd /root && /usr/bin/uxterm -g 76x23+525+15 -e /usr/bin/retro-term) &
+
+sleep 0.2
+
+# Bottom-Left Classic 90s File Manager
+/usr/bin/fview /etc/xdg/openbox &

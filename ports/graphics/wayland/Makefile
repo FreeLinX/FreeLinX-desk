@@ -29,7 +29,7 @@ include ../../mk/project-port.mk
 PORT_DIR := $(CURDIR)
 HOST_TOOLS := /tmp/opencode/host-tools
 HOST_WL := /tmp/opencode/host-wl
-MESON    := /tmp/opencode/meson-1.6.1/meson.py
+MESON    := /home/devuan/.local/venvs/meson/bin/meson
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/wayland-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(WAY_PREFIX)/lib/libwayland-server.a
@@ -42,7 +42,7 @@ export PKG_CONFIG_PATH := $(HOST_WL)/lib/pkgconfig
 # musl libc (no libffi dependency at build time).
 PROJECT_CFG_CMDS = \
 	mkdir -p "$(BUILD_DIR)" && \
-	python3 "$(MESON)" setup \
+	"$(MESON)" setup \
 		--cross-file "$(PORT_DIR)/meson-cross.ini" \
 		--native-file "$(PORT_DIR)/meson-native.ini" \
 		--buildtype=release \
@@ -53,5 +53,5 @@ PROJECT_CFG_CMDS = \
 		"$(BUILD_DIR)" "$(SRC_TREE)"
 
 BUILD_CMDS = \
-	python3 "$(MESON)" compile -C "$(BUILD_DIR)" && \
-	python3 "$(MESON)" install -C "$(BUILD_DIR)"
+	"$(MESON)" compile -C "$(BUILD_DIR)" && \
+	"$(MESON)" install -C "$(BUILD_DIR)"

@@ -24,8 +24,8 @@ BUILD_CMDS = \
 	mkdir -p "$(FREELINX_BUILD_DIR)/obj/$(NAME)" \
 		"$(FLX_PREFIX)/lib" "$(FLX_PREFIX)/lib/pkgconfig" \
 		"$(FLX_PREFIX)/include/pango" && \
-	$(CC) $(CPPFLAGS) $(CFLAGS) \
-		$(shell $(PKG_CONFIG) --cflags pango cairo-xlib xft) \
+	FLX_INC="$$($(PKG_CONFIG) --cflags pango cairo-xlib xft)" && \
+	$(CC) $(CPPFLAGS) $(CFLAGS) $$FLX_INC \
 		-c -o "$(FREELINX_BUILD_DIR)/obj/$(NAME)/pangoxft.o" pangoxft.c && \
 	$(AR) rcs "$(FLX_PREFIX)/lib/libpangoxft.a" \
 		"$(FREELINX_BUILD_DIR)/obj/$(NAME)/pangoxft.o" && \

@@ -1,27 +1,37 @@
 #!/bin/sh
-# FreeLinX - boot the desktop initramfs under QEMU/KVM (headless).
-# Monitor on telnet 127.0.0.1:4445; serial console in vmtest/serial.log.
+# FreeLinX - boot the desktop initramfs under QEMU/KVM
 set -eu
-cd /home/kanan/FreeLinX-workspace
-QEMU=qemu/qemu-install/bin/qemu-system-x86_64
-KERNEL=kernel/bzImage
-INITRD=src/build/freelinx-desktop.img.gz
+SCRIPT_DIR="$(cd "$(dirname "$0")"/.. && pwd)"
+KERNEL="${SCRIPT_DIR}/kernel/bzImage"
+INITRD="${SCRIPT_DIR}/src/build/x86_64/freelinx-desktop.img.gz"
+
+if [ ! -f "$INITRD" ]; then
+    INITRD="${SCRIPT_DIR}/src/build/freelinx-desktop.img.gz"
+fi
+
 [ -f "$KERNEL" ] || { echo "missing $KERNEL"; exit 1; }
 [ -f "$INITRD" ] || { echo "missing $INITRD"; exit 1; }
 
-rm -f vmtest/serial.log vmtest/screen.ppm
-: > vmtest/serial.log
+mkdir -p "${SCRIPT_DIR}/vmtest"
+rm -f "${SCRIPT_DIR}/vmtest/serial.log" "${SCRIPT_DIR}/vmtest/screen.ppm"
+: > "${SCRIPT_DIR}/vmtest/serial.log"
 
-"$QEMU" \
-    -machine q35,accel=kvm \
-    -cpu host -smp 4 -m 1280 \
+ACCEL_OPT="-enable-kvm -cpu host"
+if [ ! -w /dev/kvm ] 2>/dev/null; then
+    ACCEL_OPT=""
+fi
+
+qemu-system-x86_64 \
+    $ACCEL_OPT \
+    -smp 4 -m 1280 \
     -kernel "$KERNEL" \
     -initrd "$INITRD" \
     -append "console=ttyS0,115200 rdinit=/init quiet loglevel=2" \
-    -device virtio-gpu-pci \
+    -vga virtio \
+    -device virtio-tablet-pci \
     -monitor telnet:127.0.0.1:4445,server,nowait \
-    -serial file:vmtest/serial.log \
-    -display none -vga none -no-reboot \
-    > vmtest/qemu.log 2>&1 &
-echo $! > vmtest/qemu.pid
-echo "QEMU pid $(cat vmtest/qemu.pid)"
+    -serial file:"${SCRIPT_DIR}/vmtest/serial.log" \
+    -display none -no-reboot \
+    > "${SCRIPT_DIR}/vmtest/qemu.log" 2>&1 &
+echo $! > "${SCRIPT_DIR}/vmtest/qemu.pid"
+echo "QEMU pid $(cat "${SCRIPT_DIR}/vmtest/qemu.pid")"

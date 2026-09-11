@@ -6,7 +6,7 @@ TARGET:=$(FREELINX_TRIPLE)
 LICENSE:=AFL-2.1
 
 FLX_PREFIX=$(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON:=/home/kanan/FreeLinX-workspace/.venv/bin/meson
+MESON:=/home/devuan/.local/venvs/meson/bin/meson
 SRC_TREE=$(FREELINX_BUILD_DIR)/work/$(NAME)/$(DISTINFO_NAME)
 BUILD_DIR=$(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN=$(FLX_PREFIX)/bin/dbus-daemon
@@ -14,7 +14,7 @@ BUILD_BIN=$(PROJECT_BIN)
 
 include ../../mk/project-port.mk
 
-export PATH := /home/kanan/FreeLinX-workspace/.venv/bin:$(PATH)
+export PATH := /home/devuan/FreeLinX/desktop-test/.venv/bin:$(PATH)
 
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \

@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/bin/uxterm -title "Doom" -e sh -c "/bin/doom; echo ''; read -p 'Press Enter to close...' dummy"

@@ -27,27 +27,72 @@ mount -t devpts -o gid=5,mode=0620,ptmxmode=0666 devpts /dev/pts 2>/dev/null || 
 rm -f /dev/ptmx && ln -s /dev/pts/ptmx /dev/ptmx
 mount -t tmpfs    tmpfs    /run   2>/dev/null || :
 
-# --- PS/2 input fixtures ------------------------------------------------------
-# The Xorg flinput driver reads the QEMU virtual PS/2 keyboard and mouse from
-# /dev/fl-kbd and /dev/fl-pointer.  Resolve the actual evdev nodes now (while
-# /proc and devtmpfs are up) so the fixtures exist before any X service runs.
+# --- Input devices (evdev) ---------------------------------------------------
+# Map keyboards and mouse/tablet evdev nodes to /dev/fl-kbd and /dev/fl-pointer
+# for Xorg evdev driver.
 rm -f /dev/fl-kbd /dev/fl-pointer
 NAME=""
-HANDLER=""
-fl_decide() {
-    case "$NAME" in
-        *[Kk]eyboard*) ln -sf "/dev/input/$HANDLER" /dev/fl-kbd ;;
-        *[Mm]ouse*|*[Ee]xplorer*) ln -sf "/dev/input/$HANDLER" /dev/fl-pointer ;;
-    esac
-}
-while IFS= read -r l; do
-    case "$l" in
-        'I:'*) fl_decide; NAME=""; HANDLER="" ;;
-        'Handler='*) HANDLER="${l#Handler=}"; HANDLER="${HANDLER%% *}" ;;
-        'Name="'*) NAME="${l#Name=\"}"; NAME="${NAME%\"}" ;;
-    esac
-done < /proc/bus/input/devices
-fl_decide
+FOUND_TABLET=""
+FOUND_MOUSE=""
+FOUND_KBD=""
+if [ -r /proc/bus/input/devices ]; then
+    while IFS= read -r line; do
+        case "$line" in
+            I:*)
+                NAME=""
+                ;;
+            N:\ Name=\"*)
+                NAME="${line#N: Name=\"}"
+                NAME="${NAME%\"}"
+                ;;
+            H:\ Handlers=*)
+                for h in ${line#H: Handlers=}; do
+                    case "$h" in
+                        event*)
+                            case "$NAME" in
+                                *[Kk]eyboard*)
+                                    [ -z "$FOUND_KBD" ] && FOUND_KBD="/dev/input/$h"
+                                    ;;
+                                *[Tt]ablet*)
+                                    FOUND_TABLET="/dev/input/$h"
+                                    ;;
+                                *[Mm]ouse*|*[Ee]xplorer*|*[Tt]ouchpad*)
+                                    [ -z "$FOUND_MOUSE" ] && FOUND_MOUSE="/dev/input/$h"
+                                    ;;
+                            esac
+                            ;;
+                    esac
+                done
+                ;;
+        esac
+    done < /proc/bus/input/devices
+fi
+
+if [ -n "$FOUND_KBD" ]; then
+    ln -sf "$FOUND_KBD" /dev/fl-kbd
+fi
+if [ -n "$FOUND_TABLET" ]; then
+    ln -sf "$FOUND_TABLET" /dev/fl-pointer
+elif [ -n "$FOUND_MOUSE" ]; then
+    ln -sf "$FOUND_MOUSE" /dev/fl-pointer
+fi
+
+if [ ! -e /dev/fl-kbd ]; then
+    for ev in /dev/input/event*; do
+        [ -e "$ev" ] || continue
+        ln -sf "$ev" /dev/fl-kbd
+        break
+    done
+fi
+if [ ! -e /dev/fl-pointer ]; then
+    for ev in /dev/input/event*; do
+        [ -e "$ev" ] || continue
+        if [ "$ev" != "$(readlink /dev/fl-kbd 2>/dev/null)" ]; then
+            ln -sf "$ev" /dev/fl-pointer
+            break
+        fi
+    done
+fi
 
 # --- XKB defaults (kept for GTK apps / X clients; the X server itself is
 # configured through xorg.conf, so do NOT export these before X starts) ------

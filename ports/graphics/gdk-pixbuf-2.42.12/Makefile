@@ -9,7 +9,7 @@ TARGET  := $(FREELINX_TRIPLE)
 PREFIX  := /
 
 FLX_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON    := /tmp/opencode/meson-1.6.1/meson.py
+MESON    := /home/devuan/.local/venvs/meson/bin/meson
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/$(NAME)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(FLX_PREFIX)/lib/libgdk_pixbuf-2.0.a
@@ -17,13 +17,13 @@ BUILD_BIN   = $(PROJECT_BIN)
 
 include ../../mk/project-port.mk
 
-export PATH := /tmp/opencode/host-tools:$(PATH)
+# host-tools dir absent on this machine; PATH untouched
 
 PROJECT_CFG_CMDS = \
 	sed -i "/executable('timescale'/d" gdk-pixbuf/pixops/meson.build && \
 	sed -i '/gdkpixbuf_bin = \[/,/foreach/{/gdk-pixbuf-csource/d;/gdk-pixbuf-pixdata/d}' gdk-pixbuf/meson.build && \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
-	python3 "$(MESON)" setup \
+	"$(MESON)" setup \
 		--cross-file "$(CURDIR)/meson-cross.ini" \
 		--buildtype=release \
 		--default-library=static \
@@ -32,5 +32,5 @@ PROJECT_CFG_CMDS = \
 		"$(BUILD_DIR)" "$(SRC_TREE)"
 
 BUILD_CMDS = \
-	python3 "$(MESON)" compile -C "$(BUILD_DIR)" && \
-	python3 "$(MESON)" install -C "$(BUILD_DIR)"
+	"$(MESON)" compile -C "$(BUILD_DIR)" && \
+	"$(MESON)" install -C "$(BUILD_DIR)"

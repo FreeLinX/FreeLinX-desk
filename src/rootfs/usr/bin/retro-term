@@ -1,0 +1,25 @@
+#!/bin/sh
+cat << 'HEREDOC'
+erhellt@ganymed:~% apt-cache policy openbox
+openbox:
+  Installed: 3.4.11.1-1
+  Candidate: 3.4.11.1-1
+  Version table:
+ *** 3.4.11.1-1 0
+        500 ftp://ftp.us.debian.org sid/main Packages
+        100 /var/lib/dpkg/status
+     3.4.10-1 0
+        990 ftp://ftp.us.debian.org squeeze/main Packages
+erhellt@ganymed:~% openbox --version
+Openbox 3.4.11.1
+Copyright (c) 2008   Mikael Magnusson
+Copyright (c) 2003-2006 Dana Jansens
+
+This program comes with ABSOLUTELY NO WARRANTY.
+This is free software, and you are welcome to redistribute it
+under certain conditions. See the file COPYING for details.
+
+erhellt@ganymed:~% scrot -cd 5
+Taking shot in 5.. 4.. 3.. 2.. 1.. 
+HEREDOC
+exec /bin/sh

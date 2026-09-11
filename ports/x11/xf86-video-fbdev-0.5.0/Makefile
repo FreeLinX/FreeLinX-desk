@@ -27,4 +27,15 @@ PROJECT_CFG_CMDS = \
 		--disable-dependency-tracking \
 
 
-BUILD_CMDS = make && make install
+# libtool drops the --target/-fuse-ld flags on the module relink, so we do the
+# single-file driver build directly with the toolchain clang.  The module link
+# intentionally leaves Xorg's symbols undefined (resolved at dlopen time).
+BUILD_CMDS = \
+	mkdir -p "$(FLX_PREFIX)/lib/xorg/modules/drivers" && \
+	$(CC) $(FREELINX_TARGET_FLAGS) $(FREELINX_SYSROOT_FLAGS) \
+		-fuse-ld=lld --rtlib=compiler-rt -O2 -shared -fPIC \
+		-DHAVE_CONFIG_H -I"$(SRC_TREE)/src" -I"$(SRC_TREE)/src/.." \
+		-I"$(FLX_PREFIX)/include/xorg" \
+		-I"$(FLX_PREFIX)/include" \
+		-I"$(FREELINX_BUILD_DIR)/deps/pixman/include/pixman-1" \
+		-o "$(PROJECT_BIN)" "$(SRC_TREE)/src/fbdev.c"

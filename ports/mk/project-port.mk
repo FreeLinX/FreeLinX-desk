@@ -57,10 +57,7 @@ export CXXFLAGS:=$(FREELINX_TARGET_FLAGS) $(FREELINX_SYSROOT_FLAGS) $(FLX_PROJEC
 export CPPFLAGS:=$(FLX_PROJECT_CPPFLAGS)
 # --rtlib=compiler-rt: musl has no crtbeginT.o/crtend.o/-lgcc; compiler-rt keeps
 # the link GNU-crt free.  -static + -fuse-ld=lld give the static LLVM link.
-include /home/kanan/FreeLinX-workspace/ports/mk/pkgconfig-libdir.mk
-
-# meson needs "ninja" discoverable on PATH (venv tools)
-export PATH := /home/kanan/FreeLinX-workspace/.venv/bin:$(PATH)
+include $(FREELINX_PORTS_ROOT)/mk/pkgconfig-libdir.mk
 
 export PKG_CONFIG_LIBDIR:=$(strip $(PKG_CONFIG_LIBDIR))
 

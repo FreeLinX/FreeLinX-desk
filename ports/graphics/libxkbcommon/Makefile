@@ -26,7 +26,7 @@ include ../../mk/project-port.mk
 
 PORT_DIR := $(CURDIR)
 HOST_TOOLS := /tmp/opencode/host-tools
-MESON    := /tmp/opencode/meson-1.6.1/meson.py
+MESON    := /home/devuan/.local/venvs/meson/bin/meson
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/libxkbcommon-xkbcommon-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(XKB_PREFIX)/lib/libxkbcommon.a
@@ -35,7 +35,7 @@ export PATH := $(HOST_TOOLS):$(PATH)
 
 PROJECT_CFG_CMDS = \
 	mkdir -p "$(BUILD_DIR)" && \
-	python3 "$(MESON)" setup \
+	"$(MESON)" setup \
 		--cross-file "$(PORT_DIR)/meson-cross.ini" \
 		--buildtype=release \
 		--default-library=static \
@@ -48,5 +48,5 @@ PROJECT_CFG_CMDS = \
 		"$(BUILD_DIR)" "$(SRC_TREE)"
 
 BUILD_CMDS = \
-	python3 "$(MESON)" compile -C "$(BUILD_DIR)" && \
-	python3 "$(MESON)" install -C "$(BUILD_DIR)"
+	"$(MESON)" compile -C "$(BUILD_DIR)" && \
+	"$(MESON)" install -C "$(BUILD_DIR)"

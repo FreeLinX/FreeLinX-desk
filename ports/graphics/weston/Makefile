@@ -26,7 +26,7 @@ include ../../mk/project-port.mk
 
 PORT_DIR := $(CURDIR)
 HOST_TOOLS := /tmp/opencode/host-tools
-MESON    := /tmp/opencode/meson-1.6.1/meson.py
+MESON    := /home/devuan/.local/venvs/meson/bin/meson
 DEPS     := $(FREELINX_BUILD_DIR)/deps
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/weston-$(VERSION)-fad928ca37beb3bdf70f33bcfcb12149e4da217d
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
@@ -48,7 +48,7 @@ export PKG_CONFIG_PATH := $(DEV_PC):$(DEPS_PKGCONFIG)
 PROJECT_CFG_CMDS = \
 	python3 "$(PORT_DIR)/musl-patches.py" "$(SRC_TREE)" && \
 	mkdir -p "$(BUILD_DIR)" && \
-	python3 "$(MESON)" setup \
+	"$(MESON)" setup \
 		--cross-file "$(PORT_DIR)/meson-cross.ini" \
 		--native-file "$(PORT_DIR)/meson-native.ini" \
 		--buildtype=release \
@@ -69,8 +69,8 @@ PROJECT_CFG_CMDS = \
 		"$(BUILD_DIR)" "$(SRC_TREE)"
 
 BUILD_CMDS = \
-	python3 "$(MESON)" compile -C "$(BUILD_DIR)" && \
-	DESTDIR="$(WESTON_PREFIX)" python3 "$(MESON)" install -C "$(BUILD_DIR)"
+	"$(MESON)" compile -C "$(BUILD_DIR)" && \
+	DESTDIR="$(WESTON_PREFIX)" "$(MESON)" install -C "$(BUILD_DIR)"
 
 # weston installs under --prefix=/usr; the install root is DESTDIR=$WESTON_PREFIX,
 # so the resulting tree mirrors a target rootfs: $(WESTON_PREFIX)/usr/...

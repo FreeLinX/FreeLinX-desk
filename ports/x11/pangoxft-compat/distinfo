@@ -1,4 +1,4 @@
 # FreeLinX/ports - x11/pangoxft-compat : local source snapshot.
 DISTINFO_ARCHIVE=pangoxft-compat.tar.gz
 DISTINFO_URL=local:ports/x11/pangoxft-compat/sources
-DISTINFO_SHA256=8394bfea427daa4755b30e8261958b3ff9b87e285c09f2ec1c6839c31cc374d8
+DISTINFO_SHA256=a5e2a86b2dcdfd63d3df43e650c2ebef07cbba4cbabf9fae5a9d81100f8ecc8a

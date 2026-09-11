@@ -14,7 +14,7 @@ PREFIX  := /
 include ../../mk/project-port.mk
 
 FC_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON := /tmp/opencode/meson-1.6.1/meson.py
+MESON := /home/devuan/.local/venvs/meson/bin/meson
 DEPS  := $(FREELINX_BUILD_DIR)/deps
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/fontconfig-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
@@ -22,11 +22,11 @@ BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(FC_PREFIX)/lib/libfontconfig.a
 BUILD_BIN   = $(PROJECT_BIN)
 
-export PATH := /tmp/opencode/host-tools:$(PATH)
+# host-tools dir absent on this machine; PATH untouched
 
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
-	python3 "$(MESON)" setup \
+	"$(MESON)" setup \
 		--cross-file "$(CURDIR)/meson-cross.ini" \
 		--buildtype=release \
 		--default-library=static \
@@ -38,7 +38,7 @@ PROJECT_CFG_CMDS = \
 		"$(BUILD_DIR)" "$(SRC_TREE)"
 
 BUILD_CMDS = \
-	python3 "$(MESON)" compile -C "$(BUILD_DIR)" -j"$(FREELINX_JOBS)" && \
-	DESTDIR="$(FC_PREFIX)" python3 "$(MESON)" install -C "$(BUILD_DIR)" && \
-	_NEST="$(FC_PREFIX)/home/kanan/FreeLinX-workspace/ports/build/deps/fontconfig" && \
+	"$(MESON)" compile -C "$(BUILD_DIR)" -j"$(FREELINX_JOBS)" && \
+	DESTDIR="$(FC_PREFIX)" "$(MESON)" install -C "$(BUILD_DIR)" && \
+	_NEST="$(FC_PREFIX)/home/devuan/FreeLinX/desktop-test/ports/build/deps/fontconfig" && \
 	[ -d "$$_NEST" ] && cp -a "$$_NEST"/. "$(FC_PREFIX)"/ && rm -rf "$(FC_PREFIX)/home" || true

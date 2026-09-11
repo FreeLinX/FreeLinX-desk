@@ -5,7 +5,7 @@ TARGET:=$(FREELINX_TRIPLE)
 LICENSE:=LGPL-2.0-or-later
 
 FLX_PREFIX=$(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON:=/home/kanan/FreeLinX-workspace/.venv/bin/meson
+MESON:=/home/devuan/.local/venvs/meson/bin/meson
 SRC_TREE=$(FREELINX_BUILD_DIR)/work/$(NAME)/$(DISTINFO_NAME)
 BUILD_DIR=$(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN=$(FLX_PREFIX)/lib/libxfce4util-1.0.a
@@ -13,7 +13,7 @@ BUILD_BIN=$(PROJECT_BIN)
 
 include ../../mk/project-port.mk
 
-export PATH := /home/kanan/FreeLinX-workspace/.venv/bin:$(FREELINX_BUILD_DIR)/deps/glib-2.82.5/bin:$(PATH)
+export PATH := /home/devuan/FreeLinX/desktop-test/.venv/bin:$(FREELINX_BUILD_DIR)/deps/glib-2.82.5/bin:$(PATH)
 
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \

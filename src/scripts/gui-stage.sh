@@ -75,10 +75,13 @@ if [ -d "$DEPS/runit/usr/bin" ]; then
     cp -a "$DEPS/runit/usr/bin/." "$ROOT/usr/bin/"
 fi
 
-# --- musl dynamic loader + libc (needed by any dynamically-linked ELF) -------
+# --- musl dynamic loader + libc + C++ runtime DSOs ---------------------------
 mkdir -p "$ROOT/lib"
 cp -a "$SYSROOT/lib/libc.so" "$ROOT/lib/libc.so"
 ln -sf libc.so "$ROOT/lib/ld-musl-${FREELINX_ARCH}.so.1"
+if [ -d "${FREELINX_TOOLCHAIN_DIR}/lib/x86_64-unknown-linux-musl" ]; then
+    cp -a "${FREELINX_TOOLCHAIN_DIR}/lib/x86_64-unknown-linux-musl"/lib*.so* "$ROOT/lib/" 2>/dev/null || true
+fi
 
 # --- shared runtime libraries (the few DSOs the libweston-era stack needs) ----
 # libinput still ships as a shared object; keep it for reuse once X's

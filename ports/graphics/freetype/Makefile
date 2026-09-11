@@ -15,7 +15,7 @@ PREFIX  := /
 include ../../mk/project-port.mk
 
 FT_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-CMAKE := /tmp/opencode/host-tools/cmake-3.31.6-linux-x86_64/bin/cmake
+CMAKE := /usr/bin/cmake
 ZLIB    = $(FREELINX_BUILD_DIR)/deps/zlib
 LIBPNG  = $(FREELINX_BUILD_DIR)/deps/libpng
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/freetype-VER-2-13-3

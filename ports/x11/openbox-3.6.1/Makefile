@@ -47,8 +47,8 @@ export LIBS := -lXau -lXdmcp -lxcb -lpthread -lm
 # no startup-notification, no session management.  Only the core WM and its
 # XML-based config/menu parser (libxml2) are built.
 PROJECT_CFG_CMDS = \
-	cp /usr/share/automake-1.18/config.sub ./config.sub && \
-	cp /usr/share/automake-1.18/config.guess ./config.guess && \
+	cp /usr/share/automake-1.16/config.sub ./config.sub && \
+	cp /usr/share/automake-1.16/config.guess ./config.guess && \
 	./configure \
 		--host=x86_64-linux-musl \
 		--prefix="$(FLX_PREFIX)" \

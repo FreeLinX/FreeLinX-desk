@@ -42,6 +42,7 @@ PROJECT_CFG_CMDS = \
 		--with-default-xkb-rules=base \
 		--with-default-xkb-model=pc105 \
 		--with-default-xkb-layout=us \
+		--with-sha1=libmd \
 
 
 BUILD_CMDS = make && make install

@@ -1,2 +1,13 @@
-export PKG_CONFIG_LIBDIR:=/home/kanan/FreeLinX-workspace/ports/build/deps/freetype/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/fontconfig/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/expat/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/zlib/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/libpng/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/pixman/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/utf8proc/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/tllist/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/wayland/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/wayland-protocols/share/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/libxkbcommon/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/libffi/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/glib-2.82.5/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/pcre2-10.48/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/fribidi-1.0.16/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/gettext-0.23/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/harfbuzz-14.4.0/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/atk-2.38.0/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/cairo-1.18.4/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/gdk-pixbuf-2.42.12/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/pango-1.56.4/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/lz4-1.10.0/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/gtk-3.24.52/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/vte-0.76.4/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/libxfce4util-4.20.1/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/xfconf-4.20.0/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/libxfce4ui-4.20.2/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/exo-4.20.0/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/x11/lib/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/x11/share/pkgconfig:/home/kanan/FreeLinX-workspace/ports/build/deps/openssl/lib64/pkgconfig
-$(info PKGCONFIGHASX11=$(findstring x11,$(PKG_CONFIG_LIBDIR)))
+# FreeLinX/ports - mk/pkgconfig-libdir.mk : aggregate pkg-config search dirs
+# from every installed dependency tree under $(FREELINX_BUILD_DIR)/deps/*.
+# Built live so no developer-specific path is ever hard-coded; both
+# lib/pkgconfig and share/pkgconfig trees are picked up.
+
+_empty :=
+_space := $(_empty) $(_empty)
+
+_flx_pc_dirs := \
+	$(wildcard $(FREELINX_BUILD_DIR)/deps/*/lib/pkgconfig) \
+	$(wildcard $(FREELINX_BUILD_DIR)/deps/*/share/pkgconfig)
+
+export PKG_CONFIG_LIBDIR:=$(strip $(subst $(_space),:,$(_flx_pc_dirs)))

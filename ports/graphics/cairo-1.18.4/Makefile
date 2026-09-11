@@ -9,7 +9,7 @@ TARGET  := $(FREELINX_TRIPLE)
 PREFIX  := /
 
 FLX_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON    := /home/kanan/FreeLinX-workspace/.venv/bin/meson
+MESON    := /home/devuan/.local/venvs/meson/bin/meson
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/$(NAME)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(FLX_PREFIX)/lib/libcairo.a
@@ -17,12 +17,13 @@ BUILD_BIN   = $(PROJECT_BIN)
 
 include ../../mk/project-port.mk
 
-export PATH := /tmp/opencode/host-tools:$(PATH)
+# host-tools dir absent on this machine; PATH untouched
 
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	PKG_CONFIG_LIBDIR="$(PKG_CONFIG_LIBDIR)" PKG_CONFIG="$(PKG_CONFIG)" \
 	"$(MESON)" setup \
+		--wrap-mode=nofallback \
 		--cross-file "$(CURDIR)/meson-cross.ini" \
 		--buildtype=release \
 		--default-library=static \

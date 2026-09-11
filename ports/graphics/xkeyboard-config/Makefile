@@ -15,18 +15,18 @@ PREFIX  := /
 include ../../mk/project-port.mk
 
 XKB_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON := /tmp/opencode/meson-1.6.1/meson.py
+MESON := /home/devuan/.local/venvs/meson/bin/meson
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/xkeyboard-config-xkeyboard-config-2.44-1691aef8fa12f63037f2ff956f902587d814a65c
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/native
 
 PROJECT_BIN = $(XKB_PREFIX)/share/X11/xkb/rules/evdev
 BUILD_BIN   = $(PROJECT_BIN)
 
-export PATH := /tmp/opencode/host-tools:$(PATH)
+# host-tools dir absent on this machine; PATH untouched
 
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
-	python3 "$(MESON)" setup \
+	"$(MESON)" setup \
 		--buildtype=release \
 		-Ddatadir=share \
 		-Dcompat-rules=false -Dxorg-rules-symlinks=false \
@@ -35,5 +35,5 @@ PROJECT_CFG_CMDS = \
 		"$(BUILD_DIR)" "$(SRC_TREE)"
 
 BUILD_CMDS = \
-	python3 "$(MESON)" compile -C "$(BUILD_DIR)" -j"$(FREELINX_JOBS)" && \
-	python3 "$(MESON)" install -C "$(BUILD_DIR)"
+	"$(MESON)" compile -C "$(BUILD_DIR)" -j"$(FREELINX_JOBS)" && \
+	"$(MESON)" install -C "$(BUILD_DIR)"

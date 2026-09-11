@@ -1,0 +1,2 @@
+#!/bin/sh
+exec /usr/bin/uxterm -title "Openbox Configuration" -e vim /etc/xdg/openbox/rc.xml

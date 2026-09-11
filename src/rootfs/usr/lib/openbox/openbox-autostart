@@ -1,23 +1,19 @@
 #!/bin/sh
-# FreeLinX openbox autostart helper (guest-clean).
-# Runs the global and per-user autostart scripts once openbox is up.
+# FreeLinX openbox autostart helper
 
 GLOBALAUTOSTART=/etc/xdg/openbox/autostart
 AUTOSTART="${XDG_CONFIG_HOME:-"$HOME/.config"}/openbox/autostart"
 
-# Background color (best effort; only if xsetroot is present)
 if command -v xsetroot >/dev/null 2>&1; then
-    xsetroot -solid "#303055" 2>/dev/null
-fi
-
-if test -f "$GLOBALAUTOSTART"; then
-    sh "$GLOBALAUTOSTART"
-elif test -f "$GLOBALAUTOSTART.sh"; then
-    sh "$GLOBALAUTOSTART.sh"
+    xsetroot -solid "#2d2d2d" 2>/dev/null
 fi
 
 if test -f "$AUTOSTART"; then
     sh "$AUTOSTART"
 elif test -f "$AUTOSTART.sh"; then
     sh "$AUTOSTART.sh"
+elif test -f "$GLOBALAUTOSTART"; then
+    sh "$GLOBALAUTOSTART"
+elif test -f "$GLOBALAUTOSTART.sh"; then
+    sh "$GLOBALAUTOSTART.sh"
 fi

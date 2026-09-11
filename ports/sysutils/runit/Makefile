@@ -99,9 +99,9 @@ do-configure: do-prepare
 	@set -e; \
 	printf '[FreeLinX/ports] writing conf-cc / conf-ld for %s\n' "$(FREELINX_TRIPLE)"; \
 	printf '%s %s -rtlib=compiler-rt -unwindlib=none -O2\n' \
-		"$(CC)" "$(FREELINX_CFLAGS)" > "$(SV_DIR)/conf-cc"; \
+		"$(CC)" "$(FREELINX_CFLAGS)" > "$(SRC_ROOT)/src/conf-cc"; \
 	printf '%s %s -rtlib=compiler-rt -unwindlib=none\n' \
-		"$(CC)" "$(FREELINX_LDFLAGS)" > "$(SV_DIR)/conf-ld"
+		"$(CC)" "$(FREELINX_LDFLAGS)" > "$(SRC_ROOT)/src/conf-ld"
 
 # ---------------------------------------------------------------------------
 # Build: run runit's own package/compile inside the prepared/configured

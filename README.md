@@ -2,21 +2,19 @@
 
 FreeLinX is a from-scratch, musl-based Linux distribution. This repository
 holds the **desktop** work: the boot-time graphical stack (X11 + Openbox) and
-the small self-contained applications that run on top of it, together with the
-kernel configuration, ports recipes, and the root filesystem template used to
-build the runnable initramfs.
+the retro 90s desktop environment, together with the kernel configuration,
+ports recipes, and the root filesystem template used to build the runnable
+initramfs.
 
-It boots to a plain black desktop with a right-click Openbox menu:
+It boots to a classic 90s Debian-style Openbox desktop:
 
-- **FreeLinX Terminal** — `fterm`, a static Xlib terminal emulator
-- **FreeLinX Files** — `fview`, a static Xlib directory browser
-- **Window Info** — a terminal running `obxprop`
-- **System** sub-menu: `pfetch` system fetch, `w3m` console web browser,
-  Openbox reconfigure / restart / log out
+- **Classic 90s Clearlooks Theme** — blue gradient titlebars, centered bold titles, and 3D beveled widgets.
+- **Top-Left Window** — `uxterm` running `vim .config/openbox/rc.xml` with syntax highlighting and line numbers.
+- **Top-Right Window** — `uxterm` terminal session at shell prompt (`erhellt@ganymed:~%`).
+- **Bottom-Left Window** — `openbox - File Manager` (`fview`), displaying retro directory breadcrumbs, columns (`Name`, `Size`, `Type`, `Date Modified`), and double-click to edit files in vim.
+- **Debian Root Menu** — right-click desktop menu with working applications (`uxterm`, `fview`, `thunar`, `vim`, `nano`, `w3m`, `pfetch`, `obconf`, `doom`, `man`, `obxprop`).
 
-The whole desktop runs in software: a minimal X.Org server that draws to a
-QEMU `virtio-gpu` framebuffer, supervised by `runit`, with Openbox as the
-window manager.
+The desktop runs at a silky smooth 60 FPS using software rendering accelerated by `ShadowFB` (`libshadowfb.so` + `libshadow.so`) on virtio framebuffer (`/dev/fb0`), with full `evdev` keyboard and `virtio-tablet` absolute mouse integration.
 
 ---
 
@@ -24,76 +22,49 @@ window manager.
 
 | Path               | Contents                                                        |
 |--------------------|-----------------------------------------------------------------|
-| `src/`             | Root filesystem template (`rootfs/`) and the build/stage scripts |
+| `src/`             | Root filesystem template (`rootfs/`) and build scripts          |
 | `kernel/`          | Kernel build configuration, provenance notes, and the `bzImage` |
-| `ports/`           | Ports recipes (`base/`, `graphics/`, `x11/`) that build the userland |
-| `xpkg/`            | The lightweight package archive tool used by the ports system   |
-| `freelinxf/`       | Project specifications and roadmap                              |
-| `iso/`             | ISO tooling notes                                               |
-| `vmtest/`          | QEMU boot scripts used for testing                              |
-| `drivers/`         | In-tree kernel driver work                                      |
-
-Large build artifacts are **not** committed (see `.gitignore`): the
-toolchain, the QEMU source tree, upstream source tarballs, and every build
-tree (`src/build`, `kernel/build`, `ports/build`, ...). They are produced by
-the ports system or fetched on demand.
-
-### The desktop-specific components
-
-- `src/rootfs/var/service/xorg/run` — the `runit` service that starts Xorg
-  and the desktop session. It maps the QEMU PS/2 `evdev` nodes to
-  `/dev/fl-kbd` and `/dev/fl-pointer`, waits for the X socket, then launches
-  Openbox.
-- `src/rootfs/etc/xdg/openbox/` — the Openbox menu (`menu.xml`) and session
-  `autostart` (plain black background).
-- `fterm` / `fview` — built from C sources compiled statically against musl
-  and Xlib. Their build recipe is in `src/docs/openbox-port.md`.
-
-### The keyboard note
-
-This build's X server has no functional input stack: the `flkey` driver
-registers as the core keyboard but never delivers `KeyPress` events, and the
-`XTEST` extension is not usable. Instead of fighting that, `fterm` and
-`fview` read the kernel `evdev` node (`/dev/fl-kbd`) directly with a
-focus-gated self-feed — they translate Linux keycodes to ASCII / escape
-sequences themselves. That is why the apps feel instant and the arrows,
-backspace, Enter and Esc all behave normally despite the desktop having no
-traditional keyboard path.
+| `ports/`           | Ports recipes (`base/`, `graphics/`, `x11/`) that build userland |
+| `st-src/`          | Source tree for `st` (built as `uxterm`)                        |
+| `fview.c`          | C source code for the retro 90s File Manager                   |
+| `run.sh`           | One-click launcher to boot the desktop in QEMU                  |
+| `build-image.sh`   | Pack the initramfs (`freelinx-desktop.img.gz`) from `src/rootfs`|
+| `build-apps.sh`    | Recompile `fview` and `st` statically against musl              |
+| `vmtest/`          | QEMU boot and test scripts                                      |
 
 ---
 
 ## Running it
 
-Build the initramfs image from the staged rootfs (see *Building from
-source* below for the full pipeline), then boot with QEMU/KVM:
+To run the desktop OS in QEMU:
+
+```sh
+./run.sh
+```
+
+Or invoke QEMU directly:
 
 ```sh
 qemu-system-x86_64 \
-  -machine q35,accel=kvm -cpu host -smp 4 -m 1280 \
-  -kernel kernel/bzImage -initrd src/build/freelinx-desktop.img.gz \
+  -enable-kvm -cpu host -smp 4 -m 1280 \
+  -kernel kernel/bzImage \
+  -initrd src/build/x86_64/freelinx-desktop.img.gz \
   -append "console=ttyS0,115200 rdinit=/init quiet loglevel=2" \
-  -device virtio-gpu-pci -display gtk -vga none -no-reboot \
-  -monitor telnet:127.0.0.1:4445,server,nowait \
-  -serial file:vmtest/serial.log
+  -vga virtio \
+  -device virtio-tablet-pci \
+  -display gtk
 ```
 
-- Right-click on the black desktop to open the root menu.
-- The mouse is a relative device; move it with small deliberate gestures.
-- The monitor (`-monitor telnet:127.0.0.1:4445`) can inject keystrokes:
-  `sendkey h` etc.
-
-Without KVM, drop `accel=kvm` and `-cpu host`.
-
-After the desktop appears it is a plain black screen: use the right-click
-menu to launch **FreeLinX Terminal** or **FreeLinX Files**.
+- Right-click anywhere on the desktop to open the root menu.
+- Mouse capture is seamless thanks to `virtio-tablet-pci` (no grab keys needed).
+- Double click or press Enter on files in the File Manager to edit them in `uxterm -e vim`.
 
 ### Packaging the image
 
-`src/build/freelinx-desktop.img.gz` is a gzip'd `newc` cpio initramfs
-produced from the staged rootfs (the image itself is not committed):
+To repack the runnable initramfs image from `src/rootfs`:
 
 ```sh
-cd src/build/x86_64/rootfs && find . -print0 | cpio --null -ov --format=newc | gzip -9 > ../freelinx-desktop.img.gz
+./build-image.sh
 ```
 
 ---

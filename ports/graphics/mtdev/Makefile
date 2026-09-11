@@ -24,8 +24,8 @@ COMMON_FLAGS = $(FREELINX_TARGET_FLAGS) $(FREELINX_SYSROOT_FLAGS) --rtlib=compil
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/mtdev-$(VERSION)
 PROJECT_BIN = $(MTDEV_PREFIX)/lib/libmtdev.a
 
-FLX_HOST_AR   ?= /home/kanan/FreeLinX-workspace/toolchain/bin/llvm-ar
-FLX_HOST_RANLIB ?= /home/kanan/FreeLinX-workspace/toolchain/bin/llvm-ranlib
+FLX_HOST_AR   ?= /home/devuan/FreeLinX/toolchain/bin/llvm-ar
+FLX_HOST_RANLIB ?= /home/devuan/FreeLinX/toolchain/bin/llvm-ranlib
 
 export CC := $(FREELINX_TOOLCHAIN_BIN)/freelinix-cc
 export AR := $(FLX_HOST_AR)

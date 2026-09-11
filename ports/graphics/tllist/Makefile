@@ -13,17 +13,17 @@ PREFIX  := /
 include ../../mk/project-port.mk
 
 TL_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON    := /tmp/opencode/meson-1.6.1/meson.py
+MESON    := /home/devuan/.local/venvs/meson/bin/meson
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/$(DISTINFO_NAME)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(TL_PREFIX)/include/tllist.h
 BUILD_BIN   = $(PROJECT_BIN)
 
-export PATH := /tmp/opencode/host-tools:$(PATH)
+# host-tools dir absent on this machine; PATH untouched
 
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
-	python3 "$(MESON)" setup \
+	"$(MESON)" setup \
 		--cross-file "$(CURDIR)/meson-cross.ini" \
 		--buildtype=release \
 		--default-library=static \
@@ -31,4 +31,4 @@ PROJECT_CFG_CMDS = \
 		"$(BUILD_DIR)" "$(SRC_TREE)"
 
 BUILD_CMDS = \
-	python3 "$(MESON)" install -C "$(BUILD_DIR)"
+	"$(MESON)" install -C "$(BUILD_DIR)"

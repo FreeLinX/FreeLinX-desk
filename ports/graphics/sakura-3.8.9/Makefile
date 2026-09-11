@@ -6,7 +6,7 @@ TARGET:=$(FREELINX_TRIPLE)
 LICENSE:=GPL-3.0-or-later
 
 FLX_PREFIX=$(FREELINX_BUILD_DIR)/deps/$(NAME)
-CMAKE:=/home/kanan/FreeLinX-workspace/.venv/bin/cmake
+CMAKE:=/home/devuan/FreeLinX/desktop-test/.venv/bin/cmake
 SRC_TREE=$(FREELINX_BUILD_DIR)/work/$(NAME)/$(DISTINFO_NAME)
 BUILD_DIR=$(FREELINX_BUILD_DIR)/obj/$(NAME)/cmake
 PROJECT_BIN=$(FLX_PREFIX)/bin/sakura
