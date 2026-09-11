@@ -106,22 +106,15 @@
   </item>
 </menu>
 
-<menu id="wm-menu" label="Window Managers">
-  <item label="Openbox">
-    <action name="Restart"><command>openbox</command></action>
-  </item>
-</menu>
-
-<menu id="debian-menu" label="Debian">
+<menu id="freelinx-apps-menu" label="Applications">
   <menu id="applications-menu" />
   <menu id="games-menu" />
-  <item label="Help">
-    <action name="Execute"><command>fterm -e man openbox</command></action>
+  <item label="System Help">
+    <action name="Execute"><command>uxterm -e man freelinx</command></action>
   </item>
-  <menu id="wm-menu" />
 </menu>
 
-<menu id="root-menu" label="Openbox">
+<menu id="root-menu" label="FreeLinX">
   <item label="Terminal emulator">
     <action name="Execute">
       <command>uxterm</command>
@@ -136,13 +129,20 @@
     </action>
   </item>
 
+  <item label="File Manager">
+    <action name="Execute">
+      <command>fview</command>
+      <startupnotify><enabled>yes</enabled></startupnotify>
+    </action>
+  </item>
+
   <separator />
 
-  <menu id="debian-menu" />
+  <menu id="freelinx-apps-menu" />
 
-  <menu id="client-list-combined-menu" label="Desktops" />
+  <menu id="client-list-combined-menu" label="Workspaces" />
 
-  <item label="ObConf">
+  <item label="Settings">
     <action name="Execute">
       <command>obconf</command>
     </action>

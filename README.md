@@ -6,13 +6,13 @@ the retro 90s desktop environment, together with the kernel configuration,
 ports recipes, and the root filesystem template used to build the runnable
 initramfs.
 
-It boots to a classic 90s Debian-style Openbox desktop:
+It boots to a classic 90s Openbox desktop:
 
 - **Classic 90s Clearlooks Theme** — blue gradient titlebars, centered bold titles, and 3D beveled widgets.
 - **Top-Left Window** — `uxterm` running `vim .config/openbox/rc.xml` with syntax highlighting and line numbers.
-- **Top-Right Window** — `uxterm` terminal session at shell prompt (`erhellt@ganymed:~%`).
+- **Top-Right Window** — `uxterm` terminal session at shell prompt (`erhellt@freelinx:~%`).
 - **Bottom-Left Window** — `openbox - File Manager` (`fview`), displaying retro directory breadcrumbs, columns (`Name`, `Size`, `Type`, `Date Modified`), and double-click to edit files in vim.
-- **Debian Root Menu** — right-click desktop menu with working applications (`uxterm`, `fview`, `thunar`, `vim`, `nano`, `w3m`, `pfetch`, `obconf`, `doom`, `man`, `obxprop`).
+- **FreeLinX Root Menu** — right-click desktop menu with working applications (`uxterm`, `fview`, `thunar`, `vim`, `nano`, `w3m`, `pfetch`, `obconf`, `doom`, `man`, `obxprop`, `xeyes`).
 
 The desktop runs at a silky smooth 60 FPS using software rendering accelerated by `ShadowFB` (`libshadowfb.so` + `libshadow.so`) on virtio framebuffer (`/dev/fb0`), with full `evdev` keyboard and `virtio-tablet` absolute mouse integration.
 
