@@ -71,7 +71,11 @@
 </menu>
 
 <menu id="text-menu" label="Text" />
-<menu id="tools-menu" label="Tools" />
+<menu id="tools-menu" label="Tools">
+  <item label="Xeyes">
+    <action name="Execute"><command>xeyes</command></action>
+  </item>
+</menu>
 <menu id="video-menu" label="Video" />
 <menu id="viewers-menu" label="Viewers" />
 
