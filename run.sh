@@ -34,5 +34,6 @@ exec qemu-system-x86_64 \
   -append "console=ttyS0,115200 rdinit=/init quiet loglevel=2" \
   -vga virtio \
   -device virtio-tablet-pci \
+  -nic user,model=virtio-net-pci \
   $DISPLAY_OPT \
   "$@"

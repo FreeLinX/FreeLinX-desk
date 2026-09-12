@@ -98,6 +98,10 @@ fi
 # configured through xorg.conf, so do NOT export these before X starts) ------
 # XKB_DEFAULT_RULES/MODEL/LAYOUT are intentionally used by applications only.
 
+# --- Networking -------------------------------------------------------------
+/sbin/ifconfig lo 127.0.0.1 up 2>/dev/null || /sbin/flx-ifconfig lo up 2>/dev/null || :
+/sbin/dhcpcd -b 2>/dev/null || :
+
 # --- hostname ---------------------------------------------------------------
 _hostname=""
 if [ -r /etc/hostname ]; then
