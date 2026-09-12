@@ -100,8 +100,11 @@ fi
 
 # --- Networking -------------------------------------------------------------
 /sbin/ifconfig lo 127.0.0.1 up 2>/dev/null || /sbin/flx-ifconfig lo up 2>/dev/null || :
-/sbin/ifconfig eth0 up 2>/dev/null || /sbin/flx-ifconfig eth0 up 2>/dev/null || :
-/sbin/dhcpcd -q -b eth0 2>/dev/null || /sbin/dhcpcd -b 2>/dev/null || :
+/sbin/flx-ifconfig eth0 inet 10.0.2.15/24 2>/dev/null || /sbin/ifconfig eth0 10.0.2.15 netmask 255.255.255.0 up 2>/dev/null || :
+/sbin/flx-ifconfig eth0 up 2>/dev/null || :
+/sbin/flx-route add default 10.0.2.2 2>/dev/null || /sbin/route add default gw 10.0.2.2 2>/dev/null || :
+printf "nameserver 10.0.2.3\nnameserver 1.1.1.1\nnameserver 8.8.8.8\n" > /etc/resolv.conf
+/sbin/dhcpcd -q -b eth0 2>/dev/null || :
 
 # --- hostname ---------------------------------------------------------------
 _hostname=""
