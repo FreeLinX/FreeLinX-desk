@@ -26,6 +26,7 @@ if [ ! -w /dev/kvm ] 2>/dev/null; then
     ACCEL_OPT=""
 fi
 
+echo "Starting FreeLinX Desktop (QEMU/KVM)..."
 exec qemu-system-x86_64 \
   $ACCEL_OPT \
   -smp 4 -m 1280 \
@@ -35,5 +36,6 @@ exec qemu-system-x86_64 \
   -vga virtio \
   -device virtio-tablet-pci \
   -nic user,model=virtio-net-pci \
+  -serial stdio \
   $DISPLAY_OPT \
   "$@"
