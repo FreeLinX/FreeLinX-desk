@@ -100,7 +100,8 @@ fi
 
 # --- Networking -------------------------------------------------------------
 /sbin/ifconfig lo 127.0.0.1 up 2>/dev/null || /sbin/flx-ifconfig lo up 2>/dev/null || :
-/sbin/dhcpcd -b 2>/dev/null || :
+/sbin/ifconfig eth0 up 2>/dev/null || /sbin/flx-ifconfig eth0 up 2>/dev/null || :
+/sbin/dhcpcd -q -b eth0 2>/dev/null || /sbin/dhcpcd -b 2>/dev/null || :
 
 # --- hostname ---------------------------------------------------------------
 _hostname=""
