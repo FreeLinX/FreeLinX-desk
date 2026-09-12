@@ -32,8 +32,17 @@
 <menu id="graphics-menu" label="Graphics" />
 
 <menu id="network-menu" label="Network">
-  <item label="w3m Web Browser">
-    <action name="Execute"><command>fterm -e w3m google.com</command></action>
+  <item label="Network Manager (GUI)">
+    <action name="Execute"><command>flx-netmgr</command></action>
+  </item>
+  <item label="Network Manager (CLI)">
+    <action name="Execute"><command>uxterm -e flx-net</command></action>
+  </item>
+  <item label="Web Browser (Links Graphics)">
+    <action name="Execute"><command>flx-browser</command></action>
+  </item>
+  <item label="w3m Text Browser">
+    <action name="Execute"><command>uxterm -e w3m https://duckduckgo.com</command></action>
   </item>
 </menu>
 
@@ -42,8 +51,8 @@
 <menu id="science-menu" label="Science" />
 
 <menu id="shells-menu" label="Shells">
-  <item label="Bash Shell">
-    <action name="Execute"><command>fterm</command></action>
+  <item label="FreeLinX Shell">
+    <action name="Execute"><command>uxterm</command></action>
   </item>
 </menu>
 
@@ -132,6 +141,13 @@
   <item label="File Manager">
     <action name="Execute">
       <command>fview</command>
+      <startupnotify><enabled>yes</enabled></startupnotify>
+    </action>
+  </item>
+
+  <item label="Network Manager">
+    <action name="Execute">
+      <command>flx-netmgr</command>
       <startupnotify><enabled>yes</enabled></startupnotify>
     </action>
   </item>

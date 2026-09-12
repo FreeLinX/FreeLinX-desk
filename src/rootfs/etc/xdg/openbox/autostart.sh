@@ -18,3 +18,9 @@ sleep 0.2
 
 # Bottom-Left Classic 90s File Manager
 /usr/bin/fview /etc/xdg/openbox &
+
+sleep 0.2
+
+# Bottom-Right FreeLinX Network Manager
+/usr/bin/flx-netmgr &
+

@@ -12,7 +12,7 @@ It boots to a classic 90s Openbox desktop:
 - **Top-Left Window** — `uxterm` running `vim .config/openbox/rc.xml` with syntax highlighting and line numbers.
 - **Top-Right Window** — `uxterm` terminal session at shell prompt (`erhellt@freelinx:~%`).
 - **Bottom-Left Window** — `openbox - File Manager` (`fview`), displaying retro directory breadcrumbs, columns (`Name`, `Size`, `Type`, `Date Modified`), and double-click to edit files in vim.
-- **FreeLinX Root Menu** — right-click desktop menu with working applications (`uxterm`, `fview`, `thunar`, `vim`, `nano`, `w3m`, `pfetch`, `obconf`, `doom`, `man`, `obxprop`, `xeyes`).
+- **FreeLinX Root Menu** — right-click desktop menu with working applications (`uxterm`, `fview`, `flx-netmgr`, `flx-browser`, `links`, `thunar`, `vim`, `nano`, `w3m`, `pfetch`, `obconf`, `doom`, `man`, `obxprop`, `xeyes`).
 
 The desktop runs at a silky smooth 60 FPS using software rendering accelerated by `ShadowFB` (`libshadowfb.so` + `libshadow.so`) on virtio framebuffer (`/dev/fb0`), with full `evdev` keyboard and `virtio-tablet` absolute mouse integration.
 
@@ -27,9 +27,11 @@ The desktop runs at a silky smooth 60 FPS using software rendering accelerated b
 | `ports/`           | Ports recipes (`base/`, `graphics/`, `x11/`) that build userland |
 | `st-src/`          | Source tree for `st` (built as `uxterm`)                        |
 | `fview.c`          | C source code for the retro 90s File Manager                   |
+| `flx-netmgr.c`     | C source code for FreeLinX Graphical Network Manager            |
+| `xeyes.c`          | C source code for FreeLinX standalone mouse tracker             |
 | `run.sh`           | One-click launcher to boot the desktop in QEMU                  |
 | `build-image.sh`   | Pack the initramfs (`freelinx-desktop.img.gz`) from `src/rootfs`|
-| `build-apps.sh`    | Recompile `fview` and `st` statically against musl              |
+| `build-apps.sh`    | Recompile `fview`, `st`, `xeyes`, `flx-netmgr` statically       |
 | `vmtest/`          | QEMU boot and test scripts                                      |
 
 ---
