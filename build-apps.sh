@@ -206,4 +206,16 @@ ln -sf flx-fs "${SCRIPT_DIR}/src/rootfs/usr/bin/mkfs.flxfs"
 cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-fs" /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-fs 2>/dev/null || true
 ln -sf flx-fs /home/devuan/FreeLinX/src/rootfs/usr/bin/mkfs.flxfs 2>/dev/null || true
 
+echo "Building xclock (Retro Plan 9 Clock)..."
+"$CLANG" \
+  --target=x86_64-linux-musl \
+  --sysroot="$SYSROOT" \
+  -fuse-ld=lld --rtlib=compiler-rt -O2 -static \
+  $CAIRO_INCS \
+  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/xclock" \
+  "${SCRIPT_DIR}/xclock.c" \
+  $CAIRO_LIBS
+"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/xclock"
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/xclock" /home/devuan/FreeLinX/src/rootfs/usr/bin/xclock 2>/dev/null || true
+
 echo "All desktop applications built successfully."
