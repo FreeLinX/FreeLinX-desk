@@ -1,7 +1,5 @@
-export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
-export TERM=xterm-256color
-export USER=erhellt
+# Root shinit for FreeLinX
+[ -f /etc/profile ] && . /etc/profile
+export USER=root
 export HOME=/root
-export HOSTNAME=freelinx
-export PS1="erhellt@freelinx:~% "
-export ENV=/etc/profile
+export PS1="root@freelinx:~# "

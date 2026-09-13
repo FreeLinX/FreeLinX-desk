@@ -298,15 +298,34 @@
     </action>
   </keybind>
 
-  <!-- Keybindings for running applications -->
-  <keybind key="W-e">
-    <action name="Execute">
-      <startupnotify>
-        <enabled>true</enabled>
-        <name>Konqueror</name>
-      </startupnotify>
-      <command>kfmclient openProfile filemanagement</command>
-    </action>
+  <!-- Keybindings for running FreeLinX applications -->
+  <keybind key="C-A-t">
+    <action name="Execute"><command>uxterm -e /bin/sh -l</command></action>
+  </keybind>
+  <keybind key="W-Return">
+    <action name="Execute"><command>uxterm -e /bin/sh -l</command></action>
+  </keybind>
+  <keybind key="W-w">
+    <action name="Execute"><command>flx-browser</command></action>
+  </keybind>
+  <keybind key="W-n">
+    <action name="Execute"><command>flx-netmgr</command></action>
+  </keybind>
+  <!-- Keybindings to open FreeLinX Root Menu -->
+  <keybind key="W-space">
+    <action name="ShowMenu"><menu>root-menu</menu></action>
+  </keybind>
+  <keybind key="W-m">
+    <action name="ShowMenu"><menu>root-menu</menu></action>
+  </keybind>
+  <keybind key="C-A-m">
+    <action name="ShowMenu"><menu>root-menu</menu></action>
+  </keybind>
+  <keybind key="Menu">
+    <action name="ShowMenu"><menu>root-menu</menu></action>
+  </keybind>
+  <keybind key="C-Escape">
+    <action name="ShowMenu"><menu>root-menu</menu></action>
   </keybind>
 </keyboard>
 
@@ -637,7 +656,7 @@
        entry in parent menu
        if this is a negative value, then the delay is infinite and the
        submenu will not be hidden until a different submenu is opened -->
-  <showIcons>yes</showIcons>
+  <showIcons>no</showIcons>
   <!-- controls if icons appear in the client-list-(combined-)menu -->
   <manageDesktops>yes</manageDesktops>
   <!-- show the manage desktops section in the client-list-(combined-)menu -->

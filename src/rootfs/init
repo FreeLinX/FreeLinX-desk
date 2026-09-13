@@ -13,6 +13,10 @@ export PATH
 # FreeLinX default interactive shell for terminals (sakura/GTK apps read $SHELL).
 export SHELL=/bin/sh
 export TERM=xterm
+export USER=root
+export LOGNAME=root
+export HOME=/root
+export ENV=/etc/profile
 # FreeLinX single session bus address (dbus service listens here).
 export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 
@@ -26,6 +30,17 @@ mkdir -p /dev/pts /run/user /dev/shm
 mount -t devpts -o gid=5,mode=0620,ptmxmode=0666 devpts /dev/pts 2>/dev/null || :
 rm -f /dev/ptmx && ln -s /dev/pts/ptmx /dev/ptmx
 mount -t tmpfs    tmpfs    /run   2>/dev/null || :
+
+# --- Device Manager (mdevd) & Driver Auto-Probe ------------------------------
+if [ -x /sbin/mdevd ]; then
+    /sbin/mdevd -f /etc/mdev.conf >/dev/null 2>&1 &
+    if [ -x /sbin/mdevd-coldplug ]; then
+        /sbin/mdevd-coldplug >/dev/null 2>&1 || :
+    fi
+fi
+if [ -x /sbin/flx-driver ]; then
+    /sbin/flx-driver probe >/dev/null 2>&1 || :
+fi
 
 # --- Input devices (evdev) ---------------------------------------------------
 # Map keyboards and mouse/tablet evdev nodes to /dev/fl-kbd and /dev/fl-pointer

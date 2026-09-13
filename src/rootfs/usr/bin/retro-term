@@ -1,18 +1,9 @@
 #!/bin/sh
 cat << 'HEREDOC'
-erhellt@freelinx:~% flx-pkg query openbox
-openbox:
-  Installed: 3.6.1-flx
-  Architecture: x86_64-musl
-  Status: core/desktop
-  Repository: https://pkg.freelinx.org/ports/x11
-erhellt@freelinx:~% uname -a
-Linux freelinx 6.6.21 #2 SMP x86_64 non-GNU musl
-erhellt@freelinx:~% openbox --version
-Openbox 3.6.1 (FreeLinX Edition)
-Copyright (c) 2008   Mikael Magnusson
-Copyright (c) 2003-2006 Dana Jansens
-
-FreeLinX independent non-GNU musl operating system.
+==============================================================
+ FreeLinX Operating System (Linux 6.6 / Static Musl / X11)
+ Independent, 100% Non-GNU Retro Desktop Environment
+==============================================================
+Type commands or right-click the desktop for the application menu.
 HEREDOC
 exec /bin/sh

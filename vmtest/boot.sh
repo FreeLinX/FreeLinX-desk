@@ -21,7 +21,7 @@ if [ ! -w /dev/kvm ] 2>/dev/null; then
     ACCEL_OPT=""
 fi
 
-qemu-system-x86_64 \
+nohup qemu-system-x86_64 \
     $ACCEL_OPT \
     -smp 4 -m 1280 \
     -kernel "$KERNEL" \
@@ -29,7 +29,7 @@ qemu-system-x86_64 \
     -append "console=ttyS0,115200 rdinit=/init quiet loglevel=2" \
     -vga virtio \
     -device virtio-tablet-pci \
-    -monitor telnet:127.0.0.1:4445,server,nowait \
+    -monitor tcp:127.0.0.1:4445,server,nowait \
     -serial file:"${SCRIPT_DIR}/vmtest/serial.log" \
     -display none -no-reboot \
     > "${SCRIPT_DIR}/vmtest/qemu.log" 2>&1 &

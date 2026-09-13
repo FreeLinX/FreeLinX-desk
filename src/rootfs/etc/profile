@@ -1,7 +1,29 @@
-export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+# FreeLinX System Profile
+export PATH=/usr/share/X11/xtree/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
 export TERM=xterm-256color
-export USER=erhellt
-export HOME=/root
-export HOSTNAME=freelinx
-export PS1="erhellt@freelinx:~% "
+export SHELL=/bin/sh
+
+# Detect actual user
+if [ -z "${USER:-}" ]; then
+    USER=$(id -un 2>/dev/null || whoami 2>/dev/null || echo root)
+    export USER
+fi
+
+if [ -z "${HOME:-}" ]; then
+    if [ "$USER" = "root" ]; then
+        export HOME=/root
+    else
+        export HOME="/home/$USER"
+    fi
+fi
+
+HOSTNAME=$(cat /etc/hostname 2>/dev/null || echo freelinx)
+export HOSTNAME
+
+# Distinguish root prompt (#) from non-root user prompt ($)
+if [ "$(id -u 2>/dev/null || echo 0)" -eq 0 ]; then
+    export PS1="root@freelinx:~# "
+else
+    export PS1="$USER@freelinx:~$ "
+fi
 export ENV=/etc/profile
