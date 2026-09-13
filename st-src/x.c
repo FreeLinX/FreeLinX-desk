@@ -2047,6 +2047,12 @@ main(int argc, char *argv[])
 	xw.isfixed = False;
 	xsetcursor(cursorshape);
 
+	for (int i = 1; i < argc; i++) {
+		if (strcmp(argv[i], "-title") == 0) {
+			argv[i] = "-T";
+		}
+	}
+
 	ARGBEGIN {
 	case 'a':
 		allowaltscreen = 0;
