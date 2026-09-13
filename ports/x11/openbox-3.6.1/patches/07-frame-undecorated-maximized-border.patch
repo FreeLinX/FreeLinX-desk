@@ -1,0 +1,9 @@
+--- a/openbox/frame.c
++++ b/openbox/frame.c
+@@ -387,6 +387,0 @@ void frame_adjust_area(ObFrame *self, gb
+-        else if (self->max_horz && self->max_vert) {
+-            /* A maximized and undecorated window needs a border on the
+-               top of the window to let the user still undecorate/unmaximize the
+-               window via the client menu. */
+-            self->size.top += self->bwidth;
+-        }

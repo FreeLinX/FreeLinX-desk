@@ -22,7 +22,7 @@
        under the mouse pointer. when followMouse is enabled -->
   <underMouse>no</underMouse>
   <!-- move focus under the mouse, even when the mouse is not moving -->
-  <focusDelay>200</focusDelay>
+  <focusDelay>0</focusDelay>
   <!-- when followMouse is enabled, the mouse must be inside the window for
        this many milliseconds (1000 = 1 sec) before moving focus to it -->
   <raiseOnFocus>no</raiseOnFocus>
@@ -62,7 +62,7 @@
       D: omnipresent (on all desktops).
   -->
   <keepBorder>yes</keepBorder>
-  <animateIconify>yes</animateIconify>
+  <animateIconify>no</animateIconify>
   <font place="ActiveWindow">
     <name>sans</name>
     <size>8</size>
@@ -136,13 +136,13 @@
     <name>desktop 2</name>
     -->
   </names>
-  <popupTime>875</popupTime>
+  <popupTime>0</popupTime>
   <!-- The number of milliseconds to show the popup for when switching
        desktops.  Set this to 0 to disable the popup. -->
 </desktops>
 
 <resize>
-  <drawContents>yes</drawContents>
+  <drawContents>no</drawContents>
   <popupShow>Nonpixel</popupShow>
   <!-- 'Always', 'Never', or 'Nonpixel' (xterms and such) -->
   <popupPosition>Center</popupPosition>
@@ -305,11 +305,14 @@
   <keybind key="W-Return">
     <action name="Execute"><command>uxterm -e /bin/sh -l</command></action>
   </keybind>
+  <keybind key="W-u">
+    <action name="Execute"><command>urxvt -e /bin/sh -l</command></action>
+  </keybind>
   <keybind key="W-w">
     <action name="Execute"><command>flx-browser</command></action>
   </keybind>
-  <keybind key="W-n">
-    <action name="Execute"><command>flx-netmgr</command></action>
+  <keybind key="W-f">
+    <action name="Execute"><command>flx-fm</command></action>
   </keybind>
   <!-- Keybindings to open FreeLinX Root Menu -->
   <keybind key="W-space">
@@ -617,6 +620,22 @@
     <mousebind button="Right" action="Press">
       <action name="ShowMenu"><menu>root-menu</menu></action>
     </mousebind>
+    <mousebind button="Right" action="Click">
+      <action name="ShowMenu"><menu>root-menu</menu></action>
+    </mousebind>
+  </context>
+
+  <context name="Desktop">
+    <!-- Menus -->
+    <mousebind button="Middle" action="Press">
+      <action name="ShowMenu"><menu>client-list-combined-menu</menu></action>
+    </mousebind> 
+    <mousebind button="Right" action="Press">
+      <action name="ShowMenu"><menu>root-menu</menu></action>
+    </mousebind>
+    <mousebind button="Right" action="Click">
+      <action name="ShowMenu"><menu>root-menu</menu></action>
+    </mousebind>
   </context>
 
   <context name="MoveResize">
@@ -646,12 +665,12 @@
        menu is hidden again -->
   <middle>no</middle>
   <!-- center submenus vertically about the parent entry -->
-  <submenuShowDelay>100</submenuShowDelay>
+  <submenuShowDelay>0</submenuShowDelay>
   <!-- time to delay before showing a submenu after hovering over the parent
        entry.
        if this is a negative value, then the delay is infinite and the
        submenu will not be shown until it is clicked on -->
-  <submenuHideDelay>400</submenuHideDelay>
+  <submenuHideDelay>0</submenuHideDelay>
   <!-- time to delay before hiding a submenu when selecting another
        entry in parent menu
        if this is a negative value, then the delay is infinite and the

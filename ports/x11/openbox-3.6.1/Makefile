@@ -4,6 +4,9 @@
 # statically against the FreeLinX musl+clang toolchain and the shared X11 dep
 # tree (libX11, libxml2, glib, pangoxft-compat).  No GNU runtime dependencies.
 #
+# Configured with standard prefix=/usr and sysconfdir=/etc so that no build host
+# paths are baked into the binary.
+#
 # Dependencies (all built into deps/x11 or deps/glib-*):
 #   libX11, libXau, libXdmcp, libxcb, libXext, libXcursor, libXfixes,
 #   libXinerama, libXrandr, libXrender, libxml2, glib-2.0,
@@ -16,8 +19,12 @@ LICENSE := GPL-2.0-or-later
 
 FLX_PREFIX  = $(FREELINX_BUILD_DIR)/deps/$(NAME)
 SRC_TREE    = $(FREELINX_BUILD_DIR)/work/$(NAME)/$(DISTINFO_NAME)
-PROJECT_BIN = $(FLX_PREFIX)/bin/openbox
+PROJECT_BIN = $(FLX_PREFIX)/usr/bin/openbox
 BUILD_BIN   = $(PROJECT_BIN)
+INSTALL_RELPATH := usr/bin/openbox
+
+# Pure-C stack: drop the default C++/unwind link closure.
+FLX_PROJECT_LIBS:=
 
 include ../../mk/project-port.mk
 
@@ -43,15 +50,16 @@ export LIBS := -lXau -lXdmcp -lxcb -lpthread -lm
 
 # OpenBox ships autotools.  config.sub/config.guess are needed for the
 # cross-compile triple; we copy them from the host automake installation.
-# All GNU-feature-heavy optional backends are disabled: no D-Bus, no Python,
-# no startup-notification, no session management.  Only the core WM and its
-# XML-based config/menu parser (libxml2) are built.
+# Configured for native /usr prefix and /etc sysconfdir.
 PROJECT_CFG_CMDS = \
 	cp /usr/share/automake-1.16/config.sub ./config.sub && \
 	cp /usr/share/automake-1.16/config.guess ./config.guess && \
 	./configure \
 		--host=x86_64-linux-musl \
-		--prefix="$(FLX_PREFIX)" \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--mandir=/usr/share/man \
+		--localstatedir=/var \
 		--disable-shared --enable-static \
 		--disable-dependency-tracking \
 		--disable-pyconify \
@@ -60,4 +68,6 @@ PROJECT_CFG_CMDS = \
 		--disable-session-management \
 		--disable-imlib2
 
-BUILD_CMDS = make && make install
+BUILD_CMDS = make && make DESTDIR="$(FLX_PREFIX)" install && \
+	mkdir -p "$(FLX_PREFIX)/bin" && \
+	ln -sfn ../usr/bin/openbox "$(FLX_PREFIX)/bin/openbox"

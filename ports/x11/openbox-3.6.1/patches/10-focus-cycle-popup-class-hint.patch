@@ -1,0 +1,13 @@
+--- a/openbox/focus_cycle_popup.c
++++ b/openbox/focus_cycle_popup.c
+@@ -154,6 +154,12 @@ void focus_cycle_popup_startup(gboolean 
+                              CWOverrideRedirect | CWBorderPixel, &attrib);
+ 
++    XClassHint *class_hint = XAllocClassHint();
++    class_hint->res_name = "OPENBOX_FOCUS_CYCLE_POPUP";
++    class_hint->res_class = "OPENBOX_FOCUS_CYCLE_POPUP";
++    XSetClassHint(obt_display, popup.bg, class_hint);
++    XFree(class_hint);
++
+     /* create the text window used for the icon-mode popup */
+     popup.icon_mode_text = create_window(popup.bg, 0, 0, NULL);

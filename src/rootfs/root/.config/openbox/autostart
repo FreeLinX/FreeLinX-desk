@@ -8,8 +8,3 @@ fi
 
 # Launch default interactive terminal
 (cd "$HOME" && /usr/bin/uxterm -g 84x26+40+40 -e /bin/sh -l) &
-
-# FreeLinX Network Manager
-if [ -x /usr/bin/flx-netmgr ]; then
-    /usr/bin/flx-netmgr &
-fi

@@ -1,0 +1,32 @@
+--- a/openbox/client.c
++++ b/openbox/client.c
+@@ -1,17 +1,21 @@
+         else if (app->class &&
+-                 !g_pattern_match(app->class,
+-                                  strlen(self->class), self->class, NULL))
++                 (!self->class ||
++                  !g_pattern_match(app->class,
++                                  strlen(self->class), self->class, NULL)))
+             match = FALSE;
+         else if (app->group_class &&
+-                 !g_pattern_match(app->group_class,
++                 (!self->group_class ||
++                  !g_pattern_match(app->group_class,
+                                   strlen(self->group_class), self->group_class,
+-                                  NULL))
++                                  NULL)))
+             match = FALSE;
+         else if (app->role &&
+-                 !g_pattern_match(app->role,
+-                                  strlen(self->role), self->role, NULL))
++                 (!self->role ||
++                  !g_pattern_match(app->role,
++                                  strlen(self->role), self->role, NULL)))
+             match = FALSE;
+         else if (app->title &&
+-                 !g_pattern_match(app->title,
+-                                  strlen(self->title), self->title, NULL))
++                 (!self->title ||
++                  !g_pattern_match(app->title,
++                                  strlen(self->title), self->title, NULL)))
+             match = FALSE;

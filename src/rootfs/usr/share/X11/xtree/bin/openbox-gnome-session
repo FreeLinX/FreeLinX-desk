@@ -22,7 +22,7 @@ MINOR=$(echo $VER | cut -d . -f 2)
 
 if test $MAJOR -lt 2 || (test $MAJOR = 2 && test $MINOR -le 22); then
   # older gnome-session was easy to work with
-  export WINDOW_MANAGER="/home/devuan/FreeLinX/desktop-test/ports/build/deps/openbox-3.6.1/bin/openbox"
+  export WINDOW_MANAGER="/usr/bin/openbox"
   exec gnome-session --choose-session=openbox-session "$@"
 elif test $MAJOR -lt 3; then
   # old gnome-session requires openbox to be set in gconf and an

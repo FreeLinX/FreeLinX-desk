@@ -1,0 +1,7 @@
+--- a/openbox/openbox.c
++++ b/openbox/openbox.c
+@@ -605,3 +605,3 @@ static void check_session_id(void)
+         ob_debug_type(OB_DEBUG_SM,
+-                      "DESKTOP_AUTOSTART_ID %s supercedes --sm-client-id\n",
++                      "DESKTOP_AUTOSTART_ID %s supersedes --sm-client-id\n",
+                       ob_sm_id);

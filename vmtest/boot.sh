@@ -30,7 +30,9 @@ nohup qemu-system-x86_64 \
     -vga virtio \
     -device virtio-tablet-pci \
     -monitor tcp:127.0.0.1:4445,server,nowait \
+    -qmp tcp:127.0.0.1:4447,server,nowait \
     -serial file:"${SCRIPT_DIR}/vmtest/serial.log" \
+    -serial tcp:127.0.0.1:4446,server,nowait \
     -display none -no-reboot \
     > "${SCRIPT_DIR}/vmtest/qemu.log" 2>&1 &
 echo $! > "${SCRIPT_DIR}/vmtest/qemu.pid"

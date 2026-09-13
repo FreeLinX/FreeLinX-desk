@@ -86,10 +86,15 @@ fi
 if [ -n "$FOUND_KBD" ]; then
     ln -sf "$FOUND_KBD" /dev/fl-kbd
 fi
-if [ -n "$FOUND_TABLET" ]; then
+if [ -n "$FOUND_TABLET" ] && [ -n "$FOUND_MOUSE" ]; then
     ln -sf "$FOUND_TABLET" /dev/fl-pointer
+    ln -sf "$FOUND_MOUSE" /dev/fl-pointer2
+elif [ -n "$FOUND_TABLET" ]; then
+    ln -sf "$FOUND_TABLET" /dev/fl-pointer
+    ln -sf "$FOUND_TABLET" /dev/fl-pointer2
 elif [ -n "$FOUND_MOUSE" ]; then
     ln -sf "$FOUND_MOUSE" /dev/fl-pointer
+    ln -sf "$FOUND_MOUSE" /dev/fl-pointer2
 fi
 
 if [ ! -e /dev/fl-kbd ]; then
@@ -107,6 +112,9 @@ if [ ! -e /dev/fl-pointer ]; then
             break
         fi
     done
+fi
+if [ ! -e /dev/fl-pointer2 ] && [ -e /dev/fl-pointer ]; then
+    ln -sf "$(readlink /dev/fl-pointer)" /dev/fl-pointer2
 fi
 
 # --- XKB defaults (kept for GTK apps / X clients; the X server itself is

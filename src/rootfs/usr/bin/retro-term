@@ -1,9 +1,0 @@
-#!/bin/sh
-cat << 'HEREDOC'
-==============================================================
- FreeLinX Operating System (Linux 6.6 / Static Musl / X11)
- Independent, 100% Non-GNU Retro Desktop Environment
-==============================================================
-Type commands or right-click the desktop for the application menu.
-HEREDOC
-exec /bin/sh

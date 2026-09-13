@@ -1,0 +1,7 @@
+--- a/openbox/config.c
++++ b/openbox/config.c
+@@ -718,4 +718,4 @@ static void parse_theme(xmlNodePtr node,
+         else if (config_theme_window_list_icon_size > 96)
+-            config_theme_window_list_icon_size = 96;
++            config_theme_window_list_icon_size = 256;
+     }

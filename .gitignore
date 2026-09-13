@@ -6,10 +6,13 @@ ports/work/
 ports/obj/
 ports/staging/
 ports/dist/
+toolchain
 toolchain/
 qemu/
 .venv/
 __pycache__/
+st-src/st
+st-src/*.o
 
 # Merged runtime trees inside staging rootfs that mirror ports deps
 ports/build/deps/

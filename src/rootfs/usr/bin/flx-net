@@ -23,10 +23,9 @@ show_menu() {
     echo " 3) Disconnect WiFi"
     echo " 4) Renew DHCP (eth0 / wlan0)"
     echo " 5) Ping Test (1.1.1.1)"
-    echo " 6) Launch Graphical Network Manager (flx-netmgr)"
-    echo " 7) Exit"
+    echo " 6) Exit"
     echo "-------------------------------------------------"
-    printf " Select an option [1-7]: "
+    printf " Select an option [1-6]: "
 }
 
 while true; do
@@ -75,17 +74,7 @@ while true; do
             echo ""
             read -p "Press Enter to continue..." dummy
             ;;
-        6)
-            if [ -n "$DISPLAY" ]; then
-                /usr/bin/flx-netmgr &
-                echo "Launched flx-netmgr in background."
-                sleep 1
-            else
-                echo "Error: DISPLAY is not set (X11 is not running)."
-                read -p "Press Enter to continue..." dummy
-            fi
-            ;;
-        7|q|exit)
+        6|q|exit)
             echo "Goodbye."
             exit 0
             ;;
