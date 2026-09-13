@@ -13,7 +13,7 @@ fi
 [ -f "$INITRD" ] || { echo "missing $INITRD"; exit 1; }
 
 mkdir -p "${SCRIPT_DIR}/vmtest"
-rm -f "${SCRIPT_DIR}/vmtest/serial.log" "${SCRIPT_DIR}/vmtest/screen.ppm"
+rm -f "${SCRIPT_DIR}/vmtest/serial.log" "${SCRIPT_DIR}/vmtest/screen.ppm" "${SCRIPT_DIR}/vmtest/screen.png"
 : > "${SCRIPT_DIR}/vmtest/serial.log"
 
 ACCEL_OPT="-enable-kvm -cpu host"
@@ -21,7 +21,7 @@ if [ ! -w /dev/kvm ] 2>/dev/null; then
     ACCEL_OPT=""
 fi
 
-nohup qemu-system-x86_64 \
+qemu-system-x86_64 \
     $ACCEL_OPT \
     -smp 4 -m 1280 \
     -kernel "$KERNEL" \
@@ -30,9 +30,7 @@ nohup qemu-system-x86_64 \
     -vga virtio \
     -device virtio-tablet-pci \
     -monitor tcp:127.0.0.1:4445,server,nowait \
-    -qmp tcp:127.0.0.1:4447,server,nowait \
     -serial file:"${SCRIPT_DIR}/vmtest/serial.log" \
-    -serial tcp:127.0.0.1:4446,server,nowait \
     -display none -no-reboot \
     > "${SCRIPT_DIR}/vmtest/qemu.log" 2>&1 &
 echo $! > "${SCRIPT_DIR}/vmtest/qemu.pid"

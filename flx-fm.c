@@ -327,18 +327,29 @@ static void open_item(int idx) {
     if (fi->is_exec && (!ext || strcmp(ext, ".sh") != 0)) {
         // Binary or executable program
         snprintf(cmd, sizeof(cmd), "\"%s\" &", fullpath);
+    } else if (ext && (strcmp(ext, ".zip") == 0)) {
+        // Zip archive: extract into current directory
+        snprintf(cmd, sizeof(cmd), "sh -c 'unzip -q -o \"%s\" -d \"%s\"' &", fullpath, current_path);
+        snprintf(status_text, sizeof(status_text), "Extracting %s ...", fi->name);
+    } else if (ext && (strcmp(ext, ".tar") == 0 || strcmp(ext, ".tgz") == 0 ||
+                       strcmp(ext, ".gz") == 0 || strcmp(ext, ".bz2") == 0)) {
+        // Tar archive: extract into current directory
+        snprintf(cmd, sizeof(cmd), "sh -c 'tar -xf \"%s\" -C \"%s\"' &", fullpath, current_path);
+        snprintf(status_text, sizeof(status_text), "Extracting %s ...", fi->name);
     } else if (ext && (strcmp(ext, ".html") == 0 || strcmp(ext, ".htm") == 0)) {
         // Web document
         snprintf(cmd, sizeof(cmd), "flx-browser \"%s\" &", fullpath);
-    } else if (ext && (strcmp(ext, ".png") == 0 || strcmp(ext, ".ppm") == 0 || strcmp(ext, ".bmp") == 0 || strcmp(ext, ".jpg") == 0)) {
-        // Image
-        snprintf(cmd, sizeof(cmd), "flx-browser \"%s\" &", fullpath);
+    } else if (ext && (strcmp(ext, ".png") == 0 || strcmp(ext, ".ppm") == 0 ||
+                       strcmp(ext, ".bmp") == 0 || strcmp(ext, ".jpg") == 0 ||
+                       strcmp(ext, ".jpeg") == 0)) {
+        // Image viewer
+        snprintf(cmd, sizeof(cmd), "flx-view \"%s\" &", fullpath);
     } else if (ext && strcmp(ext, ".sh") == 0) {
         // Shell script: run in interactive uxterm
         snprintf(cmd, sizeof(cmd), "uxterm -title uxterm -e sh -c \"'%s'; echo; printf 'Done. Press Enter...'; read l\" &", fullpath);
     } else {
-        // Text / code / config / unknown: open in Vim
-        snprintf(cmd, sizeof(cmd), "uxterm -title uxterm -e vim \"%s\" &", fullpath);
+        // Text / code / config / unknown: open in flx-pad GUI editor
+        snprintf(cmd, sizeof(cmd), "flx-pad \"%s\" &", fullpath);
     }
 
     system(cmd);
