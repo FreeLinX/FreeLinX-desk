@@ -94,17 +94,19 @@ echo "Building flx-shot (Screenshot Tool)..."
 "$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-shot"
 cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-shot" /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-shot 2>/dev/null || true
 
-echo "Building flx-pad (Text Editor)..."
+echo "Building flxt (Classic 1990s Text Editor)..."
 "$CLANG" \
   --target=x86_64-linux-musl \
   --sysroot="$SYSROOT" \
   -fuse-ld=lld --rtlib=compiler-rt -O2 -static \
   $CAIRO_INCS \
-  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-pad" \
-  "${SCRIPT_DIR}/flx-pad.c" \
+  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flxt" \
+  "${SCRIPT_DIR}/flxt.c" \
   $CAIRO_LIBS
-"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-pad"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-pad" /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-pad 2>/dev/null || true
+"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flxt"
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flxt" /home/devuan/FreeLinX/src/rootfs/usr/bin/flxt 2>/dev/null || true
+ln -sf flxt "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-pad"
+ln -sf flxt /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-pad 2>/dev/null || true
 
 echo "Building flx-view (Image Viewer)..."
 "$CLANG" \
