@@ -1,5 +1,5 @@
 /*
- * FreeLinX Network Manager (flx-netmgr)
+ * FreeLinX Network Manager (flxnetmgr)
  * 100% Independent Non-GNU Musl X11 + Cairo Graphical Network Manager
  * Provides interface status, DHCP management, WiFi scanning, and connection.
  */
@@ -229,8 +229,8 @@ static void scan_interfaces(void) {
 }
 
 static void trigger_wifi_scan(void) {
-    snprintf(status_message, sizeof(status_message), "Scanning WiFi networks via flx-wifi...");
-    system("/sbin/flx-wifi scan > /tmp/flx_wifi_scan.txt 2>&1 &");
+    snprintf(status_message, sizeof(status_message), "Scanning WiFi networks via flxwifi...");
+    system("/sbin/flxwifi scan > /tmp/flx_wifi_scan.txt 2>&1 &");
 }
 
 static void load_wifi_results(void) {
@@ -277,16 +277,16 @@ static void connect_selected_wifi(void) {
     
     char cmd[512];
     if (strlen(wifi_pass) > 0) {
-        snprintf(cmd, sizeof(cmd), "/sbin/flx-wifi connect \"%s\" \"%s\" > /tmp/flx_wifi_conn.log 2>&1 &", ap->ssid, wifi_pass);
+        snprintf(cmd, sizeof(cmd), "/sbin/flxwifi connect \"%s\" \"%s\" > /tmp/flx_wifi_conn.log 2>&1 &", ap->ssid, wifi_pass);
     } else {
-        snprintf(cmd, sizeof(cmd), "/sbin/flx-wifi connect \"%s\" > /tmp/flx_wifi_conn.log 2>&1 &", ap->ssid);
+        snprintf(cmd, sizeof(cmd), "/sbin/flxwifi connect \"%s\" > /tmp/flx_wifi_conn.log 2>&1 &", ap->ssid);
     }
     system(cmd);
 }
 
 static void disconnect_wifi(void) {
     snprintf(status_message, sizeof(status_message), "Disconnecting WiFi...");
-    system("/sbin/flx-wifi disconnect > /dev/null 2>&1 &");
+    system("/sbin/flxwifi disconnect > /dev/null 2>&1 &");
 }
 
 static void renew_dhcp(const char *iface) {
@@ -298,7 +298,7 @@ static void renew_dhcp(const char *iface) {
 
 static void toggle_iface(const char *iface, int up) {
     char cmd[256];
-    snprintf(cmd, sizeof(cmd), "/sbin/flx-ifconfig %s %s", iface, up ? "up" : "down");
+    snprintf(cmd, sizeof(cmd), "/sbin/flxifconfig %s %s", iface, up ? "up" : "down");
     system(cmd);
     scan_interfaces();
 }
@@ -562,7 +562,7 @@ static void draw_ui(cairo_t *cr) {
 int main(int argc, char **argv) {
     Display *dpy = XOpenDisplay(NULL);
     if (!dpy) {
-        fprintf(stderr, "flx-netmgr: cannot open X display\n");
+        fprintf(stderr, "flxnetmgr: cannot open X display\n");
         return 1;
     }
 
@@ -579,7 +579,7 @@ int main(int argc, char **argv) {
                                CWBackPixel | CWEventMask, &swa);
 
     XStoreName(dpy, win, "FreeLinX Network Manager");
-    XClassHint ch = {"flx-netmgr", "FreeLinX"};
+    XClassHint ch = {"flxnetmgr", "FreeLinX"};
     XSetClassHint(dpy, win, &ch);
 
     XSizeHints hints;

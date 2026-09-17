@@ -44,55 +44,55 @@ echo "Building st (uxterm)..."
 "$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/st"
 cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/st" /home/devuan/FreeLinX/src/rootfs/usr/bin/st 2>/dev/null || true
 
-echo "Building flx-fm (File Manager)..."
+echo "Building flxfm (File Manager)..."
 "$CLANG" \
   --target=x86_64-linux-musl \
   --sysroot="$SYSROOT" \
   -fuse-ld=lld --rtlib=compiler-rt -O2 -static \
   $CAIRO_INCS \
-  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-fm" \
-  "${SCRIPT_DIR}/flx-fm.c" \
+  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flxfm" \
+  "${SCRIPT_DIR}/flxfm.c" \
   $CAIRO_LIBS
-"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-fm"
-ln -sf flx-fm "${SCRIPT_DIR}/src/rootfs/usr/bin/fview"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-fm" /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-fm 2>/dev/null || true
-ln -sf flx-fm /home/devuan/FreeLinX/src/rootfs/usr/bin/fview 2>/dev/null || true
+"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flxfm"
+ln -sf flxfm "${SCRIPT_DIR}/src/rootfs/usr/bin/fview"
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flxfm" /home/devuan/FreeLinX/src/rootfs/usr/bin/flxfm 2>/dev/null || true
+ln -sf flxfm /home/devuan/FreeLinX/src/rootfs/usr/bin/fview 2>/dev/null || true
 
-echo "Building flx-bg (Wallpaper Setter)..."
+echo "Building flxbg (Wallpaper Setter)..."
 "$CLANG" \
   --target=x86_64-linux-musl \
   --sysroot="$SYSROOT" \
   -fuse-ld=lld --rtlib=compiler-rt -O2 -static \
   $CAIRO_INCS \
-  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-bg" \
-  "${SCRIPT_DIR}/flx-bg.c" \
+  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flxbg" \
+  "${SCRIPT_DIR}/flxbg.c" \
   $CAIRO_LIBS
-"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-bg"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-bg" /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-bg 2>/dev/null || true
+"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flxbg"
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flxbg" /home/devuan/FreeLinX/src/rootfs/usr/bin/flxbg 2>/dev/null || true
 
-echo "Building flx-panel (Desktop Panel & Taskbar)..."
+echo "Building flxpanel (Desktop Panel & Taskbar)..."
 "$CLANG" \
   --target=x86_64-linux-musl \
   --sysroot="$SYSROOT" \
   -fuse-ld=lld --rtlib=compiler-rt -O2 -static \
   $CAIRO_INCS \
-  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-panel" \
-  "${SCRIPT_DIR}/flx-panel.c" \
+  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flxpanel" \
+  "${SCRIPT_DIR}/flxpanel.c" \
   $CAIRO_LIBS
-"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-panel"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-panel" /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-panel 2>/dev/null || true
+"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flxpanel"
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flxpanel" /home/devuan/FreeLinX/src/rootfs/usr/bin/flxpanel 2>/dev/null || true
 
-echo "Building flx-shot (Screenshot Tool)..."
+echo "Building flxshot (Screenshot Tool)..."
 "$CLANG" \
   --target=x86_64-linux-musl \
   --sysroot="$SYSROOT" \
   -fuse-ld=lld --rtlib=compiler-rt -O2 -static \
   $CAIRO_INCS \
-  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-shot" \
-  "${SCRIPT_DIR}/flx-shot.c" \
+  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flxshot" \
+  "${SCRIPT_DIR}/flxshot.c" \
   $CAIRO_LIBS
-"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-shot"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-shot" /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-shot 2>/dev/null || true
+"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flxshot"
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flxshot" /home/devuan/FreeLinX/src/rootfs/usr/bin/flxshot 2>/dev/null || true
 
 echo "Building flxt (Classic 1990s Text Editor)..."
 "$CLANG" \
@@ -105,20 +105,20 @@ echo "Building flxt (Classic 1990s Text Editor)..."
   $CAIRO_LIBS
 "$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flxt"
 cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flxt" /home/devuan/FreeLinX/src/rootfs/usr/bin/flxt 2>/dev/null || true
-ln -sf flxt "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-pad"
-ln -sf flxt /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-pad 2>/dev/null || true
+ln -sf flxt "${SCRIPT_DIR}/src/rootfs/usr/bin/flxpad"
+ln -sf flxt /home/devuan/FreeLinX/src/rootfs/usr/bin/flxpad 2>/dev/null || true
 
-echo "Building flx-view (Image Viewer)..."
+echo "Building flxview (Image Viewer)..."
 "$CLANG" \
   --target=x86_64-linux-musl \
   --sysroot="$SYSROOT" \
   -fuse-ld=lld --rtlib=compiler-rt -O2 -static \
   $CAIRO_INCS \
-  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-view" \
-  "${SCRIPT_DIR}/flx-view.c" \
+  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flxview" \
+  "${SCRIPT_DIR}/flxview.c" \
   $CAIRO_LIBS
-"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-view"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-view" /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-view 2>/dev/null || true
+"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flxview"
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flxview" /home/devuan/FreeLinX/src/rootfs/usr/bin/flxview 2>/dev/null || true
 
 echo "Building glxgears (OpenGL 3D Demo & Benchmark)..."
 "$CLANG" \
@@ -196,17 +196,17 @@ echo "Building unzip (Archive Extractor)..."
 "$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/unzip"
 cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/unzip" /home/devuan/FreeLinX/src/rootfs/usr/bin/unzip 2>/dev/null || true
 
-echo "Building flx-fs and mkfs.flxfs (Custom Filesystem Tools)..."
+echo "Building flxfs and mkfs.flxfs (Custom Filesystem Tools)..."
 "$CLANG" \
   --target=x86_64-linux-musl \
   --sysroot="$SYSROOT" \
   -fuse-ld=lld --rtlib=compiler-rt -O2 -static \
-  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-fs" \
-  "${SCRIPT_DIR}/flx-fs.c"
-"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-fs"
-ln -sf flx-fs "${SCRIPT_DIR}/src/rootfs/usr/bin/mkfs.flxfs"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flx-fs" /home/devuan/FreeLinX/src/rootfs/usr/bin/flx-fs 2>/dev/null || true
-ln -sf flx-fs /home/devuan/FreeLinX/src/rootfs/usr/bin/mkfs.flxfs 2>/dev/null || true
+  -o "${SCRIPT_DIR}/src/rootfs/usr/bin/flxfs" \
+  "${SCRIPT_DIR}/flxfs.c"
+"$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/flxfs"
+ln -sf flxfs "${SCRIPT_DIR}/src/rootfs/usr/bin/mkfs.flxfs"
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/flxfs" /home/devuan/FreeLinX/src/rootfs/usr/bin/flxfs 2>/dev/null || true
+ln -sf flxfs /home/devuan/FreeLinX/src/rootfs/usr/bin/mkfs.flxfs 2>/dev/null || true
 
 echo "Building xclock (Retro Plan 9 Clock)..."
 "$CLANG" \

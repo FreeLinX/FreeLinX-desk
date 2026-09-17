@@ -5,11 +5,11 @@ FreeLinX is an independent, from-scratch, non-GNU, musl-based Linux distribution
 It boots directly into a classic 90s Openbox desktop:
 
 - **Classic 90s Clearlooks / Motif Theme** — blue gradient titlebars, centered bold titles, and 3D beveled widgets.
-- **Graphical Web Browser (`flx-browser` / `links -g`)** — non-GNU graphical browser statically linked with Cairo, Xlib, and OpenSSL. Features an offline retro welcome portal and DuckDuckGo Lite web search.
-- **Graphical Network Manager (`flx-netmgr`)** — native Cairo/Xlib retro desktop application for managing interfaces (`eth0`, `wlan0`), scanning & connecting to real WiFi networks, and testing DNS/gateway latency.
+- **Graphical Web Browser (`flxbrowser` / `links -g`)** — non-GNU graphical browser statically linked with Cairo, Xlib, and OpenSSL. Features an offline retro welcome portal and DuckDuckGo Lite web search.
+- **Graphical Network Manager (`flxnetmgr`)** — native Cairo/Xlib retro desktop application for managing interfaces (`eth0`, `wlan0`), scanning & connecting to real WiFi networks, and testing DNS/gateway latency.
 - **Retro File Manager (`fview`)** — custom C file manager displaying retro directory breadcrumbs, columns (`Name`, `Size`, `Type`, `Date Modified`), and double-click to edit files in vim.
 - **Dual Terminal Setup** — Top-left window running `uxterm` (`vim .config/openbox/rc.xml` with syntax highlighting), and top-right window with interactive shell prompt.
-- **FreeLinX Root Menu** — right-click desktop menu with working applications (`flx-browser`, `flx-netmgr`, `uxterm`, `fview`, `thunar`, `vim`, `nano`, `w3m`, `pfetch`, `obconf`, `doom`, `man`, `obxprop`, `xeyes`).
+- **FreeLinX Root Menu** — right-click desktop menu with working applications (`flxbrowser`, `flxnetmgr`, `uxterm`, `fview`, `thunar`, `vim`, `nano`, `w3m`, `pfetch`, `obconf`, `doom`, `man`, `obxprop`, `xeyes`).
 
 The desktop runs smoothly at 60 FPS using software rendering accelerated by `ShadowFB` (`libshadowfb.so` + `libshadow.so`) on virtio framebuffer (`/dev/fb0`), with full `evdev` keyboard and `virtio-tablet` absolute mouse integration.
 
@@ -24,12 +24,12 @@ The desktop runs smoothly at 60 FPS using software rendering accelerated by `Sha
 | `kernel/`          | Kernel build configuration, provenance notes, and the `bzImage` |
 | `src/`             | Root filesystem template (`rootfs/`) and staging build scripts  |
 | `ports/`           | Non-GNU Ports recipes (`base/`, `graphics/`, `x11/`, etc.)      |
-| `flx-netmgr.c`     | C source code for FreeLinX Graphical Network Manager            |
+| `flxnetmgr.c`     | C source code for FreeLinX Graphical Network Manager            |
 | `fview.c`          | C source code for the retro 90s File Manager                   |
 | `xeyes.c`          | C source code for FreeLinX standalone mouse tracker             |
 | `st-src/`          | Source tree for `st` (built as `uxterm`)                        |
 | `build-image.sh`   | Pack the initramfs (`freelinx-desktop.img.gz`) from `src/rootfs`|
-| `build-apps.sh`    | Recompile `flx-netmgr`, `fview`, `st`, `xeyes` statically       |
+| `build-apps.sh`    | Recompile `flxnetmgr`, `fview`, `st`, `xeyes` statically       |
 | `vmtest/`          | QEMU boot and test scripts                                      |
 
 ---
@@ -106,13 +106,13 @@ FreeLinX Desktop provides a fully functional, non-GNU networking stack out of th
   - DNS resolution configured in `/etc/resolv.conf` using QEMU's internal proxy (`10.0.2.3`), Cloudflare (`1.1.1.1`), and Google (`8.8.8.8`).
   - Trusted CA root certificates installed at `/etc/ssl/certs/ca-certificates.crt` for HTTPS connections.
 
-- **Graphical Web Browser (`flx-browser` / `links -g`)**:
+- **Graphical Web Browser (`flxbrowser` / `links -g`)**:
   - Launches automatically on boot or from the right-click desktop menu (`Web browser`).
   - Supports full graphical rendering, SSL/TLS encryption, and fast page navigation.
   - Features an embedded DuckDuckGo Lite search form on the welcome page (`/usr/share/freelinx/welcome.html`).
   - Simply type your query and press **Search** to browse the live web.
 
-- **Graphical Network Manager (`flx-netmgr`)**:
+- **Graphical Network Manager (`flxnetmgr`)**:
   - Docked at the bottom-right corner of the desktop, or launchable from the menu.
   - **Interfaces Tab**: Shows live link state, IP address, and MAC address for all adapters. Includes **Bring UP**, **Take DOWN**, and **Renew DHCP** buttons.
   - **Wireless / WiFi Tab**: Real wireless hardware scanner using `wpa_cli` / Linux wireless extensions. *(Zero mock data — strictly interfaces with physical hardware).*
@@ -154,7 +154,7 @@ This creates `src/build/x86_64/freelinx-desktop.img.gz` and refreshes the `initr
 
 ### Recompiling native C applications
 
-To recompile `flx-netmgr`, `fview`, `st`, and `xeyes` using the static musl-clang toolchain:
+To recompile `flxnetmgr`, `fview`, `st`, and `xeyes` using the static musl-clang toolchain:
 
 ```sh
 ./build-apps.sh
