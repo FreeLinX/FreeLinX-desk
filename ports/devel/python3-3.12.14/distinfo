@@ -1,0 +1,5 @@
+# FreeLinX/ports - devel/python3-3.12.14 : fully static CPython 3.12.
+DISTINFO_NAME=Python-3.12.14
+DISTINFO_ARCHIVE=Python-3.12.14.tgz
+DISTINFO_URL=https://www.python.org/ftp/python/3.12.14/Python-3.12.14.tgz
+DISTINFO_SHA256=6c6df908d2c3fd24e6d76869e92542abd0f33aec9dfc18df8875f89660286d43

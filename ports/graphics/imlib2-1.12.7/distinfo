@@ -1,0 +1,5 @@
+# FreeLinX/ports - graphics/imlib2-1.12.7 : upstream source reference.
+DISTINFO_NAME=imlib2-1.12.7
+DISTINFO_ARCHIVE=imlib2-1.12.7.tar.gz
+DISTINFO_URL=https://downloads.sourceforge.net/project/enlightenment/imlib2-src/1.12.7/imlib2-1.12.7.tar.gz
+DISTINFO_SHA256=b863d4c7130261d5256471a15106feb57b53d15e15fc7f52ece9af92e291eec7

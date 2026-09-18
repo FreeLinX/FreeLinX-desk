@@ -1,0 +1,155 @@
+--- a/src/lib/loaders.c 2026-09-18
++++ b/src/lib/loaders.c 2026-09-18
+@@ -14,10 +14,99 @@
+ #define DBG_PFX "LOAD"
+ #define DP(fmt...) DC(DBG_LOAD, fmt)
+ 
++
++
+ static ImlibLoader *loaders = NULL;
+ static ImlibLoader *loaders_unloaded = NULL;
+ static char     loaders_loaded = 0;
+ 
++
++#ifdef IMLIB2_STATIC_LOADERS
++/*
++ * FreeLinX static-loader registration.
++ *
++ * A fully-static musl build cannot dlopen(): the loader modules are compiled
++ * into libImlib2.a (each alongside a renamed `loader` symbol, -Dloader=flx_loader_*)
++ * and registered here instead of being dlopen'd from the filesystem.
++ */
++typedef struct {
++    const char     *name;
++    ImlibLoaderModule *mod;
++} FlxStaticLoader;
++
++extern ImlibLoaderModule flx_loader_ani;
++extern ImlibLoaderModule flx_loader_argb;
++extern ImlibLoaderModule flx_loader_bmp;
++extern ImlibLoaderModule flx_loader_ff;
++extern ImlibLoaderModule flx_loader_ico;
++extern ImlibLoaderModule flx_loader_lbm;
++extern ImlibLoaderModule flx_loader_pnm;
++extern ImlibLoaderModule flx_loader_png;
++extern ImlibLoaderModule flx_loader_qoi;
++extern ImlibLoaderModule flx_loader_tga;
++extern ImlibLoaderModule flx_loader_xbm;
++extern ImlibLoaderModule flx_loader_xpm;
++extern ImlibLoaderModule flx_loader_zlib;
++
++static const FlxStaticLoader flx_static_loaders[] = {
++    { "ani",   &flx_loader_ani   },
++    { "argb",  &flx_loader_argb  },
++    { "bmp",   &flx_loader_bmp   },
++    { "ff",    &flx_loader_ff    },
++    { "ico",   &flx_loader_ico   },
++    { "lbm",   &flx_loader_lbm   },
++    { "pnm",   &flx_loader_pnm   },
++    { "png",   &flx_loader_png   },
++    { "qoi",   &flx_loader_qoi   },
++    { "tga",   &flx_loader_tga   },
++    { "xbm",   &flx_loader_xbm   },
++    { "xpm",   &flx_loader_xpm   },
++    { "zlib",  &flx_loader_zlib  },
++    { NULL,    NULL              }
++};
++
++static ImlibLoader *
++__imlib_ProduceStaticLoader(const char *file)
++{
++    ImlibLoader    *l;
++    unsigned int    i;
++
++    for (i = 0; flx_static_loaders[i].name; i++)
++    {
++        if (strcmp(file, flx_static_loaders[i].name) != 0)
++            continue;
++
++        if (flx_static_loaders[i].mod->ldr_version != IMLIB2_LOADER_VERSION ||
++            !flx_static_loaders[i].mod->formats ||
++            flx_static_loaders[i].mod->num_formats <= 0 ||
++            !(flx_static_loaders[i].mod->load || flx_static_loaders[i].mod->save))
++            return NULL;
++
++        l = malloc(sizeof(ImlibLoader));
++        if (!l)
++            return NULL;
++
++        l->handle = NULL;
++        l->module = flx_static_loaders[i].mod;
++        l->file = strdup(file);
++        if (!l->file)
++        {
++            free(l);
++            return NULL;
++        }
++        l->name = l->module->formats[0];
++        l->next = loaders;
++        loaders = l;
++
++        if (l->module->inex)
++            l->module->inex(1);
++
++        return l;
++    }
++
++    return NULL;
++}
++#endif /* IMLIB2_STATIC_LOADERS */
+ typedef struct {
+     const char     *dso;
+     const char     *const *ext;
+@@ -200,6 +289,12 @@
+         goto found;
+     }
+ 
++#ifdef IMLIB2_STATIC_LOADERS
++    l = __imlib_ProduceStaticLoader(file);
++    if (l)
++        return l;
++#endif
++
+     l = malloc(sizeof(ImlibLoader));
+     if (!l)
+         goto bail;
+@@ -290,6 +385,13 @@
+ 
+     DP("%s\n", __func__);
+ 
++#ifdef IMLIB2_STATIC_LOADERS
++    /* no filesystem scan: every loader is linked into the binary */
++    (void)i; (void)num; (void)list; (void)dso;
++    loaders_loaded = 1;
++    return;
++#endif
++
+     /* list all the loaders imlib can find */
+     list = __imlib_ModulesList(__imlib_PathToLoaders(), &num);
+     /* no loaders? well don't load anything */
+@@ -325,7 +427,9 @@
+     ImlibLoader    *l;
+     unsigned int    i;
+     const char     *const *exts;
++#ifndef IMLIB2_STATIC_LOADERS
+     char           *dso;
++#endif
+ 
+     kl = NULL;
+     for (i = 0; i < ARRAY_SIZE(loaders_known); i++)
+@@ -343,11 +447,15 @@
+     l = NULL;
+     if (kl)
+     {
++#ifdef IMLIB2_STATIC_LOADERS
++        l = __imlib_ProduceLoader(kl->dso);
++#else
+         dso = __imlib_ModuleFind(__imlib_PathToLoaders(), kl->dso);
+         l = __imlib_LookupLoaderByModulePath(dso);
+         if (!l)
+             l = __imlib_ProduceLoader(dso);
+         free(dso);
++#endif
+     }
+     DP("%s: '%s' -> '%s': %p\n", __func__, format, kl ? kl->dso : "-", l);
+     return l;

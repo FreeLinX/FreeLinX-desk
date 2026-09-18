@@ -25,6 +25,7 @@ export PATH := /tmp/opencode/host-tools:/tmp/opencode/host-wl/bin:$(PATH)
 
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
+	PKG_CONFIG_LIBDIR="$$PKG_CONFIG_LIBDIR:/tmp/host-wl/lib/pkgconfig" \
 	"$(MESON)" setup \
 		--cross-file "$(CURDIR)/meson-cross.ini" \
 		--buildtype=release \

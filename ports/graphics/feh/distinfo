@@ -1,0 +1,5 @@
+# FreeLinX/ports - graphics/feh : upstream source reference.
+DISTINFO_NAME=feh-3.13.1
+DISTINFO_ARCHIVE=feh-3.13.1.tar.bz2
+DISTINFO_URL=https://feh.finalrewind.org/feh-3.13.1.tar.bz2
+DISTINFO_SHA256=785cd3bf51e05f6bb86ab0d649b7ed20e31892eb635bc5a25c963bf934088445

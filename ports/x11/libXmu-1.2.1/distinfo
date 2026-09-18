@@ -1,0 +1,4 @@
+# FreeLinX/ports - x11/libXmu-1.2.1 : upstream source reference.
+DISTINFO_ARCHIVE=libXmu-1.2.1.tar.gz
+DISTINFO_URL=https://www.x.org/releases/individual/lib/libXmu-1.2.1.tar.gz
+DISTINFO_SHA256=bf0902583dd1123856c11e0a5085bd3c6e9886fbbd44954464975fd7d52eb599

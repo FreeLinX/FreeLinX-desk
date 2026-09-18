@@ -1,0 +1,4 @@
+# FreeLinX/ports - x11/libSM-1.2.5 : upstream source reference.
+DISTINFO_ARCHIVE=libSM-1.2.5.tar.gz
+DISTINFO_URL=https://www.x.org/releases/individual/lib/libSM-1.2.5.tar.gz
+DISTINFO_SHA256=a11c3d23b60dce0c13256a8ce9478c1ea330719c0747b5adfbce60571198fa57

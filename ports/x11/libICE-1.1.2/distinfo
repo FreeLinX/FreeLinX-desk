@@ -1,0 +1,4 @@
+# FreeLinX/ports - x11/libICE-1.1.2 : upstream source reference.
+DISTINFO_ARCHIVE=libICE-1.1.2.tar.gz
+DISTINFO_URL=https://www.x.org/releases/individual/lib/libICE-1.1.2.tar.gz
+DISTINFO_SHA256=1da62f732f8679c20045708a29372b82dff9e7eceee543ed488b845002b3b0ff
