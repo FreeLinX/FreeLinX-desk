@@ -14,8 +14,8 @@
 </menu>
 
 <menu id="files-menu" label="Files">
-  <item label="File Manager (flxfm)">
-    <action name="Execute"><command>flxfm</command></action>
+  <item label="File Manager (nnn)">
+    <action name="Execute"><command>uxterm -T "File Manager (nnn)" -e nnn</command></action>
   </item>
   <item label="Browse /root (Terminal)">
     <action name="Execute"><command>uxterm -e sh -c "cd /root; ls -la; exec /bin/sh -l"</command></action>
@@ -23,21 +23,12 @@
 </menu>
 
 <menu id="editors-menu" label="Editors">
-  <item label="Text Editor (flxpad)">
-    <action name="Execute"><command>flxpad</command></action>
-  </item>
-  <item label="Vim">
+  <item label="Vim (Vi IMproved)">
     <action name="Execute"><command>uxterm -e vim</command></action>
   </item>
 </menu>
 
 <menu id="graphics-menu" label="Graphics">
-  <item label="Image Viewer (flxview)">
-    <action name="Execute"><command>flxview</command></action>
-  </item>
-  <item label="Screenshot Tool (flxshot)">
-    <action name="Execute"><command>flxshot</command></action>
-  </item>
   <item label="PDF Viewer (MuPDF)">
     <action name="Execute"><command>uxterm -T "MuPDF" -e sh -c "echo 'MuPDF Document Viewer'; echo 'Usage: mupdf &lt;file.pdf&gt;'; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
@@ -173,9 +164,6 @@
   <item label="Xmag (Magnifier)">
     <action name="Execute"><command>xmag</command></action>
   </item>
-  <item label="Custom Filesystem (flxfs)">
-    <action name="Execute"><command>uxterm -e sh -c "flxfs --help; echo; printf 'Press Enter to close...'; read l"</command></action>
-  </item>
 </menu>
 
 <menu id="applications-menu" label="Applications">
@@ -216,9 +204,9 @@
     </action>
   </item>
 
-  <item label="File Manager (flxfm)">
+  <item label="File Manager (nnn)">
     <action name="Execute">
-      <command>flxfm</command>
+      <command>uxterm -T "File Manager" -e nnn</command>
     </action>
   </item>
 
