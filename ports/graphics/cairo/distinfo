@@ -1,5 +1,5 @@
 # FreeLinX/ports - graphics/cairo : upstream source reference.
-DISTINFO_NAME=cairo-1.18.2-200441e6855854eb4dbf338e44d67b00ababe07f
+DISTINFO_NAME=cairo-1.18.2
 DISTINFO_ARCHIVE=cairo-1.18.2.tar.gz
 DISTINFO_URL=https://gitlab.freedesktop.org/cairo/cairo/-/archive/1.18.2/cairo-1.18.2.tar.gz
-DISTINFO_SHA256=dc5be314dacca916f8238472604ded237e6ddb1ac4707f4ef215ce70e2985c2a
+DISTINFO_SHA256=7bbfb469b89b1f60584b4f39a1366789b7625a5796905870e108b6c0e8ca8216

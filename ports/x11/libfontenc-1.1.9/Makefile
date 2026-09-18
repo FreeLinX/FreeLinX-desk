@@ -6,7 +6,7 @@ LICENSE:=MIT-X11
 
 FLX_PREFIX=$(FREELINX_BUILD_DIR)/deps/x11
 SRC_TREE=$(FREELINX_BUILD_DIR)/work/$(NAME)/$(DISTINFO_NAME)
-PROJECT_BIN=$(FLX_PREFIX)/lib/liblibfontenc.a
+PROJECT_BIN=$(FLX_PREFIX)/lib/libfontenc.a
 BUILD_BIN=$(PROJECT_BIN)
 
 # Pure-C stack: drop the default C++/unwind link closure.

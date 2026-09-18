@@ -36,12 +36,13 @@ PROJECT_BIN = $(WAY_PREFIX)/lib/libwayland-server.a
 
 export PATH := $(HOST_TOOLS):$(PATH)
 # Native wayland-scanner pkg-config for the cross build's native dependency.
-export PKG_CONFIG_PATH := $(HOST_WL)/lib/pkgconfig
+export PKG_CONFIG_PATH := /usr/lib/x86_64-linux-gnu/pkgconfig:$(PKG_CONFIG_PATH)
 
 # ffis included in the sysroot; wayland uses its own ffi checks against the
 # musl libc (no libffi dependency at build time).
 PROJECT_CFG_CMDS = \
-	mkdir -p "$(BUILD_DIR)" && \
+	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
+	PKG_CONFIG_LIBDIR="$$PKG_CONFIG_LIBDIR:/tmp/host-wl/lib/pkgconfig" \
 	"$(MESON)" setup \
 		--cross-file "$(PORT_DIR)/meson-cross.ini" \
 		--native-file "$(PORT_DIR)/meson-native.ini" \

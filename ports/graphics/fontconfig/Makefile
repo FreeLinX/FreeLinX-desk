@@ -40,5 +40,5 @@ PROJECT_CFG_CMDS = \
 BUILD_CMDS = \
 	"$(MESON)" compile -C "$(BUILD_DIR)" -j"$(FREELINX_JOBS)" && \
 	DESTDIR="$(FC_PREFIX)" "$(MESON)" install -C "$(BUILD_DIR)" && \
-	_NEST="$(FC_PREFIX)/home/devuan/FreeLinX/desktop-test/ports/build/deps/fontconfig" && \
+	_NEST="$(FC_PREFIX)/home/devuan/FreeLinX/Desktop-test/ports/build/deps/fontconfig" && \
 	[ -d "$$_NEST" ] && cp -a "$$_NEST"/. "$(FC_PREFIX)"/ && rm -rf "$(FC_PREFIX)/home" || true

@@ -12,16 +12,16 @@ BUILD_DEPENDENCIES:= musl (via FreeLinX toolchain sysroot)
 TARGET  := $(FREELINX_TRIPLE)
 PREFIX  := /
 
-include ../../mk/project-port.mk
-
 CAIRO_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
 MESON := /home/devuan/.local/venvs/meson/bin/meson
 DEPS  := $(FREELINX_BUILD_DIR)/deps
-SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/cairo-$(VERSION)-200441e6855854eb4dbf338e44d67b00ababe07f
+SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/cairo-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 
 PROJECT_BIN = $(CAIRO_PREFIX)/lib/libcairo.a
 BUILD_BIN   = $(PROJECT_BIN)
+
+include ../../mk/project-port.mk
 
 # host-tools dir absent on this machine; PATH untouched
 
@@ -34,8 +34,8 @@ PROJECT_CFG_CMDS = \
 		--prefix="$(CAIRO_PREFIX)" \
 		-Dtests=disabled -Dfontconfig=enabled -Dfreetype=enabled \
 		-Dpng=enabled -Dzlib=enabled -Dgtk_doc=false \
-		-Dsymbol-lookup=disabled -Dglib=disabled -Dspectre=disabled \
-		-Dgtk2-utils=disabled \
+		-Dsymbol-lookup=disabled -Dglib=enabled -Dspectre=disabled \
+		-Dgtk2-utils=disabled -Dxlib=enabled -Dxcb=enabled \
 		"$(BUILD_DIR)" "$(SRC_TREE)"
 
 BUILD_CMDS = \

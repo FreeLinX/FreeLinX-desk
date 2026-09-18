@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=NetSurf
+GenericName=Web Browser
+Comment=Fast, modern and lightweight graphical web browser
+Exec=netsurf %u
+Terminal=false
+Type=Application
+Icon=netsurf
+Categories=Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml+xml;

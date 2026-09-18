@@ -5,6 +5,7 @@ ports/build/
 ports/work/
 ports/obj/
 ports/staging/
+ports/dist
 ports/dist/
 toolchain
 toolchain/

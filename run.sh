@@ -16,24 +16,31 @@ if [ ! -f "$INITRD" ]; then
 fi
 
 DISPLAY_OPT="-display gtk"
+VGA_DEVICE="-vga virtio"
+
 if [ "${HEADLESS:-0}" = "1" ]; then
     DISPLAY_OPT="-display none"
+else
+    # Automatically enable hardware OpenGL display rendering (60+ FPS) if supported
+    if [ "${GL:-1}" != "0" ] && [ "${NOGL:-0}" != "1" ]; then
+        if qemu-system-x86_64 -display gtk,gl=on -help >/dev/null 2>&1; then
+            DISPLAY_OPT="-display gtk,gl=on"
+        elif qemu-system-x86_64 -display sdl,gl=on -help >/dev/null 2>&1; then
+            DISPLAY_OPT="-display sdl,gl=on"
+        fi
+
+        # Enable VirGL hardware 3D GPU acceleration if supported
+        if qemu-system-x86_64 -device virtio-vga-gl -display none -help >/dev/null 2>&1; then
+            VGA_DEVICE="-device virtio-vga-gl"
+            echo "Hardware 3D Acceleration: Active (VirGL / virtio-vga-gl)"
+        fi
+    fi
 fi
 
 ACCEL_OPT="-enable-kvm -cpu host"
 if [ ! -w /dev/kvm ] 2>/dev/null; then
     echo "Notice: /dev/kvm not accessible, falling back to emulation"
     ACCEL_OPT=""
-fi
-
-# GPU 3D Acceleration (VirGL): Enable with GL=1 or ACCEL3D=1
-VGA_DEVICE="-vga virtio"
-if [ "${ENABLE_3D:-${GL:-${ACCEL3D:-0}}}" = "1" ]; then
-    echo "Enabling Hardware-Accelerated 3D GPU (VirGL / virtio-vga-gl)..."
-    VGA_DEVICE="-device virtio-vga-gl"
-    if [ "${HEADLESS:-0}" != "1" ]; then
-        DISPLAY_OPT="-display gtk,gl=on"
-    fi
 fi
 
 echo "Starting FreeLinX Desktop (QEMU/KVM)..."

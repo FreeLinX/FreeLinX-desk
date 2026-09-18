@@ -23,7 +23,7 @@ fi
 
 qemu-system-x86_64 \
     $ACCEL_OPT \
-    -smp 4 -m 1280 \
+    -smp 4 -m "${RAM:-2048}" \
     -kernel "$KERNEL" \
     -initrd "$INITRD" \
     -append "console=ttyS0,115200 rdinit=/init quiet loglevel=2" \

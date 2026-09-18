@@ -36,7 +36,7 @@ def monitor_cmd(cmd_str):
     monitor_cmds([cmd_str])
 
 def screenshot(out_png="screen.png"):
-    ppm = "/home/devuan/FreeLinX/desktop-test/vmtest/screen.ppm"
+    ppm = "/home/devuan/FreeLinX/Desktop-test/vmtest/screen.ppm"
     monitor_cmd(f"screendump {ppm}")
     time.sleep(0.4)
     subprocess.run(["ffmpeg", "-y", "-i", ppm, out_png], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
