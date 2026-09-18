@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=FreeLinX Text Editor
+GenericName=Text Editor
+Comment=Lightweight native graphical text editor
+Exec=flxpad %F
+Terminal=false
+Type=Application
+Icon=text-editor
+Categories=Utility;TextEditor;

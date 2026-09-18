@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=YouTube Player & Search (MPV)
+GenericName=YouTube Player
+Comment=Search and stream YouTube videos with 60 FPS hardware acceleration
+Exec=uxterm -T "YouTube Player" -e flx-yt
+Terminal=true
+Type=Application
+Icon=video-x-generic
+Categories=AudioVideo;Video;Player;

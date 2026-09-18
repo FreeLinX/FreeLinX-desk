@@ -14,18 +14,30 @@
 </menu>
 
 <menu id="files-menu" label="Files">
+  <item label="File Manager (flxfm)">
+    <action name="Execute"><command>flxfm</command></action>
+  </item>
   <item label="Browse /root (Terminal)">
     <action name="Execute"><command>uxterm -e sh -c "cd /root; ls -la; exec /bin/sh -l"</command></action>
   </item>
 </menu>
 
 <menu id="editors-menu" label="Editors">
+  <item label="Text Editor (flxpad)">
+    <action name="Execute"><command>flxpad</command></action>
+  </item>
   <item label="Vim">
     <action name="Execute"><command>uxterm -e vim</command></action>
   </item>
 </menu>
 
 <menu id="graphics-menu" label="Graphics">
+  <item label="Image Viewer (flxview)">
+    <action name="Execute"><command>flxview</command></action>
+  </item>
+  <item label="Screenshot Tool (flxshot)">
+    <action name="Execute"><command>flxshot</command></action>
+  </item>
   <item label="PDF Viewer (MuPDF)">
     <action name="Execute"><command>uxterm -T "MuPDF" -e sh -c "echo 'MuPDF Document Viewer'; echo 'Usage: mupdf &lt;file.pdf&gt;'; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
@@ -71,6 +83,9 @@
 </menu>
 
 <menu id="sound-menu" label="Sound &amp; Video">
+  <item label="YouTube Player &amp; Search (flx-yt)">
+    <action name="Execute"><command>uxterm -T "YouTube Player" -e flx-yt</command></action>
+  </item>
   <item label="Media Player (mpv)">
     <action name="Execute"><command>uxterm -T "mpv" -e sh -c "mpv --help; echo; printf 'Usage: mpv &lt;file/url&gt;\nPress Enter to close...'; read l"</command></action>
   </item>
@@ -192,6 +207,18 @@
   <item label="Modern Web Browser (NetSurf)">
     <action name="Execute">
       <command>netsurf</command>
+    </action>
+  </item>
+
+  <item label="YouTube Player &amp; Search (flx-yt)">
+    <action name="Execute">
+      <command>uxterm -T "YouTube Player" -e flx-yt</command>
+    </action>
+  </item>
+
+  <item label="File Manager (flxfm)">
+    <action name="Execute">
+      <command>flxfm</command>
     </action>
   </item>
 

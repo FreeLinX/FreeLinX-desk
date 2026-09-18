@@ -8,6 +8,14 @@
       "size": 68514,
       "sha256": "b2acc240819703d6f602911787d69f98bd3eef5687651814c6c46be8bb3afe24"
     },
+    "mpv": {
+      "version": "0.39.0",
+      "description": "mpv media player with hardware acceleration and OpenGL output",
+      "arch": "x86_64",
+      "file": "mpv-0.39.0.xpkg",
+      "size": 13183091,
+      "sha256": "ef6fde996fa86a238178d331b5acc7e932473a8b5c9ae6a910a8f25925a6c3c1"
+    },
     "infocmp": {
       "version": "10.1",
       "description": "NetBSD 10.1 `/usr/bin/infocmp`.",
@@ -410,11 +418,11 @@
     },
     "mupdf": {
       "version": "1.24.10",
-      "description": "Lightweight PDF, XPS, and EPUB viewer (1.24.10).",
+      "description": "MuPDF lightweight PDF, XPS, and CBZ document viewer",
       "arch": "x86_64",
       "file": "mupdf-1.24.10.xpkg",
-      "size": 29906862,
-      "sha256": "046be08baeacb6aac81cea8ac533d8e3abb473c8645de3047523c4420804b462"
+      "size": 238,
+      "sha256": "ed1707eb46409eab8400b99bc44f977e13b6c7e6e6cc2197a8f10f6bcca6aa70"
     },
     "rwho": {
       "version": "10.1",
@@ -456,6 +464,14 @@
       "size": 2011037,
       "sha256": "6272008f174e2fe1442773b343a7cf412864daf480584b74e08b9b957f722a52"
     },
+    "xcalc": {
+      "version": "1.1.2",
+      "description": "xcalc 1.1.2 (X11 scientific calculator).",
+      "arch": "x86_64",
+      "file": "xcalc-1.1.2.xpkg",
+      "size": 1162318,
+      "sha256": "f9fb1fc7141ee3fe7f486d194de44fbf4ef0cd8c56e552399ae3a1f5eb17efea"
+    },
     "time": {
       "version": "10.1",
       "description": "NetBSD 10.1 `/usr/bin/time`.",
@@ -495,6 +511,14 @@
       "file": "expand-10.1.xpkg",
       "size": 57817,
       "sha256": "3c31b2dd3951a103812e503200179357823905b68e8af43c7597fc72fd6543b0"
+    },
+    "netsurf": {
+      "version": "3.11",
+      "description": "NetSurf fast and lightweight web browser with JavaScript",
+      "arch": "x86_64",
+      "file": "netsurf-3.11.xpkg",
+      "size": 6077610,
+      "sha256": "206fcddda4cd52a339d81fb0785dfedf6d95938deb7a77925aed5fa5f2f34a6c"
     },
     "expr": {
       "version": "10.1",
@@ -543,6 +567,14 @@
       "file": "tinyalsa-2.0.0.xpkg",
       "size": 33654,
       "sha256": "3052d32a9df4141cd01da86e81ea185d8723048264b80aceecb80676706655f5"
+    },
+    "cowsay": {
+      "version": "3.7.0",
+      "description": "cowsay 3.7.0 (talking cow generator).",
+      "arch": "x86_64",
+      "file": "cowsay-3.7.0.xpkg",
+      "size": 18316,
+      "sha256": "aa079be436ba798d796a0fa9ae808fc0182660d9f81400203d2603f69af05a47"
     },
     "ul": {
       "version": "10.1",
@@ -623,6 +655,14 @@
       "file": "sed-10.1.xpkg",
       "size": 101939,
       "sha256": "e7048076be171f8045db8ca38825b7ecffd9f3406dac69d69f334e2b41442f46"
+    },
+    "flx-yt": {
+      "version": "1.0",
+      "description": "FreeLinX YouTube streaming player via MPV and Invidious API",
+      "arch": "x86_64",
+      "file": "flx-yt-1.0.xpkg",
+      "size": 1456,
+      "sha256": "e6392b3864b6565ae0aff9933b61fd68298fd7f7be65b3cf58cb897150b916b2"
     },
     "abduco": {
       "version": "0.6",
@@ -1168,6 +1208,14 @@
       "size": 55983,
       "sha256": "7593385e52f7dc1e75c4fd1ade9750bf866df637d7c451ed83276a6c456c9d1d"
     },
+    "flx-desktop-apps": {
+      "version": "1.0",
+      "description": "FreeLinX native Cairo/X11 desktop applications suite",
+      "arch": "x86_64",
+      "file": "flx-desktop-apps-1.0.xpkg",
+      "size": 8723779,
+      "sha256": "0df795eb4fa1ad25cbf949e7fd1dad369ef18f2621b1794f47923b8b6946bff5"
+    },
     "dirname": {
       "version": "10.1",
       "description": "NetBSD 10.1 `/usr/bin/dirname`.",
@@ -1616,6 +1664,14 @@
       "size": 38102,
       "sha256": "0af2940b51f9ddda35d596aa8ff0dc4161e41a842c6006c0d97bf4970c0bc44d"
     },
+    "flx-tools": {
+      "version": "1.0",
+      "description": "FreeLinX Core Desktop Utilities & Tools",
+      "arch": "x86_64",
+      "file": "flx-tools-1.0.xpkg",
+      "size": 11011694,
+      "sha256": "39d4c5f633106e50686f5c95c5269c496ee0136ba3a994828e734bfa47f8c4b7"
+    },
     "sleep": {
       "version": "10.1",
       "description": "NetBSD 10.1 `/bin/sleep`.",
@@ -1679,6 +1735,14 @@
       "file": "gzip-10.1.xpkg",
       "size": 134934,
       "sha256": "6ee2ae0df682ba7f57d32a26d96b249f9ba22c6a7b851f5085828909deddaa14"
+    },
+    "doom": {
+      "version": "1.10",
+      "description": "Classic Doom port for FreeLinX",
+      "arch": "x86_64",
+      "file": "doom-1.10.xpkg",
+      "size": 1545102,
+      "sha256": "956afa4025ae36e46211a0a332e967a42840478a9960a46aa5ce356aab584691"
     },
     "xclock": {
       "version": "1.1.1",
@@ -1759,6 +1823,14 @@
       "file": "hostname-10.1.xpkg",
       "size": 41407,
       "sha256": "68aed32e3758ac707ca68561128aba1625cac37fff35ec5f816805653f241b0f"
+    },
+    "fortune": {
+      "version": "10.1",
+      "description": "NetBSD fortune 10.1 (random quotes generator).",
+      "arch": "x86_64",
+      "file": "fortune-10.1.xpkg",
+      "size": 1236552,
+      "sha256": "7876154c2df9eba96945d59d434ec75d71a6d0a7244d39b2100009bfbeb3a1c1"
     },
     "what": {
       "version": "10.1",
@@ -1880,6 +1952,14 @@
       "size": 53491,
       "sha256": "8390bec398ead1acb18854eeafc6e9c956ac17bde14ca1040eb1318356e0e526"
     },
+    "figlet": {
+      "version": "2.2.5",
+      "description": "figlet 2.2.5 (banner generator).",
+      "arch": "x86_64",
+      "file": "figlet-2.2.5.xpkg",
+      "size": 157664,
+      "sha256": "6eeccdc4a23455fb44c8bfdae3b0502ad9babed2e971f06ca19c12076946fabf"
+    },
     "nbperf": {
       "version": "10.1",
       "description": "NetBSD 10.1 `/usr/bin/nbperf`.",
@@ -1887,6 +1967,14 @@
       "file": "nbperf-10.1.xpkg",
       "size": 64054,
       "sha256": "686030cdb5d1b31340a64637b4e307ecb1398eb2281936ac1f9dfdbe34c66544"
+    },
+    "nnn": {
+      "version": "5.0",
+      "description": "nnn 5.0 (fast terminal file manager).",
+      "arch": "x86_64",
+      "file": "nnn-5.0.xpkg",
+      "size": 266466,
+      "sha256": "0bbe9a1647b14832539756f35248d4f78da10dcfe19dac6c80393d47122236db"
     },
     "timeout": {
       "version": "10.1",
@@ -1935,6 +2023,22 @@
       "file": "kmod-34.2.xpkg",
       "size": 375664,
       "sha256": "0a655ea4bdad6a91ae658bb9c63c072703687524ce1aba6f4592d2aea59787b9"
+    },
+    "flx-efiboot": {
+      "version": "1.0",
+      "description": "FreeLinX Native UEFI Boot Manager",
+      "arch": "x86_64",
+      "file": "flx-efiboot-1.0.xpkg",
+      "size": 25008,
+      "sha256": "49f198950e3dc9ee9b1bab7e5251de8060471309ae73cc752135d29b5a5e43ad"
+    },
+    "zstd": {
+      "version": "1.5.7",
+      "description": "zstd 1.5.7 (Zstandard compression).",
+      "arch": "x86_64",
+      "file": "zstd-1.5.7.xpkg",
+      "size": 457330,
+      "sha256": "9a9230c3e4b07c559d33d3df838b76c140e3f1fcb36afee587d076401fdc411d"
     },
     "find": {
       "version": "10.1",
@@ -2207,22 +2311,6 @@
       "file": "jot-10.1.xpkg",
       "size": 42314,
       "sha256": "ae957ab9a8e77292f3ba1e54a6179caa04e40d6b4b2d8416a72b0ea2e4b6c4a9"
-    },
-    "flxtools": {
-      "version": "1.0",
-      "description": "FreeLinX Core Desktop Utilities & Tools",
-      "arch": "x86_64",
-      "file": "flxtools-1.0.xpkg",
-      "size": 11011694,
-      "sha256": "39d4c5f633106e50686f5c95c5269c496ee0136ba3a994828e734bfa47f8c4b7"
-    },
-    "flexfiboot": {
-      "version": "1.0",
-      "description": "FreeLinX Native UEFI Boot Manager",
-      "arch": "x86_64",
-      "file": "flexfiboot-1.0.xpkg",
-      "size": 25008,
-      "sha256": "49f198950e3dc9ee9b1bab7e5251de8060471309ae73cc752135d29b5a5e43ad"
     }
   }
 }

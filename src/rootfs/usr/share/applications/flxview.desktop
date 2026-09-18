@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=FreeLinX Image Viewer
+GenericName=Image Viewer
+Comment=Lightweight native graphical image viewer
+Exec=flxview %F
+Terminal=false
+Type=Application
+Icon=image-viewer
+Categories=Graphics;Viewer;

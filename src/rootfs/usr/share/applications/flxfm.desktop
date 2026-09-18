@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=FreeLinX File Manager
+GenericName=File Manager
+Comment=Lightweight native graphical file manager
+Exec=flxfm %U
+Terminal=false
+Type=Application
+Icon=system-file-manager
+Categories=System;FileManager;
