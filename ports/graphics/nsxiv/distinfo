@@ -1,0 +1,5 @@
+# FreeLinX/ports - graphics/nsxiv : upstream source reference.
+DISTINFO_ARCHIVE=nsxiv-32.tar.gz
+DISTINFO_NAME=nsxiv-32
+DISTINFO_URL=https://github.com/nsxiv/nsxiv/archive/refs/tags/v32.tar.gz
+DISTINFO_SHA256=37a1740db00363c3dd083bcbcd35f467c807960aa47d5811bbd1f652af19b203

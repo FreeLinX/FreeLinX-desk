@@ -1,0 +1,24 @@
+#!/bin/sh
+# FreeLinX default xinitrc
+
+# Load resources if present
+if [ -f "$HOME/.Xresources" ]; then
+    xrdb -merge "$HOME/.Xresources" 2>/dev/null
+fi
+
+# Set background color
+xsetroot -solid "#242424" 2>/dev/null
+
+# Launch window manager. Openbox is the default desktop shell (its rc.xml
+# binds W-p / A-F2 to dmenu_run); dwm remains the fallback if openbox-session
+# is ever missing so the desktop never comes up dead.
+if [ -x /usr/bin/openbox-session ]; then
+    exec /usr/bin/openbox-session
+elif [ -x /bin/dwm ]; then
+    if [ -x /bin/slstatus ]; then
+        slstatus &
+    fi
+    exec /bin/dwm
+else
+    exec uxterm
+fi

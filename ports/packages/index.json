@@ -1,0 +1,60 @@
+{
+  "packages": {
+    "slstatus": {
+      "version": "1.0",
+      "description": "status monitor for the dwm bar (suckless)",
+      "arch": "x86_64",
+      "file": "slstatus-1.0.xpkg",
+      "size": 713223,
+      "sha256": "50443844c3323e0be6216d4b7fd7db250db043f1251b114c723d38397c0cd25e"
+    },
+    "xinit": {
+      "version": "1.4.2",
+      "description": "X11 initialization script",
+      "arch": "x86_64",
+      "file": "xinit-1.4.2.xpkg",
+      "size": 694185,
+      "sha256": "923573ebba6b31ce0e28c7176242e1ff94ae08014ba3db70c7985045fc07ee39"
+    },
+    "nsxiv": {
+      "version": "32",
+      "description": "simple X image viewer (sxiv successor, non-GNU)",
+      "arch": "x86_64",
+      "file": "nsxiv-32.xpkg",
+      "size": 1822837,
+      "sha256": "48fc05c38ea9447aca20d64d7a2bc65db9aace4257aaa2e8635011ebbf933164"
+    },
+    "dmenu": {
+      "version": "5.3",
+      "description": "dynamic X11 menu (suckless)",
+      "arch": "x86_64",
+      "file": "dmenu-5.3.xpkg",
+      "size": 1748207,
+      "sha256": "2642b86b31f9d978509e65b3f37ba47ad93714a98a197534ac6683f4fa8ae6f6"
+    },
+    "dwm": {
+      "version": "6.5",
+      "description": "dynamic window manager (suckless)",
+      "arch": "x86_64",
+      "file": "dwm-6.5.xpkg",
+      "size": 1640733,
+      "sha256": "d93c7d7f8f09e2366f58a81b7a4ab8cd0a960a17829e2ce1e4276b83a7d02d4c"
+    },
+    "xclip": {
+      "version": "0.13",
+      "description": "X11 clipboard utility",
+      "arch": "x86_64",
+      "file": "xclip-0.13.xpkg",
+      "size": 694659,
+      "sha256": "472a26930ce7c70b366184182e13d16cbbd0c380c3db5ce7fee1f901d974372a"
+    },
+    "xorg-server": {
+      "version": "21.1.24",
+      "description": "Xorg X server (fbdev, musl, non-GNU)",
+      "arch": "x86_64",
+      "file": "xorg-server-21.1.24.xpkg",
+      "size": 4084248,
+      "sha256": "f3adbdcaf99d396a9aca54f1b68a116929fd5619515e33d3f9e4372aacac3788"
+    }
+  }
+}

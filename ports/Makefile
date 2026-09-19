@@ -11,7 +11,7 @@ SHELL := /bin/sh
 
 PWD_ := $(CURDIR)
 
-.PHONY: all build install clean fetch check list help
+.PHONY: all build install clean fetch check list package check-nognu help
 
 ## build - build PORT (e.g. make build PORT=netbsd-sh); default all ports
 build:
@@ -37,6 +37,15 @@ check:
 list:
 	@sh scripts/list.sh
 
+## package - build .xpkg packages for the desktop tools (dwm, dmenu, slstatus,
+##            nsxiv, xclip, xinit, xorg-server) into packages/ + index.json
+package:
+	./scripts/package.sh $(PORT)
+
+## check-nognu - verify the desktop tool binaries are musl/no-GNU
+check-nognu:
+	./scripts/check-nognu.sh $(PORT)
+
 ## help - show this help
 help:
 	@echo 'FreeLinX/ports targets:'
@@ -45,6 +54,8 @@ help:
 	@echo '  fetch  [PORT=name] - download + verify upstream source'
 	@echo '  check  - report config/toolchain/port state (read-only)'
 	@echo '  list   - list ports and metadata'
+	@echo '  package [PORT=name] - package desktop tools into .xpkg + index.json'
+	@echo '  check-nognu [PORT=name] - verify the desktop tools are musl/no-GNU'
 	@echo '  clean  - remove generated artifacts'
 	@echo
 	@echo 'Configuration: FREELINX_* env vars override config/default.conf'

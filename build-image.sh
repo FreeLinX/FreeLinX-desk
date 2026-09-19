@@ -8,7 +8,7 @@ OUT_IMG="${OUT_DIR}/freelinx-desktop.img.gz"
 
 echo "Packing FreeLinX Desktop initramfs from: $ROOTFS"
 mkdir -p "$OUT_DIR"
-(cd "$ROOTFS" && find . -print0 | cpio --null -ov --format=newc | gzip -1 > "$OUT_IMG")
+(cd "$ROOTFS" && find . -print0 | cpio --null -ov --format=newc --owner=0:0 | gzip -1 > "$OUT_IMG")
 cp -p "$OUT_IMG" "${SCRIPT_DIR}/src/build/freelinx-desktop.img.gz" 2>/dev/null || true
 
 echo "Build complete: $OUT_IMG ($(du -h "$OUT_IMG" | cut -f1))"

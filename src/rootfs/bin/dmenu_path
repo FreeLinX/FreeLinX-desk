@@ -1,13 +1,11 @@
 #!/bin/sh
-
-cachedir="${XDG_CACHE_HOME:-"$HOME/.cache"}"
-cache="$cachedir/dmenu_run"
-
-[ ! -e "$cachedir" ] && mkdir -p "$cachedir"
-
+# dmenu_path: executables from all dirs of $PATH, live rebuild (no cache).
+# toybox sh does NOT split "$PATH" in `for d in $PATH` nor in command args,
+# but DOES split it (IFS=:) in `set --`. So: `set --` then loop "$@",
+# calling stest per dir. Host probe (guest toybox sh): 36 args / 3734 lines.
 IFS=:
-if stest -dqr -n "$cache" $PATH; then
-	stest -flx $PATH | sort -u | tee "$cache"
-else
-	cat "$cache"
-fi
+set -- $PATH
+for d in "$@"; do
+    [ -d "$d" ] || continue
+    stest -flx "$d"
+done | sort -u

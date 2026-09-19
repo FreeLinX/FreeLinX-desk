@@ -1,0 +1,67 @@
+#!/bin/sh
+# FreeLinX startx script
+
+userclientrc="$HOME/.xinitrc"
+userserverrc="$HOME/.xserverrc"
+sysclientrc="/etc/X11/xinit/xinitrc"
+sysserverrc="/etc/X11/xinit/xserverrc"
+defaultserver="/usr/bin/Xorg"
+defaultdisplay=":0"
+
+whoseargs="client"
+client=""
+server=""
+display=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --)
+            whoseargs="server"
+            ;;
+        *)
+            if [ "$whoseargs" = "client" ]; then
+                client="$client $1"
+            else
+                case "$1" in
+                    :[0-9]*)
+                        display="$1"
+                        ;;
+                    *)
+                        server="$server $1"
+                        ;;
+                esac
+            fi
+            ;;
+    esac
+    shift
+done
+
+if [ -z "$client" ]; then
+    if [ -f "$userclientrc" ]; then
+        client="$userclientrc"
+    elif [ -f "$sysclientrc" ]; then
+        client="$sysclientrc"
+    elif [ -x "/bin/dwm" ]; then
+        client="/bin/dwm"
+    elif [ -x "/usr/bin/openbox-session" ]; then
+        client="/usr/bin/openbox-session"
+    else
+        client="uxterm"
+    fi
+fi
+
+if [ -z "$server" ]; then
+    if [ -f "$userserverrc" ]; then
+        server="$userserverrc"
+    elif [ -f "$sysserverrc" ]; then
+        server="$sysserverrc"
+    else
+        server="$defaultserver"
+    fi
+fi
+
+if [ -z "$display" ]; then
+    display="$defaultdisplay"
+fi
+
+exec xinit $client -- $server $display

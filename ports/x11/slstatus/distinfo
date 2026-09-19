@@ -1,0 +1,5 @@
+# FreeLinX/ports - x11/slstatus : upstream source reference.
+DISTINFO_ARCHIVE=slstatus-1.0.tar.gz
+DISTINFO_NAME=slstatus-1.0
+DISTINFO_URL=https://dl.suckless.org/tools/slstatus-1.0.tar.gz
+DISTINFO_SHA256=6d6d0a16c08dd9d211172c30c4720701267a3f40cdc938db3f386f6a2b6cff54
