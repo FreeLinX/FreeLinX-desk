@@ -61,6 +61,12 @@ def type_string(s):
             cmds.append("sendkey slash")
         elif ch == '.':
             cmds.append("sendkey dot")
+        elif ch == '#':
+            cmds.append("sendkey shift-3")
+        elif ch == '"':
+            cmds.append("sendkey shift-apostrophe")
+        elif ch == "'":
+            cmds.append("sendkey apostrophe")
         elif ch.isupper():
             cmds.append(f"sendkey shift-{ch.lower()}")
         else:

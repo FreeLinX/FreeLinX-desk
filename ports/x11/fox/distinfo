@@ -1,0 +1,6 @@
+# FreeLinX/ports - x11/fox
+DISTINFO_ARCHIVE=fox-1.6.57.tar.gz
+DISTINFO_NAME=fox-1.6.57
+DISTINFO_URL=https://fox-toolkit.org/ftp/fox-1.6.57.tar.gz
+DISTINFO_SHA256=65ef15de9e0f3a396dc36d9ea29c158b78fad47f7184780357b929c94d458923
+DISTINFO_CURL_OPTS=-k

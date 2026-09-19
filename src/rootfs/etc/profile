@@ -21,3 +21,12 @@ unset _UID _UNAME
 HOSTNAME=$(cat /etc/hostname 2>/dev/null || echo freelinx)
 export HOSTNAME
 export ENV=/etc/profile
+
+# Fontconfig and X11 overrides for statically linked apps
+export FONTCONFIG_FILE=/etc/fonts/fonts.conf
+export FONTCONFIG_PATH=/etc/fonts
+
+# Full English Locale
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+

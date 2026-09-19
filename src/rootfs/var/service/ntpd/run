@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /sbin/ntpd -d -s
+exec /sbin/ntpd -d

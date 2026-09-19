@@ -14,6 +14,9 @@
 </menu>
 
 <menu id="files-menu" label="Files">
+  <item label="Xfe (File Manager)">
+    <action name="Execute"><command>xfe</command></action>
+  </item>
   <item label="File Manager (nnn)">
     <action name="Execute"><command>uxterm -T "File Manager (nnn)" -e nnn</command></action>
   </item>
@@ -74,9 +77,6 @@
 </menu>
 
 <menu id="sound-menu" label="Sound &amp; Video">
-  <item label="YouTube Player &amp; Search (flx-yt)">
-    <action name="Execute"><command>uxterm -T "YouTube Player" -e flx-yt</command></action>
-  </item>
   <item label="Media Player (mpv)">
     <action name="Execute"><command>uxterm -T "mpv" -e sh -c "mpv --help; echo; printf 'Usage: mpv &lt;file/url&gt;\nPress Enter to close...'; read l"</command></action>
   </item>
@@ -152,6 +152,9 @@
   <item label="Digital Clock">
     <action name="Execute"><command>xclock -digital</command></action>
   </item>
+  <item label="Calculator (xcalc)">
+    <action name="Execute"><command>xcalc</command></action>
+  </item>
   <item label="Calculator (bc)">
     <action name="Execute"><command>uxterm -T "Calculator" -e sh -c "bc; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
@@ -179,6 +182,44 @@
   <menu id="tools-menu" />
 </menu>
 
+<menu id="panel-menu" label="Panel">
+  <item label="Show Panel">
+    <action name="Execute"><command>/usr/bin/flxpanel-add</command></action>
+  </item>
+  <item label="Hide Panel">
+    <action name="Execute"><command>/usr/bin/flxpanel-del</command></action>
+  </item>
+  <separator />
+  <item label="Toggle Panel">
+    <action name="Execute"><command>/usr/bin/flxpanel-toggle</command></action>
+  </item>
+</menu>
+
+<menu id="appearance-menu" label="Appearance">
+  <item label="Plan 9 Rio Sage (#778877)">
+    <action name="Execute"><command>/usr/bin/flxbg "#778877"</command></action>
+  </item>
+  <item label="Plan 9 Classic Teal (#55aaaa)">
+    <action name="Execute"><command>/usr/bin/flxbg "#55aaaa"</command></action>
+  </item>
+  <item label="Void Slate Dark (#24272e)">
+    <action name="Execute"><command>/usr/bin/flxbg "#24272e"</command></action>
+  </item>
+  <item label="90s CDE Slate (#3a4a58)">
+    <action name="Execute"><command>/usr/bin/flxbg "#3a4a58"</command></action>
+  </item>
+  <separator />
+  <item label="Show Panel">
+    <action name="Execute"><command>/usr/bin/flxpanel-add</command></action>
+  </item>
+  <item label="Hide Panel">
+    <action name="Execute"><command>/usr/bin/flxpanel-del</command></action>
+  </item>
+  <item label="Toggle Panel">
+    <action name="Execute"><command>/usr/bin/flxpanel-toggle</command></action>
+  </item>
+</menu>
+
 <menu id="root-menu" label="FreeLinX">
   <item label="Terminal Emulator (uxterm)">
     <action name="Execute">
@@ -198,9 +239,9 @@
     </action>
   </item>
 
-  <item label="YouTube Player &amp; Search (flx-yt)">
+  <item label="File Manager (Xfe)">
     <action name="Execute">
-      <command>uxterm -T "YouTube Player" -e flx-yt</command>
+      <command>xfe</command>
     </action>
   </item>
 
@@ -224,6 +265,8 @@
 
   <separator />
 
+  <menu id="panel-menu" />
+  <menu id="appearance-menu" />
   <menu id="applications-menu" />
 
   <separator />

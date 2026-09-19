@@ -1,0 +1,29 @@
+! FreeLinX Plan 9 / Rio Retro Terminal Theme
+URxvt*font: xft:DejaVu Sans Mono:size=9:antialias=true
+URxvt*boldFont: xft:DejaVu Sans Mono:size=9:bold:antialias=true
+URxvt*background: #ffffea
+URxvt*foreground: #000000
+URxvt*cursorColor: #111111
+URxvt*scrollBar: true
+URxvt*scrollBar_right: true
+URxvt*scrollBar_floating: false
+URxvt*scrollstyle: rxvt
+URxvt*saveLines: 2000
+URxvt*internalBorder: 6
+
+! UXTerm / XTerm
+XTerm*faceName: DejaVu Sans Mono
+XTerm*faceSize: 9
+XTerm*background: #ffffea
+XTerm*foreground: #000000
+XTerm*cursorColor: #111111
+XTerm*saveLines: 2000
+XTerm*internalBorder: 6
+
+UXTerm*faceName: DejaVu Sans Mono
+UXTerm*faceSize: 9
+UXTerm*background: #ffffea
+UXTerm*foreground: #000000
+UXTerm*cursorColor: #111111
+UXTerm*saveLines: 2000
+UXTerm*internalBorder: 6

@@ -1,0 +1,5 @@
+# FreeLinX/ports - x11/tint2
+DISTINFO_ARCHIVE=tint2-v17.0.2.tar.gz
+DISTINFO_NAME=tint2-v17.0.2
+DISTINFO_URL=https://gitlab.com/o9000/tint2/-/archive/v17.0.2/tint2-v17.0.2.tar.gz
+DISTINFO_SHA256=1f101afef2215fd0ad650165f923dbe44cb843a0c283c2974c0ff9a5e9a12f42

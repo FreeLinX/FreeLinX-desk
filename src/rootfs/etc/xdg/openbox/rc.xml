@@ -64,8 +64,8 @@
   <keepBorder>yes</keepBorder>
   <animateIconify>no</animateIconify>
   <font place="ActiveWindow">
-    <name>monospace</name>
-    <size>8</size>
+    <name>DejaVu Sans</name>
+    <size>9</size>
     <!-- font size in points -->
     <weight>bold</weight>
     <!-- 'bold' or 'normal' -->
@@ -73,8 +73,8 @@
     <!-- 'italic' or 'normal' -->
   </font>
   <font place="InactiveWindow">
-    <name>monospace</name>
-    <size>8</size>
+    <name>DejaVu Sans</name>
+    <size>9</size>
     <!-- font size in points -->
     <weight>normal</weight>
     <!-- 'bold' or 'normal' -->
@@ -82,8 +82,8 @@
     <!-- 'italic' or 'normal' -->
   </font>
   <font place="MenuHeader">
-    <name>monospace</name>
-    <size>8</size>
+    <name>DejaVu Sans</name>
+    <size>9</size>
     <!-- font size in points -->
     <weight>bold</weight>
     <!-- 'bold' or 'normal' -->
@@ -91,8 +91,8 @@
     <!-- 'italic' or 'normal' -->
   </font>
   <font place="MenuItem">
-    <name>monospace</name>
-    <size>8</size>
+    <name>DejaVu Sans</name>
+    <size>9</size>
     <!-- font size in points -->
     <weight>normal</weight>
     <!-- 'bold' or 'normal' -->
@@ -100,8 +100,8 @@
     <!-- 'italic' or 'normal' -->
   </font>
   <font place="ActiveOnScreenDisplay">
-    <name>monospace</name>
-    <size>8</size>
+    <name>DejaVu Sans</name>
+    <size>9</size>
     <!-- font size in points -->
     <weight>bold</weight>
     <!-- 'bold' or 'normal' -->
@@ -109,8 +109,8 @@
     <!-- 'italic' or 'normal' -->
   </font>
   <font place="InactiveOnScreenDisplay">
-    <name>monospace</name>
-    <size>8</size>
+    <name>DejaVu Sans</name>
+    <size>9</size>
     <!-- font size in points -->
     <weight>normal</weight>
     <!-- 'bold' or 'normal' -->
@@ -165,7 +165,7 @@
      cases. -->
 <margins>
   <top>0</top>
-  <bottom>28</bottom>
+  <bottom>0</bottom>
   <left>0</left>
   <right>0</right>
 </margins>
@@ -311,12 +311,25 @@
   <keybind key="W-w">
     <action name="Execute"><command>flxbrowser</command></action>
   </keybind>
+  <!-- Keybindings for Panel / Status Bar Toggle (Add / Sil) -->
+  <keybind key="W-b">
+    <action name="Execute"><command>/usr/bin/flxpanel-toggle</command></action>
+  </keybind>
+  <keybind key="A-b">
+    <action name="Execute"><command>/usr/bin/flxpanel-toggle</command></action>
+  </keybind>
   <!-- Keybindings to open FreeLinX Root Menu -->
   <keybind key="W-space">
     <action name="ShowMenu"><menu>root-menu</menu></action>
   </keybind>
   <keybind key="W-m">
     <action name="ShowMenu"><menu>root-menu</menu></action>
+  </keybind>
+  <keybind key="W-p">
+    <action name="Execute"><command>dmenu_run</command></action>
+  </keybind>
+  <keybind key="A-F2">
+    <action name="Execute"><command>dmenu_run</command></action>
   </keybind>
   <keybind key="C-A-m">
     <action name="ShowMenu"><menu>root-menu</menu></action>

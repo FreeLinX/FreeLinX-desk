@@ -1,0 +1,5 @@
+# FreeLinX/ports - x11/xfe
+DISTINFO_ARCHIVE=xfe-1.46.1.tar.xz
+DISTINFO_NAME=xfe-1.46.1
+DISTINFO_URL=https://sourceforge.net/projects/xfe/files/xfe/1.46.1/xfe-1.46.1.tar.xz/download
+DISTINFO_SHA256=353a68c190a5e0e4d6acadadc61edfeedf56c4645d7ccd0cdca2321eade72548

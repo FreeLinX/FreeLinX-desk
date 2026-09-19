@@ -1,0 +1,36 @@
+#!/bin/sh
+# FreeLinX pkill / killall implementation using /proc
+SIGNAL="-15"
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -[0-9]*|-SIG*|-s|-KILL|-TERM|-HUP|-INT)
+            SIGNAL="$1"
+            shift
+            ;;
+        -f|-x)
+            shift
+            ;;
+        *)
+            TARGET="$1"
+            shift
+            ;;
+    esac
+done
+
+[ -z "$TARGET" ] && { echo "Usage: pkill [-SIG] <process_name>"; exit 1; }
+
+FOUND=1
+for p in /proc/[0-9]*; do
+    [ -r "$p/cmdline" ] || continue
+    cmd=$(tr '\0' ' ' < "$p/cmdline" 2>/dev/null) || continue
+    case "$cmd" in
+        *pkill*) continue ;;
+        *"$TARGET"*)
+            pid="${p#/proc/}"
+            if [ "$pid" != "$$" ] && [ "$pid" != "$PPID" ]; then
+                kill "$SIGNAL" "$pid" 2>/dev/null && FOUND=0
+            fi
+            ;;
+    esac
+done
+exit $FOUND

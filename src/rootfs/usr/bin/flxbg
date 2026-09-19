@@ -1,0 +1,21 @@
+#!/bin/sh
+# FreeLinX desktop background setter
+COLOR="${1:-#778877}"
+echo "$COLOR" > /tmp/.flxbg
+xsetroot -solid "$COLOR" 2>/dev/null || true
+
+# If panel is active, refresh it so it inherits the matching theme palette
+is_running=0
+for c in /proc/[0-9]*/comm; do
+    [ -f "$c" ] || continue
+    read -r name < "$c" 2>/dev/null || continue
+    if [ "$name" = "lemonbar" ]; then
+        is_running=1
+        break
+    fi
+done
+
+if [ "$is_running" -eq 1 ]; then
+    /usr/bin/flxpanel-del
+    /usr/bin/flxpanel-add
+fi

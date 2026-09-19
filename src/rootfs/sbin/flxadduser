@@ -79,6 +79,12 @@ fi
 if [ ! -e "$HOME_DIR/.config/openbox/menu.xml" ]; then
     ln -sf /etc/xdg/openbox/menu.xml "$HOME_DIR/.config/openbox/menu.xml" 2>/dev/null || :
 fi
+if [ -d /root/.config/xfe ]; then
+    cp -a /root/.config/xfe "$HOME_DIR/.config/" 2>/dev/null || :
+fi
+if [ -f /root/.Xdefaults ]; then
+    cp -a /root/.Xdefaults "$HOME_DIR/.Xdefaults" 2>/dev/null || :
+fi
 
 # Create default .profile
 cat > "$HOME_DIR/.profile" << EOF

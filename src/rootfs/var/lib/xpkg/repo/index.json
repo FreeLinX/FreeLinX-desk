@@ -656,14 +656,6 @@
       "size": 101939,
       "sha256": "e7048076be171f8045db8ca38825b7ecffd9f3406dac69d69f334e2b41442f46"
     },
-    "flx-yt": {
-      "version": "1.0",
-      "description": "FreeLinX YouTube streaming player via MPV and Invidious API",
-      "arch": "x86_64",
-      "file": "flx-yt-1.0.xpkg",
-      "size": 1456,
-      "sha256": "e6392b3864b6565ae0aff9933b61fd68298fd7f7be65b3cf58cb897150b916b2"
-    },
     "abduco": {
       "version": "0.6",
       "description": "session manager (git snapshot).",

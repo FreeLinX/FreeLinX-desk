@@ -1,0 +1,28 @@
+#!/bin/sh
+# flxpanel-add: Start/Add the FreeLinX desktop panel
+
+export DISPLAY="${DISPLAY:-:0}"
+export FONTCONFIG_PATH=/etc/fonts
+export FONTCONFIG_FILE=/etc/fonts/fonts.conf
+
+# Fast check if lemonbar is already running (zero fork)
+for c in /proc/[0-9]*/comm; do
+    [ -f "$c" ] || continue
+    read -r name < "$c" 2>/dev/null || continue
+    if [ "$name" = "lemonbar" ]; then
+        exit 0
+    fi
+done
+
+# Clean up any orphaned i3status
+for c in /proc/[0-9]*/comm; do
+    [ -f "$c" ] || continue
+    read -r name < "$c" 2>/dev/null || continue
+    if [ "$name" = "i3status" ]; then
+        p="${c%/comm}"
+        pid="${p#/proc/}"
+        [ "$pid" != "$$" ] && kill -9 "$pid" 2>/dev/null || true
+    fi
+done
+
+/usr/bin/flxbar-bottom >/dev/null 2>&1 &
