@@ -2,15 +2,6 @@
 
 FreeLinX is an independent, from-scratch, non-GNU, musl-based Linux distribution. This repository holds the **desktop**.
 
-It boots directly into a classic 90s Openbox desktop:
-
-- **Classic 90s Clearlooks / Motif Theme** — blue gradient titlebars, centered bold titles, and 3D beveled widgets.
-- **Graphical Web Browser (`flxbrowser` / `links -g`)** — non-GNU graphical browser statically linked with Cairo, Xlib, and OpenSSL. Features an offline retro welcome portal and DuckDuckGo Lite web search.
-- **Graphical Network Manager (`flxnetmgr`)** — native Cairo/Xlib retro desktop application for managing interfaces (`eth0`, `wlan0`), scanning & connecting to real WiFi networks, and testing DNS/gateway latency.
-- **Retro File Manager (`fview`)** — custom C file manager displaying retro directory breadcrumbs, columns (`Name`, `Size`, `Type`, `Date Modified`), and double-click to edit files in vim.
-- **Dual Terminal Setup** — Top-left window running `uxterm` (`vim .config/openbox/rc.xml` with syntax highlighting), and top-right window with interactive shell prompt.
-- **FreeLinX Root Menu** — right-click desktop menu with working applications (`flxbrowser`, `flxnetmgr`, `uxterm`, `fview`, `thunar`, `vim`, `nano`, `w3m`, `pfetch`, `obconf`, `doom`, `man`, `obxprop`, `xeyes`).
-
 The desktop runs smoothly at 60 FPS using software rendering accelerated by `ShadowFB` (`libshadowfb.so` + `libshadow.so`) on virtio framebuffer (`/dev/fb0`), with full `evdev` keyboard and `virtio-tablet` absolute mouse integration.
 
 ---
