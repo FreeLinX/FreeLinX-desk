@@ -1,6 +1,6 @@
 # FreeLinX/Desktop
 
-FreeLinX is an independent, from-scratch, non-GNU, musl-based Linux distribution. This repository holds the **desktop** work: the boot-time graphical stack (X11 + Openbox) and the retro 90s desktop environment, along with a graphical web browser, native network manager, custom kernel configuration, ports recipes, and the root filesystem template used to build the runnable initramfs.
+FreeLinX is an independent, from-scratch, non-GNU, musl-based Linux distribution. This repository holds the **desktop**.
 
 It boots directly into a classic 90s Openbox desktop:
 
