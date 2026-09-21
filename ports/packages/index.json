@@ -5,8 +5,16 @@
       "description": "PCMan File Manager (GTK3, lightweight, no GNOME)",
       "arch": "x86_64",
       "file": "pcmanfm-1.3.2.xpkg",
-      "size": 177,
-      "sha256": "b287ae5ae41c433bd12497156b0b4d5811caf2d2d31698a1be0c41d82fb89e3f"
+      "size": 367,
+      "sha256": "951bff6c84de860fb4bf2e35d7cd9a758b67c8a51bf695786dcc0920b8dfc820"
+    },
+    "lxappearance": {
+      "version": "0.6.3",
+      "description": "LXAppearance GTK3 theme and icon switcher",
+      "arch": "x86_64",
+      "file": "lxappearance-0.6.3.xpkg",
+      "size": 174,
+      "sha256": "dffd3f44ca181225499778298088ca26aef8259703274716effb57dfc1f42021"
     },
     "slstatus": {
       "version": "1.0",
@@ -29,8 +37,8 @@
       "description": "X compositor (screen-tearing fix, shadows; NO animations)",
       "arch": "x86_64",
       "file": "picom-11.2.xpkg",
-      "size": 881,
-      "sha256": "0705a50989ed95fed16a95a50068a90db0635e905ca24d96097bba0299d50d9b"
+      "size": 1000,
+      "sha256": "9f72c6e3aa0e5742e6030390f484ed10e000cdf797d8d9492c6013aaee598ec1"
     },
     "alsa-utils": {
       "version": "1.2.13",
@@ -61,8 +69,16 @@
       "description": "lightweight X11 notification daemon",
       "arch": "x86_64",
       "file": "dunst-1.11.0.xpkg",
-      "size": 1075,
-      "sha256": "f275603c5f7477f617672f8f6774859905deb92db68d6dc567a25fd93fafa0e7"
+      "size": 1190,
+      "sha256": "3594e35ad26b27f258a43fdeb975a4a2d7393eb95fb450c1dda5afcd73b3315b"
+    },
+    "dhcpcd": {
+      "version": "10.5.2",
+      "description": "DHCP client daemon for IP configuration",
+      "arch": "x86_64",
+      "file": "dhcpcd-10.5.2.xpkg",
+      "size": 256722,
+      "sha256": "b08b325f0613ed611e0640c018e1e56049cd3a7b589a24e6dde770e397e7dd9f"
     },
     "linux-pam": {
       "version": "1.7.0",
@@ -79,6 +95,22 @@
       "file": "slim-1.4.0.xpkg",
       "size": 177,
       "sha256": "4cb4a0fca7a4f00bd2134c242b6ab19a891d53ccb07731bdbdee309e81a33ccf"
+    },
+    "wpa_supplicant": {
+      "version": "2.11",
+      "description": "WiFi supplicant for nl80211/WPA2/WPA3",
+      "arch": "x86_64",
+      "file": "wpa_supplicant-2.11.xpkg",
+      "size": 4131960,
+      "sha256": "029fd59b63a4fca3d75fbe8e08cff836efed8c33da0d0ade5bd23526089fe42e"
+    },
+    "xarchiver": {
+      "version": "0.5.4.23",
+      "description": "GTK3 graphical archive manager (7z, zip, tar.gz)",
+      "arch": "x86_64",
+      "file": "xarchiver-0.5.4.23.xpkg",
+      "size": 182,
+      "sha256": "79dd36932c950d75a2f9cba802de5778ea3fe6f2bcdb7e1e2551e54d7ba302ab"
     },
     "dwm": {
       "version": "6.5",
@@ -101,8 +133,8 @@
       "description": "fast GTK3 code/text editor (no GNU NLS)",
       "arch": "x86_64",
       "file": "geany-2.0.xpkg",
-      "size": 169,
-      "sha256": "608ea1967031fdf7ad627fb691a50b61a20d6cb09f3127830b3c5c493b473ec7"
+      "size": 377,
+      "sha256": "34e7a79e5e6b046ad1e893e9b11abfc31043fde02ce4f45637c0f173a35f062e"
     },
     "openbox": {
       "version": "3.6.1",
@@ -117,8 +149,8 @@
       "description": "lightweight image viewer and wallpaper setter",
       "arch": "x86_64",
       "file": "feh-3.13.1.xpkg",
-      "size": 171,
-      "sha256": "a0f83dce9c99fd3ab753cc38a56c8235d1a309b3f488a4bf0bcb159e392a1177"
+      "size": 582,
+      "sha256": "76f4794ffd9622f942d33f64023ca7b4015969661bdaa878cec6ec749a3bc595"
     },
     "xorg-server": {
       "version": "21.1.24",

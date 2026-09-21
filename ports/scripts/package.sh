@@ -45,7 +45,11 @@ pcmanfm:1.3.2:PCMan File Manager (GTK3, lightweight, no GNOME)
 geany:2.0:fast GTK3 code/text editor (no GNU NLS)
 feh:3.13.1:lightweight image viewer and wallpaper setter
 slim:1.4.0:simple graphical login display manager (SLiM)
-linux-pam:1.7.0:pluggable authentication modules library (PAM)"
+linux-pam:1.7.0:pluggable authentication modules library (PAM)
+wpa_supplicant:2.11:WiFi supplicant for nl80211/WPA2/WPA3
+dhcpcd:10.5.2:DHCP client daemon for IP configuration
+lxappearance:0.6.3:LXAppearance GTK3 theme and icon switcher
+xarchiver:0.5.4.23:GTK3 graphical archive manager (7z, zip, tar.gz)"
 
 # copy helper: cp_one <stage> <destpath> <srcpath>
 cp_one() {
@@ -127,6 +131,20 @@ package_one() {
                 mkdir -p "$_stage/lib"
                 cp -a "$STAGE_DIR/lib"/libpam* "$_stage/lib/" 2>/dev/null || true
             fi
+            ;;
+        wpa_supplicant)
+            cp_one "$_stage" "sbin/wpa_supplicant" "$ROOTFS_DIR/sbin/wpa_supplicant" 2>/dev/null || cp_one "$_stage" "sbin/wpa_supplicant" "$STAGE_DIR/sbin/wpa_supplicant" 2>/dev/null || true
+            cp_one "$_stage" "sbin/wpa_cli" "$ROOTFS_DIR/sbin/wpa_cli" 2>/dev/null || true
+            cp_one "$_stage" "sbin/wpa_passphrase" "$ROOTFS_DIR/sbin/wpa_passphrase" 2>/dev/null || true
+            ;;
+        dhcpcd)
+            cp_one "$_stage" "sbin/dhcpcd" "$ROOTFS_DIR/sbin/dhcpcd" 2>/dev/null || cp_one "$_stage" "sbin/dhcpcd" "$STAGE_DIR/sbin/dhcpcd" 2>/dev/null || true
+            ;;
+        lxappearance)
+            cp_one "$_stage" "bin/lxappearance" "$STAGE_DIR/bin/lxappearance" 2>/dev/null || cp_one "$_stage" "usr/bin/lxappearance" "$ROOTFS_DIR/usr/bin/lxappearance" 2>/dev/null || true
+            ;;
+        xarchiver)
+            cp_one "$_stage" "bin/xarchiver" "$STAGE_DIR/bin/xarchiver" 2>/dev/null || cp_one "$_stage" "usr/bin/xarchiver" "$ROOTFS_DIR/usr/bin/xarchiver" 2>/dev/null || true
             ;;
     esac
 

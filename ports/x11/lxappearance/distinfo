@@ -1,0 +1,5 @@
+# FreeLinX/ports - x11/lxappearance : upstream source reference.
+DISTINFO_NAME=lxappearance-0.6.3
+DISTINFO_ARCHIVE=lxappearance-0.6.3.tar.xz
+DISTINFO_URL=https://downloads.sourceforge.net/project/lxde/LXAppearance/lxappearance-0.6.3.tar.xz
+DISTINFO_SHA256=7222d858b8fef4b7967c42142d61e82ded6dd42dc5ef1d59caad775795928b38
