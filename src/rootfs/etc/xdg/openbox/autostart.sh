@@ -33,11 +33,3 @@ if command -v dunst >/dev/null 2>&1; then
     dunst &
 fi
 
-# 4. Desktop Panel (task bar, clock, app menu)
-if [ -x /usr/bin/flxpanel ]; then
-    /usr/bin/flxpanel &
-elif [ -x /usr/bin/flxpanel-add ]; then
-    /usr/bin/flxpanel-add &
-elif [ -x /usr/bin/flxbar-bottom ]; then
-    /usr/bin/flxbar-bottom &
-fi

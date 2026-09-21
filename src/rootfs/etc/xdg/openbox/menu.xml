@@ -14,10 +14,13 @@
 </menu>
 
 <menu id="files-menu" label="Files">
-  <item label="Xfe (File Manager)">
+  <item label="PCManFM (Graphical File Manager)">
+    <action name="Execute"><command>pcmanfm</command></action>
+  </item>
+  <item label="Xfe (Classic File Manager)">
     <action name="Execute"><command>xfe</command></action>
   </item>
-  <item label="File Manager (nnn)">
+  <item label="nnn (Console File Manager)">
     <action name="Execute"><command>uxterm -T "File Manager (nnn)" -e nnn</command></action>
   </item>
   <item label="Browse /root (Terminal)">
@@ -26,12 +29,21 @@
 </menu>
 
 <menu id="editors-menu" label="Editors">
+  <item label="Geany (GTK3 Code Editor)">
+    <action name="Execute"><command>geany</command></action>
+  </item>
   <item label="Vim (Vi IMproved)">
     <action name="Execute"><command>uxterm -e vim</command></action>
   </item>
 </menu>
 
 <menu id="graphics-menu" label="Graphics">
+  <item label="feh (Image Viewer &amp; Wallpaper)">
+    <action name="Execute"><command>feh</command></action>
+  </item>
+  <item label="nsxiv (Simple Image Viewer)">
+    <action name="Execute"><command>nsxiv</command></action>
+  </item>
   <item label="PDF Viewer (MuPDF)">
     <action name="Execute"><command>uxterm -T "MuPDF" -e sh -c "echo 'MuPDF Document Viewer'; echo 'Usage: mupdf &lt;file.pdf&gt;'; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
@@ -77,14 +89,17 @@
 </menu>
 
 <menu id="sound-menu" label="Sound &amp; Video">
+  <item label="ALSA Audio Mixer (alsamixer)">
+    <action name="Execute"><command>uxterm -T "ALSA Sound Mixer" -e alsamixer</command></action>
+  </item>
+  <item label="TinyALSA Mixer (tinymix)">
+    <action name="Execute"><command>uxterm -e sh -c "/usr/bin/tinymix; echo; printf 'Press Enter to close...'; read l"</command></action>
+  </item>
   <item label="Media Player (mpv)">
     <action name="Execute"><command>uxterm -T "mpv" -e sh -c "mpv --help; echo; printf 'Usage: mpv &lt;file/url&gt;\nPress Enter to close...'; read l"</command></action>
   </item>
   <item label="MPEG Audio Player (mpg123)">
     <action name="Execute"><command>uxterm -T "Audio Player" -e sh -c "mpg123 --help; echo; printf 'Usage: mpg123 &lt;file.mp3&gt;\nPress Enter to close...'; read l"</command></action>
-  </item>
-  <item label="TinyALSA Mixer (tinymix)">
-    <action name="Execute"><command>uxterm -e sh -c "/usr/bin/tinymix; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
   <item label="Audio Cards &amp; Endpoints">
     <action name="Execute"><command>uxterm -e sh -c "/sbin/flxdriver audio; echo; printf 'Press Enter to close...'; read l"</command></action>
@@ -182,16 +197,26 @@
   <menu id="tools-menu" />
 </menu>
 
-<menu id="panel-menu" label="Panel">
-  <item label="Show Panel">
-    <action name="Execute"><command>/usr/bin/flxpanel-add</command></action>
-  </item>
-  <item label="Hide Panel">
-    <action name="Execute"><command>/usr/bin/flxpanel-del</command></action>
+<menu id="config-menu" label="Configuration &amp; Settings">
+  <item label="Reload Openbox Desktop">
+    <action name="Execute"><command>openbox --reconfigure</command></action>
   </item>
   <separator />
-  <item label="Toggle Panel">
-    <action name="Execute"><command>/usr/bin/flxpanel-toggle</command></action>
+  <item label="Edit Keybindings &amp; WM Rules (rc.xml)">
+    <action name="Execute"><command>geany /etc/xdg/openbox/rc.xml</command></action>
+  </item>
+  <item label="Edit Desktop Right-Click Menu (menu.xml)">
+    <action name="Execute"><command>geany /etc/xdg/openbox/menu.xml</command></action>
+  </item>
+  <item label="Edit Autostart Services (autostart.sh)">
+    <action name="Execute"><command>geany /etc/xdg/openbox/autostart.sh</command></action>
+  </item>
+  <separator />
+  <item label="Display Resolution Setup (xrandr)">
+    <action name="Execute"><command>uxterm -T "Display Resolution" -e sh -c "xrandr; echo; printf 'Usage: xrandr -s &lt;width&gt;x&lt;height&gt;\nPress Enter to close...'; read l"</command></action>
+  </item>
+  <item label="Keyboard Layout Setup (AZ/US)">
+    <action name="Execute"><command>uxterm -T "Keyboard Layout" -e sh -c "setxkbmap us,az -option grp:alt_shift_toggle &amp;&amp; echo 'Keyboard layout set to US/AZ (toggle: Alt+Shift)'; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
 </menu>
 
@@ -208,28 +233,24 @@
   <item label="90s CDE Slate (#3a4a58)">
     <action name="Execute"><command>/usr/bin/flxbg "#3a4a58"</command></action>
   </item>
-  <separator />
-  <item label="Show Panel">
-    <action name="Execute"><command>/usr/bin/flxpanel-add</command></action>
-  </item>
-  <item label="Hide Panel">
-    <action name="Execute"><command>/usr/bin/flxpanel-del</command></action>
-  </item>
-  <item label="Toggle Panel">
-    <action name="Execute"><command>/usr/bin/flxpanel-toggle</command></action>
-  </item>
 </menu>
 
 <menu id="root-menu" label="FreeLinX">
-  <item label="Terminal Emulator (uxterm)">
+  <item label="Terminal Emulator (ST / UXTerm)">
     <action name="Execute">
       <command>uxterm -e /bin/sh -l</command>
     </action>
   </item>
 
-  <item label="Terminal Emulator (urxvt)">
+  <item label="PCManFM File Manager">
     <action name="Execute">
-      <command>urxvt -e /bin/sh -l</command>
+      <command>pcmanfm</command>
+    </action>
+  </item>
+
+  <item label="Geany Code Editor">
+    <action name="Execute">
+      <command>geany</command>
     </action>
   </item>
 
@@ -239,33 +260,9 @@
     </action>
   </item>
 
-  <item label="File Manager (Xfe)">
-    <action name="Execute">
-      <command>xfe</command>
-    </action>
-  </item>
-
-  <item label="File Manager (nnn)">
-    <action name="Execute">
-      <command>uxterm -T "File Manager" -e nnn</command>
-    </action>
-  </item>
-
-  <item label="Web Browser (Dillo)">
-    <action name="Execute">
-      <command>dillo</command>
-    </action>
-  </item>
-
-  <item label="Links Browser (Graphics)">
-    <action name="Execute">
-      <command>links -g</command>
-    </action>
-  </item>
-
   <separator />
 
-  <menu id="panel-menu" />
+  <menu id="config-menu" />
   <menu id="appearance-menu" />
   <menu id="applications-menu" />
 
@@ -273,8 +270,10 @@
 
   <menu id="client-list-combined-menu" label="Workspaces" />
 
-  <item label="Reconfigure">
-    <action name="Reconfigure" />
+  <item label="Reload Openbox Desktop">
+    <action name="Execute">
+      <command>openbox --reconfigure</command>
+    </action>
   </item>
 
   <item label="Restart Openbox">
