@@ -35,6 +35,9 @@ mount -t devpts -o gid=5,mode=0620,ptmxmode=0666 devpts /dev/pts 2>/dev/null || 
 rm -f /dev/ptmx && ln -s /dev/pts/ptmx /dev/ptmx
 mount -t tmpfs    tmpfs    /run   2>/dev/null || :
 
+# Enable sysrq for reboot/poweroff via /proc/sysrq-trigger
+echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || :
+
 # --- Device Manager (mdevd) & Driver Auto-Probe ------------------------------
 if [ -x /sbin/mdevd ]; then
     /sbin/mdevd -f /etc/mdev.conf >/dev/null 2>&1 &

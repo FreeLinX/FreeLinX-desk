@@ -1,5 +1,5 @@
 #!/bin/sh
-# FreeLinX X11 desktop: start Xorg on /dev/fb0, then openbox.
+# FreeLinX X11 desktop: start Xorg via modesetting (DRM/KMS) or fbdev fallback.
 mkdir -p /tmp/.X11-unix /var/lib/xkb 2>/dev/null || true
 chmod 1777 /tmp/.X11-unix 2>/dev/null || true
 
@@ -80,7 +80,12 @@ if [ ! -e /dev/fl-pointer ]; then
     done
 fi
 if [ ! -e /dev/fb0 ]; then mknod /dev/fb0 c 29 0 2>/dev/null || true; fi
-echo "FreeLinX Input: kbd=$(readlink /dev/fl-kbd) pointer=$(readlink /dev/fl-pointer)" > /dev/ttyS0
+if [ -e /dev/fb0 ]; then
+    chmod 666 /dev/fb0 2>/dev/null || true
+    echo "FreeLinX: Framebuffer ready: $(ls /dev/fb* 2>/dev/null)" > /dev/ttyS0
+fi
+
+echo "FreeLinX Input: kbd=$(readlink /dev/fl-kbd 2>/dev/null) pointer=$(readlink /dev/fl-pointer 2>/dev/null)" > /dev/ttyS0
 
 Xorg -config /etc/X11/xorg.conf -noreset -nolisten tcp -logfile /tmp/xorg.log > /dev/ttyS0 2>&1 &
 XPID=$!

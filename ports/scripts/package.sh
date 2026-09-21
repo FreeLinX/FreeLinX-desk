@@ -37,7 +37,15 @@ xclip:0.13:X11 clipboard utility
 nsxiv:32:simple X image viewer (sxiv successor, non-GNU)
 dmenu:5.3:dynamic X11 menu (suckless; ships stest + dmenu_path fix)
 xinit:1.4.2:X11 initialization script
-xorg-server:21.1.24:Xorg X server (fbdev, musl, non-GNU)"
+xorg-server:21.1.24:Xorg X server (fbdev, musl, non-GNU)
+picom:11.2:X compositor (screen-tearing fix, shadows; NO animations)
+dunst:1.11.0:lightweight X11 notification daemon
+alsa-utils:1.2.13:ALSA sound utilities (alsamixer, aplay, amixer)
+pcmanfm:1.3.2:PCMan File Manager (GTK3, lightweight, no GNOME)
+geany:2.0:fast GTK3 code/text editor (no GNU NLS)
+feh:3.13.1:lightweight image viewer and wallpaper setter
+slim:1.4.0:simple graphical login display manager (SLiM)
+linux-pam:1.7.0:pluggable authentication modules library (PAM)"
 
 # copy helper: cp_one <stage> <destpath> <srcpath>
 cp_one() {
@@ -88,6 +96,37 @@ package_one() {
                 cp -a "$ROOTFS_DIR/usr/lib/xorg" "$_stage/usr/lib/"
             fi
             cp_one "$_stage" "etc/X11/xorg.conf" "$ROOTFS_DIR/etc/X11/xorg.conf"
+            ;;
+        picom)
+            cp_one "$_stage" "bin/picom" "$STAGE_DIR/bin/picom" 2>/dev/null || cp_one "$_stage" "usr/bin/picom" "$ROOTFS_DIR/usr/bin/picom" 2>/dev/null || true
+            cp_one "$_stage" "etc/xdg/picom/picom.conf" "$ROOTFS_DIR/etc/xdg/picom/picom.conf" 2>/dev/null || true
+            ;;
+        dunst)
+            cp_one "$_stage" "bin/dunst" "$STAGE_DIR/bin/dunst" 2>/dev/null || cp_one "$_stage" "usr/bin/dunst" "$ROOTFS_DIR/usr/bin/dunst" 2>/dev/null || true
+            cp_one "$_stage" "etc/xdg/dunst/dunstrc" "$ROOTFS_DIR/etc/xdg/dunst/dunstrc" 2>/dev/null || true
+            ;;
+        alsa-utils)
+            for _b in alsamixer amixer aplay arecord alsactl speaker-test; do
+                cp_one "$_stage" "bin/$_b" "$STAGE_DIR/bin/$_b" 2>/dev/null || cp_one "$_stage" "bin/$_b" "$ROOTFS_DIR/bin/$_b" 2>/dev/null || true
+            done
+            ;;
+        pcmanfm)
+            cp_one "$_stage" "bin/pcmanfm" "$STAGE_DIR/bin/pcmanfm" 2>/dev/null || cp_one "$_stage" "usr/bin/pcmanfm" "$ROOTFS_DIR/usr/bin/pcmanfm" 2>/dev/null || true
+            ;;
+        geany)
+            cp_one "$_stage" "bin/geany" "$STAGE_DIR/bin/geany" 2>/dev/null || cp_one "$_stage" "usr/bin/geany" "$ROOTFS_DIR/usr/bin/geany" 2>/dev/null || true
+            ;;
+        feh)
+            cp_one "$_stage" "bin/feh" "$STAGE_DIR/bin/feh" 2>/dev/null || cp_one "$_stage" "usr/bin/feh" "$ROOTFS_DIR/usr/bin/feh" 2>/dev/null || true
+            ;;
+        slim)
+            cp_one "$_stage" "bin/slim" "$STAGE_DIR/bin/slim" 2>/dev/null || cp_one "$_stage" "usr/bin/slim" "$ROOTFS_DIR/usr/bin/slim" 2>/dev/null || true
+            ;;
+        linux-pam)
+            if [ -d "$STAGE_DIR/lib" ]; then
+                mkdir -p "$_stage/lib"
+                cp -a "$STAGE_DIR/lib"/libpam* "$_stage/lib/" 2>/dev/null || true
+            fi
             ;;
     esac
 

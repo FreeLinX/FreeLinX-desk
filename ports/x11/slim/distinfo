@@ -1,0 +1,5 @@
+# FreeLinX/ports - x11/slim : Simple Login Manager (SLiM).
+DISTINFO_NAME=slim-master
+DISTINFO_ARCHIVE=slim-master.tar.gz
+DISTINFO_URL=https://github.com/gsingh93/slim-display-manager/archive/refs/heads/master.tar.gz
+DISTINFO_SHA256=f01c35ab1cb9d38be84931d584dd62e009e3fa7233b21ab44161ca747010a4e3

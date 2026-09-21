@@ -33,7 +33,16 @@ dmenu:$STAGE/bin/dmenu:$ROOTFS/bin/dmenu
 nsxiv:$STAGE/bin/nsxiv:$ROOTFS/bin/nsxiv
 xclip:$STAGE/bin/xclip:$ROOTFS/bin/xclip
 xinit:$STAGE/bin/xinit:$ROOTFS/bin/xinit
-xorg-server:$STAGE/usr/bin/Xorg:$ROOTFS/usr/bin/Xorg"
+xorg-server:$STAGE/usr/bin/Xorg:$ROOTFS/usr/bin/Xorg
+picom:$STAGE/bin/picom:$ROOTFS/bin/picom
+dunst:$STAGE/bin/dunst:$ROOTFS/bin/dunst
+alsamixer:$STAGE/bin/alsamixer:$ROOTFS/bin/alsamixer
+aplay:$STAGE/bin/aplay:$ROOTFS/bin/aplay
+amixer:$STAGE/bin/amixer:$ROOTFS/bin/amixer
+pcmanfm:$STAGE/bin/pcmanfm:$ROOTFS/bin/pcmanfm
+geany:$STAGE/bin/geany:$ROOTFS/bin/geany
+feh:$STAGE/bin/feh:$ROOTFS/bin/feh
+slim:$STAGE/bin/slim:$ROOTFS/bin/slim"
 
 FAIL=0
 TOTAL=0

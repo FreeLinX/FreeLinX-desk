@@ -277,11 +277,25 @@
     <action name="Reconfigure" />
   </item>
 
-  <item label="Restart">
+  <item label="Restart Openbox">
     <action name="Restart" />
   </item>
 
-  <item label="Exit">
+  <separator />
+
+  <item label="Shutdown System">
+    <action name="Execute">
+      <command>/sbin/poweroff</command>
+    </action>
+  </item>
+
+  <item label="Restart System">
+    <action name="Execute">
+      <command>/sbin/reboot</command>
+    </action>
+  </item>
+
+  <item label="Exit Desktop">
     <action name="Exit">
       <prompt>yes</prompt>
     </action>

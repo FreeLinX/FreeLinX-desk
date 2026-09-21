@@ -1,0 +1,5 @@
+# FreeLinX/ports - x11/picom : upstream source reference.
+DISTINFO_NAME=picom-v11.2
+DISTINFO_ARCHIVE=picom-v11.2.tar.gz
+DISTINFO_URL=https://github.com/yshui/picom/archive/refs/tags/v11.2.tar.gz
+DISTINFO_SHA256=1c1063936faf09ed9bba726e7737a562564b7a5f8cdef79d48fcdaf3669a4df4
