@@ -1,0 +1,11 @@
+#!/bin/sh
+# FreeLinX Geany Text / Code Editor Handler
+if [ -x /usr/bin/geany-bin ]; then
+    exec /usr/bin/geany-bin "$@"
+elif [ -x /usr/bin/xfw ]; then
+    exec /usr/bin/xfw "$@"
+elif [ -x /bin/vim ]; then
+    exec uxterm -T "Vim Editor" -e vim "$@"
+else
+    exec uxterm -e /bin/sh
+fi

@@ -1,0 +1,6 @@
+#!/bin/sh
+# FreeLinX Picom Compositor Handler
+if [ -x /usr/bin/picom-bin ]; then
+    exec /usr/bin/picom-bin "$@"
+fi
+exit 0
