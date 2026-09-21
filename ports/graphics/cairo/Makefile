@@ -13,7 +13,7 @@ TARGET  := $(FREELINX_TRIPLE)
 PREFIX  := /
 
 CAIRO_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON := /home/devuan/.local/venvs/meson/bin/meson
+MESON ?= $(FREELINX_MESON)
 DEPS  := $(FREELINX_BUILD_DIR)/deps
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/cairo-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson

@@ -158,6 +158,11 @@ install path. Everything is derived from `config/default.conf`, which uses the
 | `FREELINX_STAGING_ROOT` | `../staging`                            | Rootfs-overlay staging tree         |
 | `FREELINX_SRC_DIR`   | `../src`                                   | Sibling FreeLinX/src repo           |
 | `FREELINX_ROOTFS_DIR`| `$(FREELINX_SRC_DIR)/rootfs`               | Rootfs template that consumes output|
+| `FREELINX_MESON`     | `meson`                                    | Host meson binary (resolved via PATH)|
+| `FREELINX_CMAKE`     | `cmake`                                    | Host cmake binary (resolved via PATH)|
+| `FREELINX_VENV_BIN`  | `$(FREELINX_PORTS_ROOT)/../.venv/bin`      | Repo-local virtualenv bin directory  |
+| `FREELINX_HOST_TOOLS`| `$(FREELINX_BUILD_DIR)/host-tools`         | Host-native build tools prefix       |
+| `FREELINX_HOST_WL`   | `$(FREELINX_BUILD_DIR)/host-wl`            | Host-built wayland (scanner) prefix  |
 
 The canonical compile invocation is:
 

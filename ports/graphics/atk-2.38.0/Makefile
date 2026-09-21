@@ -9,7 +9,7 @@ TARGET  := $(FREELINX_TRIPLE)
 PREFIX  := /
 
 FLX_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON    := /home/devuan/.local/venvs/meson/bin/meson
+MESON ?= $(FREELINX_MESON)
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/$(NAME)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(FLX_PREFIX)/lib/libatk-1.0.a

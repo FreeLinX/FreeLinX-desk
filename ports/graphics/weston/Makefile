@@ -25,15 +25,15 @@ INSTALL_RELPATH:= bin/weston
 include ../../mk/project-port.mk
 
 PORT_DIR := $(CURDIR)
-HOST_TOOLS := /tmp/opencode/host-tools
-MESON    := /home/devuan/.local/venvs/meson/bin/meson
+HOST_TOOLS ?= $(FREELINX_HOST_TOOLS)
+MESON ?= $(FREELINX_MESON)
 DEPS     := $(FREELINX_BUILD_DIR)/deps
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/weston-$(VERSION)-fad928ca37beb3bdf70f33bcfcb12149e4da217d
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 
 export PATH := $(HOST_TOOLS):$(PATH)
 
-DEV_PC := /tmp/opencode/host-wl/lib/pkgconfig
+DEV_PC ?= $(FREELINX_HOST_WL)/lib/pkgconfig
 
 # pkg-config lookup: target deps first, then host tools (wayland-scanner).
 DEPS_PKGCONFIG := \

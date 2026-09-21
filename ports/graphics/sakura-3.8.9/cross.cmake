@@ -1,8 +1,8 @@
 # FreeLinX/ports - graphics/sakura-3.8.9 : CMake cross toolchain.
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
-set(CMAKE_C_COMPILER /home/devuan/FreeLinX/toolchain/bin/freelinix-cc)
-set(CMAKE_FIND_ROOT_PATH /home/devuan/FreeLinX/toolchain/x86_64-linux-musl)
+set(CMAKE_C_COMPILER "$ENV{FREELINX_TOOLCHAIN_DIR}/bin/freelinix-cc")
+set(CMAKE_FIND_ROOT_PATH "$ENV{FREELINX_TOOLCHAIN_DIR}/x86_64-linux-musl")
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

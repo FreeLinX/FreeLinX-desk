@@ -9,7 +9,7 @@ TARGET  := $(FREELINX_TRIPLE)
 PREFIX  := /
 
 WP_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON     := /home/devuan/.local/venvs/meson/bin/meson
+MESON ?= $(FREELINX_MESON)
 SRC_TREE  = $(FREELINX_BUILD_DIR)/work/$(NAME)/wayland-protocols-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 
@@ -20,7 +20,7 @@ include ../../mk/project-port.mk
 
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
-	PKG_CONFIG_LIBDIR="$$PKG_CONFIG_LIBDIR:/tmp/host-wl/lib/pkgconfig" \
+	PKG_CONFIG_LIBDIR="$$PKG_CONFIG_LIBDIR:$(FREELINX_HOST_WL)/lib/pkgconfig" \
 	"$(MESON)" setup \
 		--cross-file "$(CURDIR)/../wayland/meson-cross.ini" \
 		--buildtype=release \

@@ -59,3 +59,14 @@ FREELINX_ROOTFS_DIR?=$(FREELINX_SRC_DIR)/rootfs
 FREELINX_ROOTFS_BIN?=$(FREELINX_ROOTFS_DIR)/bin
 
 FREELINX_JOBS?=1
+
+# ---------------------------------------------------------------------------
+# Host build tools (mirror of config/default.conf). meson/cmake resolve via
+# PATH; the optional repo-local virtualenv and the host tool prefixes live
+# under the build dir; all overrideable via FREELINX_* on the command line.
+# ---------------------------------------------------------------------------
+FREELINX_MESON?=meson
+FREELINX_CMAKE?=cmake
+FREELINX_VENV_BIN?=$(FREELINX_PORTS_ROOT)/../.venv/bin
+FREELINX_HOST_TOOLS?=$(FREELINX_BUILD_DIR)/host-tools
+FREELINX_HOST_WL?=$(FREELINX_BUILD_DIR)/host-wl

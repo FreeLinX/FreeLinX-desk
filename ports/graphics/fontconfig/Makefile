@@ -14,7 +14,7 @@ PREFIX  := /
 include ../../mk/project-port.mk
 
 FC_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON := /home/devuan/.local/venvs/meson/bin/meson
+MESON ?= $(FREELINX_MESON)
 DEPS  := $(FREELINX_BUILD_DIR)/deps
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/fontconfig-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
@@ -40,5 +40,5 @@ PROJECT_CFG_CMDS = \
 BUILD_CMDS = \
 	"$(MESON)" compile -C "$(BUILD_DIR)" -j"$(FREELINX_JOBS)" && \
 	DESTDIR="$(FC_PREFIX)" "$(MESON)" install -C "$(BUILD_DIR)" && \
-	_NEST="$(FC_PREFIX)/home/devuan/FreeLinX/Desktop-test/ports/build/deps/fontconfig" && \
-	[ -d "$$_NEST" ] && cp -a "$$_NEST"/. "$(FC_PREFIX)"/ && rm -rf "$(FC_PREFIX)/home" || true
+	_NEST="$(FC_PREFIX)$(FC_PREFIX)" && \
+	[ -d "$$_NEST" ] && cp -a "$$_NEST"/. "$(FC_PREFIX)"/ && rm -rf "$$_NEST" || true

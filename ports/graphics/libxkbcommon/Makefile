@@ -25,8 +25,8 @@ INSTALL_RELPATH:= lib/libxkbcommon.a
 include ../../mk/project-port.mk
 
 PORT_DIR := $(CURDIR)
-HOST_TOOLS := /tmp/opencode/host-tools
-MESON    := /home/devuan/.local/venvs/meson/bin/meson
+HOST_TOOLS ?= $(FREELINX_HOST_TOOLS)
+MESON ?= $(FREELINX_MESON)
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/libxkbcommon-xkbcommon-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(XKB_PREFIX)/lib/libxkbcommon.a

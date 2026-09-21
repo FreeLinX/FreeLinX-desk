@@ -24,8 +24,8 @@ INSTALL_RELPATH:= include/libseat.h
 include ../../mk/project-port.mk
 
 PORT_DIR := $(CURDIR)
-HOST_TOOLS := /tmp/opencode/host-tools
-MESON    := /home/devuan/.local/venvs/meson/bin/meson
+HOST_TOOLS ?= $(FREELINX_HOST_TOOLS)
+MESON ?= $(FREELINX_MESON)
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/seatd-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(SEAT_PREFIX)/include/libseat.h

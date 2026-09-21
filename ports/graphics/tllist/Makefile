@@ -13,7 +13,7 @@ PREFIX  := /
 include ../../mk/project-port.mk
 
 TL_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON    := /home/devuan/.local/venvs/meson/bin/meson
+MESON ?= $(FREELINX_MESON)
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/$(DISTINFO_NAME)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(TL_PREFIX)/include/tllist.h

@@ -30,7 +30,7 @@ exactly like a distro's `/usr`:
 - `ports/build/deps/x11/include`  -- merged headers (xorgproto, Xlib, Xft, Pango shim)
 - `ports/build/deps/x11/share/pkgconfig` -- xorgproto's pkgconfig files
 
-The port skeleton generator (`/tmp/opencode/genx11.sh`) produced every X port;
+The port skeleton generator produced every X port;
 each `Makefile` sets `FLX_PREFIX=$(FREELINX_BUILD_DIR)/deps/x11` and a Pure-C
 stack (`FLX_PROJECT_LIBS?=`), and `ports/mk/pkgconfig-libdir.mk` appends both
 `deps/x11/lib/pkgconfig` and `deps/x11/share/pkgconfig` to `PKG_CONFIG_LIBDIR`

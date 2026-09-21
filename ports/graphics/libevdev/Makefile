@@ -22,8 +22,8 @@ INSTALL_RELPATH:= lib/libevdev.a
 include ../../mk/project-port.mk
 
 PORT_DIR := $(CURDIR)
-HOST_TOOLS := /tmp/opencode/host-tools
-MESON    := /home/devuan/.local/venvs/meson/bin/meson
+HOST_TOOLS ?= $(FREELINX_HOST_TOOLS)
+MESON ?= $(FREELINX_MESON)
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/libevdev-libevdev-$(VERSION)-a158f468affb059669189454a52b0d78c563618b
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(LEV_PREFIX)/lib/libevdev.a

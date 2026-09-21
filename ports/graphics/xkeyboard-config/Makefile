@@ -15,7 +15,7 @@ PREFIX  := /
 include ../../mk/project-port.mk
 
 XKB_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON := /home/devuan/.local/venvs/meson/bin/meson
+MESON ?= $(FREELINX_MESON)
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/xkeyboard-config-xkeyboard-config-2.44-1691aef8fa12f63037f2ff956f902587d814a65c
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/native
 

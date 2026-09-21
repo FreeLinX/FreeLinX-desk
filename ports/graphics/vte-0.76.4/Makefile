@@ -9,7 +9,7 @@ TARGET  := $(FREELINX_TRIPLE)
 PREFIX  := /
 
 FLX_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
-MESON    := /home/devuan/.local/venvs/meson/bin/meson
+MESON ?= $(FREELINX_MESON)
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/$(NAME)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(FLX_PREFIX)/lib/libvte-2.91.a
@@ -17,7 +17,7 @@ BUILD_BIN   = $(PROJECT_BIN)
 
 include ../../mk/project-port.mk
 
-export PATH := /home/devuan/FreeLinX/desktop-test/.venv/bin:$(FREELINX_BUILD_DIR)/deps/glib-2.82.5/bin:$(PATH)
+export PATH := $(FREELINX_VENV_BIN):$(FREELINX_BUILD_DIR)/deps/glib-2.82.5/bin:$(PATH)
 
 PROJECT_CFG_CMDS = \
 	awk -f "$(CURDIR)/strip-reflect.awk" src/meson.build > src/meson.build.new && mv src/meson.build.new src/meson.build && \

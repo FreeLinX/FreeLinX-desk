@@ -20,8 +20,8 @@ PROJECT_CFG_CMDS = \
 		--disable-tiff \
 		--disable-bz2lib \
 		--with-x \
-		--x-includes=/home/devuan/FreeLinX/Desktop-test/toolchain/x86_64-linux-musl/include \
-		--x-libraries=/home/devuan/FreeLinX/Desktop-test/toolchain/x86_64-linux-musl/lib \
+		--x-includes=$(FREELINX_SYSROOT)/include \
+		--x-libraries=$(FREELINX_SYSROOT)/lib \
 		--with-xft \
 		--with-opengl=no \
 		--with-xinput=no \

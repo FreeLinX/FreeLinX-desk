@@ -2,7 +2,7 @@
 # FreeLinX - compile desktop apps statically against musl toolchain
 set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-TOOLCHAIN=/home/devuan/FreeLinX/toolchain
+TOOLCHAIN="${FREELINX_TOOLCHAIN_DIR:-${SCRIPT_DIR}/../toolchain}"
 CLANG="${TOOLCHAIN}/bin/clang"
 STRIP="${TOOLCHAIN}/bin/llvm-strip"
 SYSROOT="${TOOLCHAIN}/x86_64-linux-musl"
@@ -42,7 +42,7 @@ echo "Building st (uxterm)..."
   "$DEPS/zlib/lib/libz.a" \
   -lm
 "$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/st"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/st" /home/devuan/FreeLinX/src/rootfs/usr/bin/st 2>/dev/null || true
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/st" "${FREELINX_SRC_DIR:-${SCRIPT_DIR}/../src}/rootfs/usr/bin/st" 2>/dev/null || true
 
 echo "Building xmag (Screen Magnifier)..."
 "$CLANG" \
@@ -54,7 +54,7 @@ echo "Building xmag (Screen Magnifier)..."
   "${SCRIPT_DIR}/xmag.c" \
   $CAIRO_LIBS
 "$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/xmag"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/xmag" /home/devuan/FreeLinX/src/rootfs/usr/bin/xmag 2>/dev/null || true
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/xmag" "${FREELINX_SRC_DIR:-${SCRIPT_DIR}/../src}/rootfs/usr/bin/xmag" 2>/dev/null || true
 
 
 echo "Building xclock (Retro Plan 9 Clock)..."
@@ -67,6 +67,6 @@ echo "Building xclock (Retro Plan 9 Clock)..."
   "${SCRIPT_DIR}/xclock.c" \
   $CAIRO_LIBS
 "$STRIP" "${SCRIPT_DIR}/src/rootfs/usr/bin/xclock"
-cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/xclock" /home/devuan/FreeLinX/src/rootfs/usr/bin/xclock 2>/dev/null || true
+cp -f "${SCRIPT_DIR}/src/rootfs/usr/bin/xclock" "${FREELINX_SRC_DIR:-${SCRIPT_DIR}/../src}/rootfs/usr/bin/xclock" 2>/dev/null || true
 
 echo "All desktop applications built successfully."

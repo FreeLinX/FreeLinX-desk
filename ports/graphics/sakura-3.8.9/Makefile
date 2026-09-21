@@ -6,13 +6,17 @@ TARGET:=$(FREELINX_TRIPLE)
 LICENSE:=GPL-3.0-or-later
 
 FLX_PREFIX=$(FREELINX_BUILD_DIR)/deps/$(NAME)
-CMAKE:=/home/devuan/FreeLinX/desktop-test/.venv/bin/cmake
+CMAKE ?= $(FREELINX_CMAKE)
 SRC_TREE=$(FREELINX_BUILD_DIR)/work/$(NAME)/$(DISTINFO_NAME)
 BUILD_DIR=$(FREELINX_BUILD_DIR)/obj/$(NAME)/cmake
 PROJECT_BIN=$(FLX_PREFIX)/bin/sakura
 BUILD_BIN=$(PROJECT_BIN)
 
 include ../../mk/project-port.mk
+
+# cross.cmake resolves the toolchain via its environment (never an
+# absolute path): pass the configured FreeLinX toolchain through.
+export FREELINX_TOOLCHAIN_DIR := $(FREELINX_TOOLCHAIN_DIR)
 
 PROJECT_CFG_CMDS = \
 	sh "$(CURDIR)/patch-cfg.sh" && \

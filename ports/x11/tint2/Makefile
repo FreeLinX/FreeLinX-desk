@@ -9,7 +9,7 @@ include ../../mk/project-port.mk
 
 PROJECT_CFG_CMDS = \
 	mkdir -p build && cd build && \
-	PKG_CONFIG_LIBDIR="/home/devuan/FreeLinX/Desktop-test/toolchain/x86_64-linux-musl/lib/pkgconfig:/home/devuan/FreeLinX/Desktop-test/toolchain/x86_64-linux-musl/share/pkgconfig" \
+	PKG_CONFIG_LIBDIR="$(FREELINX_SYSROOT)/lib/pkgconfig:$(FREELINX_SYSROOT)/share/pkgconfig" \
 	cmake .. \
 		-DCMAKE_INSTALL_PREFIX=$(FREELINX_STAGING_ROOT)/usr \
 		-DCMAKE_C_COMPILER=$(CC) \
