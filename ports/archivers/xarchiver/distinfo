@@ -1,0 +1,5 @@
+# FreeLinX/ports - archivers/xarchiver : upstream source reference.
+DISTINFO_NAME=xarchiver-0.5.4.23
+DISTINFO_ARCHIVE=xarchiver-0.5.4.23.tar.gz
+DISTINFO_URL=https://github.com/ib/xarchiver/archive/refs/tags/0.5.4.23.tar.gz
+DISTINFO_SHA256=319935cd323e865d8aa12023b5286c314c128491ac58e853e63f6d6ea3da2a27

@@ -1,0 +1,7 @@
+#!/bin/sh
+# FreeLinX ALSA Audio Mixer Handler
+if [ -x /usr/bin/alsamixer-bin ]; then
+    exec /usr/bin/alsamixer-bin "$@"
+elif [ -x /usr/bin/tinymix ]; then
+    exec uxterm -T "ALSA Audio Mixer" -e sh -c "/usr/bin/tinymix; echo; printf 'Press Enter to close...'; read l"
+fi

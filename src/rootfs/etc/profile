@@ -26,6 +26,10 @@ export ENV=/etc/profile
 export FONTCONFIG_FILE=/etc/fonts/fonts.conf
 export FONTCONFIG_PATH=/etc/fonts
 
+# X11 locale database (statically linked libX11 looks here first via XLOCALEDIR;
+# its compiled-in default points at the build machine's path and never exists here)
+export XLOCALEDIR=/usr/share/X11/locale
+
 # Full English Locale
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8

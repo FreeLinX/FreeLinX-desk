@@ -1,0 +1,5 @@
+# FreeLinX/ports - editors/geany : upstream source reference.
+DISTINFO_NAME=geany-2.0
+DISTINFO_ARCHIVE=geany-2.0.tar.bz2
+DISTINFO_URL=https://download.geany.org/geany-2.0.tar.bz2
+DISTINFO_SHA256=5c2fcafb28419d4f981c8cc8c96e47d0d5dc11db7ec4dd54b0b4f25547c9f2e9

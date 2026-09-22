@@ -22,14 +22,17 @@ PIX_PREFIX = $(FREELINX_BUILD_DIR)/deps/$(NAME)
 INSTALL_BIN:=
 INSTALL_RELPATH:= lib/libpixman-1.a
 
-include ../../mk/project-port.mk
-
 PORT_DIR := $(CURDIR)
 HOST_TOOLS ?= $(FREELINX_HOST_TOOLS)
 MESON ?= $(FREELINX_MESON)
 SRC_TREE = $(FREELINX_BUILD_DIR)/work/$(NAME)/pixman-$(VERSION)
 BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
+# PROJECT_BIN must be declared BEFORE the include: the framework's
+# `$(PROJECT_BIN): do-build` rule expands it at parse time.
 PROJECT_BIN = $(PIX_PREFIX)/lib/libpixman-1.a
+BUILD_BIN   = $(PROJECT_BIN)
+
+include ../../mk/project-port.mk
 
 export PATH := $(HOST_TOOLS):$(PATH)
 

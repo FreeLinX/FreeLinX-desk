@@ -1,0 +1,5 @@
+# FreeLinX/ports - x11/dunst : upstream source reference.
+DISTINFO_NAME=dunst-1.13.2
+DISTINFO_ARCHIVE=dunst-1.13.2.tar.gz
+DISTINFO_URL=https://github.com/dunst-project/dunst/archive/refs/tags/v1.13.2.tar.gz
+DISTINFO_SHA256=21d877efbb02c54a3780a4bae09f2a2b6c671b0f4e764bf249ba7aaf8ef1022e

@@ -1,0 +1,33 @@
+#!/bin/sh
+# FreeLinX feh Image Viewer & Wallpaper Setter Handler
+if [ -x /usr/bin/feh-bin ]; then
+    exec /usr/bin/feh-bin "$@"
+fi
+
+# Check if called as wallpaper setter (e.g. feh --bg-scale /path/to/bg.png)
+for arg in "$@"; do
+    case "$arg" in
+        --bg-*|-bg|--bg)
+            last_arg=""
+            for a in "$@"; do
+                case "$a" in
+                    -*) ;;
+                    *) last_arg="$a" ;;
+                esac
+            done
+            if [ -n "$last_arg" ] && [ -x /usr/bin/flxbg ]; then
+                exec /usr/bin/flxbg "$last_arg"
+            elif [ -x /usr/bin/xsetroot ]; then
+                exec /usr/bin/xsetroot -solid "${last_arg:-#778877}"
+            fi
+            exit 0
+            ;;
+    esac
+done
+
+# Image viewing mode
+if [ -x /bin/nsxiv ]; then
+    exec /bin/nsxiv "$@"
+elif [ -x /usr/bin/xfi ]; then
+    exec /usr/bin/xfi "$@"
+fi

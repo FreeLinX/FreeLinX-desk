@@ -1,0 +1,9 @@
+#!/bin/sh
+# FreeLinX PCManFM File Manager Handler
+if [ -x /usr/bin/pcmanfm-bin ]; then
+    exec /usr/bin/pcmanfm-bin "$@"
+elif [ -x /usr/bin/xfe ]; then
+    exec /usr/bin/xfe "$@"
+elif [ -x /bin/nnn ]; then
+    exec uxterm -T "File Manager (nnn)" -e nnn "$@"
+fi

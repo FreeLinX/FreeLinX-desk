@@ -1,0 +1,6 @@
+#!/bin/sh
+# FreeLinX Dunst Notification Daemon Handler
+if [ -x /usr/bin/dunst-bin ]; then
+    exec /usr/bin/dunst-bin "$@"
+fi
+exit 0

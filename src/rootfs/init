@@ -35,6 +35,9 @@ mount -t devpts -o gid=5,mode=0620,ptmxmode=0666 devpts /dev/pts 2>/dev/null || 
 rm -f /dev/ptmx && ln -s /dev/pts/ptmx /dev/ptmx
 mount -t tmpfs    tmpfs    /run   2>/dev/null || :
 
+# Enable sysrq for reboot/poweroff via /proc/sysrq-trigger
+echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || :
+
 # --- Device Manager (mdevd) & Driver Auto-Probe ------------------------------
 if [ -x /sbin/mdevd ]; then
     /sbin/mdevd -f /etc/mdev.conf >/dev/null 2>&1 &
@@ -161,12 +164,22 @@ fi
 # to dhcpcd, since hard-coding the QEMU addresses on a physical NIC would
 # misconfigure the network.
 if [ -r /sys/class/dmi/id/sys_vendor ] && grep -qi qemu /sys/class/dmi/id/sys_vendor; then
-    /sbin/flxifconfig eth0 inet 10.0.2.15/24 2>/dev/null || /sbin/ifconfig eth0 10.0.2.15 netmask 255.255.255.0 up 2>/dev/null || :
-    /sbin/flxifconfig eth0 up 2>/dev/null || :
+    _iface=""
+    for dev in /sys/class/net/*; do
+        [ -d "$dev" ] || continue
+        _name=$(basename "$dev")
+        if [ "$_name" != "lo" ]; then
+            _iface="$_name"
+            break
+        fi
+    done
+    _iface="${_iface:-eth0}"
+    /sbin/flxifconfig "$_iface" inet 10.0.2.15/24 2>/dev/null || /sbin/ifconfig "$_iface" 10.0.2.15 netmask 255.255.255.0 up 2>/dev/null || :
+    /sbin/flxifconfig "$_iface" up 2>/dev/null || :
     /sbin/flxroute add default 10.0.2.2 2>/dev/null || /sbin/route add default gw 10.0.2.2 2>/dev/null || :
     printf "nameserver 10.0.2.3\nnameserver 1.1.1.1\nnameserver 8.8.8.8\n" > /etc/resolv.conf
 fi
-/sbin/dhcpcd -q -b eth0 2>/dev/null || :
+/sbin/dhcpcd -q -b "${_iface:-eth0}" 2>/dev/null || :
 
 # --- hostname ---------------------------------------------------------------
 _hostname=""
