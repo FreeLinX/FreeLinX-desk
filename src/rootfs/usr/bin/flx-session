@@ -111,6 +111,7 @@ echo "=== Xorg Full Log ===" > /dev/ttyS0
 cat /tmp/xorg.log > /dev/ttyS0 2>&1 || true
 
 export DISPLAY=:0
+export XLOCALEDIR=/usr/share/X11/locale
 export HOME=/root
 export USER=root
 export ENV=/etc/profile

@@ -1,0 +1,38 @@
+#!/bin/sh
+# flxpanel-del: Remove/Stop the FreeLinX desktop panel and redraw background
+
+export DISPLAY="${DISPLAY:-:0}"
+
+# Fast terminate lemonbar and i3status using shell builtins (zero fork)
+for c in /proc/[0-9]*/comm; do
+    [ -f "$c" ] || continue
+    read -r name < "$c" 2>/dev/null || continue
+    case "$name" in
+        lemonbar|i3status|flxbar-bottom)
+            p="${c%/comm}"
+            pid="${p#/proc/}"
+            if [ "$pid" != "$$" ] && [ "$pid" != "$PPID" ]; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
+            ;;
+    esac
+done
+
+# Clean up any remaining flxbar-bottom processes
+for p in /proc/[0-9]*; do
+    [ -r "$p/cmdline" ] || continue
+    read -r cmd < "$p/cmdline" 2>/dev/null || continue
+    case "$cmd" in
+        *"flxbar-bottom"*|*"lemonbar"*)
+            pid="${p#/proc/}"
+            if [ "$pid" != "$$" ] && [ "$pid" != "$PPID" ]; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
+            ;;
+    esac
+done
+
+# Redraw desktop background so panel space is immediately wiped
+BG=$(cat /tmp/.flxbg 2>/dev/null)
+[ -z "$BG" ] && BG="#778877"
+xsetroot -solid "$BG" 2>/dev/null || true

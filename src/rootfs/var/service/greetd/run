@@ -1,0 +1,6 @@
+#!/bin/sh
+# FreeLinX login manager (greetd). greetd reads /etc/greetd/config.toml and
+# launches the tuigreet greeter; after authentication the session command
+# (--cmd /usr/bin/flx-session) starts the desktop. Shadow auth happens via
+# getspnam()/crypt() in the greetd binary itself - no PAM, no libpam.
+exec /usr/bin/greetd
