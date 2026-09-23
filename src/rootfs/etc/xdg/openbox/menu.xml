@@ -14,9 +14,6 @@
 </menu>
 
 <menu id="files-menu" label="Files">
-  <item label="PCManFM (Graphical File Manager)">
-    <action name="Execute"><command>pcmanfm</command></action>
-  </item>
   <item label="Xfe (Classic File Manager)">
     <action name="Execute"><command>xfe</command></action>
   </item>
@@ -242,9 +239,9 @@
     </action>
   </item>
 
-  <item label="PCManFM File Manager">
+  <item label="Xfe File Manager">
     <action name="Execute">
-      <command>pcmanfm</command>
+      <command>xfe</command>
     </action>
   </item>
 

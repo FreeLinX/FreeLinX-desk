@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Terminal (ST)
+GenericName=Terminal Emulator
+Comment=Suckless simple terminal emulator
+Exec=st
+Terminal=false
+Type=Application
+Icon=utilities-terminal
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;console;

@@ -1,7 +1,8 @@
 [Desktop Entry]
 Name=Links Web Browser
-Comment=Fast and lightweight graphical web browser
-Exec=links -g %u
+GenericName=Web Browser
+Comment=Fast and lightweight text/graphical web browser
+Exec=uxterm -e links %u
 Terminal=false
 Type=Application
 Icon=text-html
