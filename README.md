@@ -4,24 +4,6 @@ FreeLinX is an independent, from-scratch, non-GNU, musl-based Linux distribution
 
 The desktop runs smoothly at 60 FPS using software rendering accelerated by `ShadowFB` (`libshadowfb.so` + `libshadow.so`) on virtio framebuffer (`/dev/fb0`), with full `evdev` keyboard and `virtio-tablet` absolute mouse integration.
 
----
-
-## What is in this repository
-
-| Path               | Contents                                                        |
-|--------------------|-----------------------------------------------------------------|
-| `initrd.img`       | Short symlink to the runnable initramfs image                   |
-| `run.sh`           | Automated launcher to boot the desktop in QEMU/KVM               |
-| `kernel/`          | Kernel build configuration, provenance notes, and the `bzImage` |
-| `src/`             | Root filesystem template (`rootfs/`) and staging build scripts  |
-| `ports/`           | Non-GNU Ports recipes (`base/`, `graphics/`, `x11/`, etc.)      |
-| `flxnetmgr.c`     | C source code for FreeLinX Graphical Network Manager            |
-| `fview.c`          | C source code for the retro 90s File Manager                   |
-| `xeyes.c`          | C source code for FreeLinX standalone mouse tracker             |
-| `st-src/`          | Source tree for `st` (built as `uxterm`)                        |
-| `build-image.sh`   | Pack the initramfs (`freelinx-desktop.img.gz`) from `src/rootfs`|
-| `build-apps.sh`    | Recompile `flxnetmgr`, `fview`, `st`, `xeyes` statically       |
-| `vmtest/`          | QEMU boot and test scripts                                      |
 
 ---
 
