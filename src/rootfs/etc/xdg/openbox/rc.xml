@@ -311,13 +311,6 @@
   <keybind key="W-w">
     <action name="Execute"><command>flxbrowser</command></action>
   </keybind>
-  <!-- Keybindings for Panel / Status Bar Toggle (Add / Sil) -->
-  <keybind key="W-b">
-    <action name="Execute"><command>/usr/bin/flxpanel-toggle</command></action>
-  </keybind>
-  <keybind key="A-b">
-    <action name="Execute"><command>/usr/bin/flxpanel-toggle</command></action>
-  </keybind>
   <!-- Keybindings to open FreeLinX Root Menu -->
   <keybind key="W-space">
     <action name="ShowMenu"><menu>root-menu</menu></action>

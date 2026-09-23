@@ -1,5 +1,16 @@
 #!/bin/sh
 # FreeLinX X11 desktop: start Xorg via modesetting (DRM/KMS) or fbdev fallback.
+
+# Apply what flxinstall baked in: locale and timezone.  Exporting here means
+# every X client inherited from this session sees the user's choices.
+if [ -r /etc/flx-lang ]; then
+    export LANG="$(cat /etc/flx-lang)"
+    export LC_ALL="$(cat /etc/flx-lang)"
+fi
+if [ -r /etc/TZ ]; then
+    export TZ="$(cat /etc/TZ)"
+fi
+
 mkdir -p /tmp/.X11-unix /var/lib/xkb 2>/dev/null || true
 chmod 1777 /tmp/.X11-unix 2>/dev/null || true
 

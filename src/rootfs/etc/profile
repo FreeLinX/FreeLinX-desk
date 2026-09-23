@@ -34,3 +34,11 @@ export XLOCALEDIR=/usr/share/X11/locale
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
+
+
+# FreeLinX Installer overrides (written by flxinstall into the live rootfs;
+# baked into the initramfs at install time).
+[ -r /etc/flx-lang ] && export LANG="$(cat /etc/flx-lang)"
+[ -r /etc/flx-lang ] && export LC_ALL="$(cat /etc/flx-lang)"
+[ -r /etc/flx-kbd ] && export FLX_KBD="$(cat /etc/flx-kbd)"
+[ -r /etc/TZ ] && export TZ="$(cat /etc/TZ)"

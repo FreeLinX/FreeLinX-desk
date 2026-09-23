@@ -9,6 +9,14 @@
 
 set -e
 
+# While flxinstall is partitioning/formatting/mounting the target disk,
+# mdevd hotplug events fire for the freshly created partitions.  flxinstall
+# creates /run/flxinstall-active so this automounter steps aside and never
+# races the installer (which otherwise ends in "Device or resource busy").
+if [ -e /run/flxinstall-active ]; then
+    exit 0
+fi
+
 MDEV="${MDEV:-$1}"
 ACTION="${ACTION:-add}"
 

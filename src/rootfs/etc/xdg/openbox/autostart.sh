@@ -1,6 +1,14 @@
 #!/bin/sh
 # FreeLinX Desktop Autostart
 
+# 0. Apply the keyboard layout selected by the installer (FreeBSD-style
+#    "Keymap" step).  /etc/flx-kbd is written by flxinstall and baked into
+#    the running initramfs, so this also configures the installed system.
+if [ -r /etc/flx-kbd ]; then
+    setxkbmap "$(cat /etc/flx-kbd)" 2>/dev/null || \
+    setxkbmap -layout "$(cat /etc/flx-kbd)" 2>/dev/null || true
+fi
+
 # 1. Desktop Background (Plan 9 Rio muted sage)
 if [ -x /usr/bin/flxbg ]; then
     /usr/bin/flxbg "#778877" &

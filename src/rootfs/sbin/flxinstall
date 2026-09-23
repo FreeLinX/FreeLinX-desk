@@ -2,62 +2,298 @@
 # FreeLinX Manual Installer (flxinstall)
 #
 # Boot model: INITRAMFS-PRIMARY, DISK=/HOME.
-#   - The entire FreeLinX operating system (kernel + full rootfs initramfs)
-#     is deployed inside the ESP and booted directly by Limine.
+#   - The entire FreeLinX OS (kernel + full rootfs initramfs) is deployed
+#     inside the ESP and booted directly by Limine.
 #   - The second disk partition (ext4, LABEL=FLX_HOME) is mounted as
 #     persistent /home by the running system (automount/fstab).
-#   - No root filesystem or /sbin/init is installed to the disk.
 #
-# Fully autonomous, non-GNU installer for FreeLinX.
-# Supports UEFI (GPT) and Legacy BIOS using Limine.
+# bsdinstall-style MANUAL installer, 100% offline, no TUI, no package
+# fetching.  Configuration chosen here (language, keyboard, timezone,
+# hostname, root/user passwords, WiFi keys) is written into the running
+# rootfs *before* the initramfs repack step, so it is baked straight into
+# the installed OS image on the ESP.
 #
 # Copyright (c) 2026 FreeLinX OS Project.
 # SPDX-License-Identifier: BSD-2-Clause
 
 set -e
 
-echo ""
-echo "=========================="
-echo "   FreeLinX Installer"
-echo "=========================="
-echo ""
+# --- tiny helpers -----------------------------------------------------------
+die() { echo "Error: $*" >&2; exit 1; }
+
+ask_default() {
+    # ask_default "prompt" "default" ; echoes entered value (default on empty)
+    _p="$1"
+    _d="$2"
+    printf '%s [%s]: ' "$_p" "$_d"
+    read -r _ans || _ans="$_d"
+    [ -z "$_ans" ] && _ans="$_d"
+    printf '%s\n' "$_ans"
+}
+
+menu_select() {
+    # menu_select "title" "item1|item2|..."  ; echoes chosen index (1-based)
+    # or the entered numeric value after showing the numbered menu.
+    _title="$1"
+    _menu="$2"
+    echo ""
+    echo "----------------------------------------------------------"
+    echo "  $_title"
+    echo "----------------------------------------------------------"
+    _i=1
+    OLDIFS=$IFS
+    IFS='|'
+    for _item in $_menu; do
+        [ -z "$_item" ] && continue
+        if [ $((_i % 2)) -eq 1 ]; then
+            printf '  %2d) %-38s' "$_i" "$_item"
+        else
+            printf '  %2d) %-38s\n' "$_i" "$_item"
+        fi
+        _i=$((_i + 1))
+    done
+    IFS=$OLDIFS
+    [ $(((_i - 1) % 2)) -eq 1 ] && echo ""
+    echo "----------------------------------------------------------"
+    printf 'Select a number [1-%d] (Enter = 1): ' "$((_i - 1))"
+    read -r _sel || _sel=1
+    [ -z "$_sel" ] && _sel=1
+    case "$_sel" in
+        *[!0-9]*) _sel=1 ;;
+    esac
+    [ "$_sel" -lt 1 ] 2>/dev/null && _sel=1
+    [ "$_sel" -gt $((_i - 1)) ] 2>/dev/null && _sel=1
+    printf '%s\n' "$_sel"
+}
 
 if [ "$(id -u)" -ne 0 ]; then
-    echo "Error: flxinstall must be run as root." >&2
-    exit 1
+    die "flxinstall must be run as root."
 fi
 
-# --- Locate required utilities ----------------------------------------------
-command -v flxpart >/dev/null 2>&1 || {
-    if [ -x /sbin/flxpart ]; then PATH="$PATH:/sbin";
-    elif [ -x /usr/bin/flxpart ]; then PATH="$PATH:/usr/bin";
-    else echo "Error: flxpart utility not found." >&2; exit 1; fi
-}
+# --- locate required utilities ----------------------------------------------
+command -v flxpart >/dev/null 2>&1 || die "flxpart utility not found."
 
 MKFS_FAT=""
 if command -v mkfs.fat >/dev/null 2>&1; then MKFS_FAT="mkfs.fat"
 elif command -v mkfs.vfat >/dev/null 2>&1; then MKFS_FAT="mkfs.vfat"
 elif [ -x /sbin/mkfs.fat ]; then MKFS_FAT="/sbin/mkfs.fat"
 fi
-
 MKFS_EXT4=""
 if command -v mkfs.ext4 >/dev/null 2>&1; then MKFS_EXT4="mkfs.ext4"
 elif command -v mke2fs >/dev/null 2>&1; then MKFS_EXT4="mke2fs -t ext4"
 elif [ -x /sbin/mke2fs ]; then MKFS_EXT4="/sbin/mke2fs -t ext4"
 fi
+[ -n "$MKFS_FAT" ] && [ -n "$MKFS_EXT4" ] || die "Filesystem tools (mkfs.fat, mkfs.ext4) not found."
 
 LIMINE_DIR="/usr/share/limine"
 
-if [ -z "$MKFS_FAT" ] || [ -z "$MKFS_EXT4" ]; then
-    echo "Error: Filesystem creation tools (mkfs.fat, mkfs.ext4) not found." >&2
-    exit 1
+# ---------------------------------------------------------------------------
+echo ""
+echo "=========================================================="
+echo "   FreeLinX Installer  (manual, bsdinstall-style)        "
+echo "=========================================================="
+echo ""
+echo " This installer configures your system and writes FreeLinX"
+echo " to a disk.  Everything runs offline; no packages will be"
+echo " fetched.  You will be asked a few configuration questions"
+echo " first (language, keyboard, timezone, users, WiFi), then"
+echo " you pick the target disk and confirm the wipe."
+echo ""
+
+# --- Step 1: Language -------------------------------------------------------
+echo "----------------------------------------------------------"
+echo " Step 1/8 - Language"
+echo "----------------------------------------------------------"
+LANG_CLIST="English (en_US.UTF-8)|German (de_DE.UTF-8)|French (fr_FR.UTF-8)|Spanish (es_ES.UTF-8)|Italian (it_IT.UTF-8)|Portuguese (pt_PT.UTF-8)|Dutch (nl_NL.UTF-8)|Turkish (tr_TR.UTF-8)|Russian (ru_RU.UTF-8)|Arabic (ar_SA.UTF-8)|Persian (fa_IR.UTF-8)|Japanese (ja_JP.UTF-8)|Chinese (zh_CN.UTF-8)"
+LANG_LOCALES="en_US.UTF-8|de_DE.UTF-8|fr_FR.UTF-8|es_ES.UTF-8|it_IT.UTF-8|pt_PT.UTF-8|nl_NL.UTF-8|tr_TR.UTF-8|ru_RU.UTF-8|ar_SA.UTF-8|fa_IR.UTF-8|ja_JP.UTF-8|zh_CN.UTF-8"
+LI=$(menu_select "Choose your language" "$LANG_CLIST")
+LANG_LC=$(echo "$LANG_LOCALES" | cut -d'|' -f"$LI")
+LC_LANG=${LANG_LC%.*}   # strip .UTF-8
+printf '%s\n' "$LANG_LC" > /etc/flx-locale
+echo "  Language set to: $LANG_LC"
+echo ""
+
+# --- Step 2: Keyboard -------------------------------------------------------
+echo "----------------------------------------------------------"
+echo " Step 2/8 - Keyboard layout"
+echo "----------------------------------------------------------"
+KBD_CLIST="US English (us)|German (de)|French (fr)|British (gb)|Spanish (es)|Italian (it)|Portuguese (pt)|Turkish (tr)|Russian (ru)|Arabic (ar)|Persian (fa)|Japanese (jp)|Custom (enter X layout)"
+KBD_LAYOUTS="us|de|fr|gb|es|it|pt|tr|ru|ar|fa|jp|custom"
+KI=$(menu_select "Choose your keyboard layout" "$KBD_CLIST")
+KBD_LAYOUT=$(echo "$KBD_LAYOUTS" | cut -d'|' -f"$KI")
+if [ "$KBD_LAYOUT" = "custom" ]; then
+    KBD_LAYOUT=$(ask_default "Enter X11 keyboard layout (e.g. us, de, fr, gb)" "us")
 fi
+printf '%s\n' "$KBD_LAYOUT" > /etc/flx-kbd
+echo "  Keyboard layout: $KBD_LAYOUT"
+echo ""
 
-TARGET_DISK="$1"
+# --- Step 3: Timezone / time ------------------------------------------------
+# The image ships without tzdata, so we write a POSIX TZ string
+# (works with musl/toybox date via the TZ environment variable).
+echo "----------------------------------------------------------"
+echo " Step 3/8 - Timezone"
+echo "----------------------------------------------------------"
+TZ_CLIST="UTC|UTC +1 (Berlin/Paris/Rome)|UTC +2 (Istanbul/Athens)|UTC +3 (Moscow,Nairobi)|UTC +3:30 (Tehran)|UTC +4 (Dubai/Baku)|UTC +5:30 (Mumbai)|UTC +7 (Bangkok/Hanoi)|UTC +8 (Beijing/Singapore)|UTC +9 (Tokyo/Seoul)|UTC -5 (New York)|UTC -6 (Chicago)|UTC -7 (Denver)|UTC -8 (Los Angeles)|UTC +0 - Custom (enter POSIX TZ)"
+TZ_POSIX="UTC0|UTC-1|UTC-2|UTC-3|UTC-3:30|UTC-4|UTC-5:30|UTC-7|UTC-8|UTC-9|UTC+5|UTC+6|UTC+7|UTC+8|custom"
+TI=$(menu_select "Choose your timezone (UTC offset)" "$TZ_CLIST")
+TZ_STR=$(echo "$TZ_POSIX" | cut -d'|' -f"$TI")
+if [ "$TZ_STR" = "custom" ]; then
+    TZ_STR=$(ask_default "Enter POSIX TZ string (e.g. 'UTC-1' = UTC+1, 'EST5' = US Eastern)" "UTC0")
+fi
+printf '%s\n' "$TZ_STR" > /etc/TZ
+export TZ="$TZ_STR"
+echo "  Timezone: $TZ_STR  (POSIX TZ)"
+echo ""
 
-# --- Normalize a bare device name to a full path -----------------------------
-# Accept: a full device path (/dev/vda) or a bare name (vda, sda, nvme0n1...)
-# which gets /dev/ prepended automatically.
+# --- Step 4: Hostname -------------------------------------------------------
+echo "----------------------------------------------------------"
+echo " Step 4/8 - Hostname"
+echo "----------------------------------------------------------"
+HOSTNAME=$(ask_default "Enter system hostname" "freelinx")
+printf '%s\n' "$HOSTNAME" > /etc/hostname
+hostname "$HOSTNAME" 2>/dev/null || :
+echo "  Hostname: $HOSTNAME"
+echo ""
+
+# --- Step 5: Root password --------------------------------------------------
+echo "----------------------------------------------------------"
+echo " Step 5/8 - Root password"
+echo "----------------------------------------------------------"
+echo " (Leave blank to keep the current root password.)"
+printf 'Enter new root password: '
+read -r ROOTPW || ROOTPW=""
+if [ -n "$ROOTPW" ]; then
+    if [ -x /bin/python3.12 ]; then
+        ROOTHASH=$(/bin/python3.12 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$ROOTPW" 2>/dev/null)
+    fi
+    if [ -z "$ROOTHASH" ] && command -v pwhash >/dev/null 2>&1; then
+        ROOTHASH=$(pwhash "$ROOTPW" 2>/dev/null)
+    fi
+    if [ -n "$ROOTHASH" ]; then
+        sed -i "s|^root:.*|root:$ROOTHASH:0:0:99999:7:::|" /etc/shadow
+        echo "  Root password updated."
+    else
+        echo "  Warning: no hash tool available; leaving root password unchanged."
+    fi
+else
+    echo "  Keeping current root password."
+fi
+echo ""
+
+# --- Step 6: User account ---------------------------------------------------
+echo "----------------------------------------------------------"
+echo " Step 6/8 - User account"
+echo "----------------------------------------------------------"
+printf 'Create a regular user account? (y/N): '
+read -r MAKUSER || MAKUSER="n"
+USERNAME=""
+case "$MAKUSER" in
+    y|Y|yes|YES)
+        USERNAME=$(ask_default "Enter username (lowercase alnum)" "")
+        if [ -z "$USERNAME" ]; then
+            echo "  Skipping user creation (no username entered)."
+            USERNAME=""
+        else
+            # sanitize
+            USERNAME=$(echo "$USERNAME" | tr -c 'a-z0-9' '_')
+            REALNAME=$(ask_default "Enter full name" "$USERNAME")
+            printf 'Enter password for %s (blank = disabled): ' "$USERNAME"
+            read -r USERPW || USERPW=""
+            USERHASH="!"
+            if [ -n "$USERPW" ]; then
+                if [ -x /bin/python3.12 ]; then
+                    USERHASH=$(/bin/python3.12 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$USERPW" 2>/dev/null)
+                fi
+                [ -z "$USERHASH" ] && USERHASH="!"
+            fi
+            # pick a free UID/GID at/above 1000
+            UID_CAND=1000
+            while grep -qs "^[^:]*:x:$UID_CAND:" /etc/passwd 2>/dev/null; do
+                UID_CAND=$((UID_CAND + 1))
+            done
+            GID_CAND=$UID_CAND
+            while grep -qs "^[^:]*:x:$GID_CAND:" /etc/group 2>/dev/null; do
+                GID_CAND=$((GID_CAND + 1))
+            done
+
+            # user's own group
+            echo "$USERNAME:x:$GID_CAND:" >> /etc/group
+            # primary membership: wheel(+doas), video, audio, storage, input, users
+            for _grp in wheel video audio storage input users; do
+                if grep -qs "^$_grp:" /etc/group 2>/dev/null; then
+                    sed -i "s|^$_grp:\(.*\):$|&|" /etc/group
+                    if ! awk -F: -v g="$_grp" -v u=",$USERNAME," 'NR==1{next} $1==g&&$0 !~ ":"u":"{found} ' /dev/null 2>/dev/null; then
+                        :
+                    fi
+                fi
+            done
+            # append user to each supplemental group (posix: append to last field)
+            for _grp in wheel video audio storage input users; do
+                if grep -qs "^$_grp:" /etc/group 2>/dev/null; then
+                    sed -i "s|^\($_grp:[^:]*:[^:]*:\).*|\1$(grep "^$_grp:" /etc/group | cut -d: -f4)$USERNAME|" /etc/group
+                    sed -i "s|^\($_grp:[^:]*:[^:]*:\)|&|" /etc/group
+                fi
+            done
+            # fix wheel: ensure :USERNAME at end
+            sed -i "s|^wheel:\([^:]*\):\([^:]*\):\(.*\)|wheel:\1:\2:\3$USERNAME|" /etc/group
+            # normalize wheel trailing colons
+            sed -i "s|^wheel:\([^:]*\):\([^:]*\)::*|wheel:\1:\2:$USERNAME|" /etc/group
+            # filter duplicate members in wheel
+            WHEELMEM=$(grep '^wheel:' /etc/group | cut -d: -f4 | tr ',' '\n' | sort -u | grep -v '^$' | tr '\n' ',')
+            WHEELMEM="${WHEELMEM%,}"
+            sed -i "s|^wheel:.*|wheel:x:10:${WHEELMEM}|" /etc/group
+
+            echo "$USERNAME:x:$UID_CAND:$GID_CAND:$REALNAME:/home/$USERNAME:/bin/sh" >> /etc/passwd
+            echo "$USERNAME:$USERHASH:0:0:99999:7:::" >> /etc/shadow
+            echo "  User '$USERNAME' (uid $UID_CAND) added. Home will be /home/$USERNAME"
+            echo "  (persistent, on the FLX_HOME partition)."
+        fi
+        ;;
+    *) echo "  Skipping user account creation." ;;
+esac
+echo ""
+
+# --- Step 7: WiFi -----------------------------------------------------------
+echo "----------------------------------------------------------"
+echo " Step 7/8 - WiFi"
+echo "----------------------------------------------------------"
+printf 'Configure a WiFi network? (y/N): '
+read -r MAKEWIFI || MAKEWIFI="n"
+case "$MAKEWIFI" in
+    y|Y|yes|YES)
+        echo "  Note: config is saved into the installed system and applied"
+        echo "  at boot when a wireless card is present."
+        WIFISSID=$(ask_default "Enter WiFi SSID" "")
+        if [ -n "$WIFISSID" ]; then
+            printf 'Enter WiFi password (blank for open network): '
+            read -r WIFIPASS || WIFIPASS=""
+            mkdir -p /etc/wpa_supplicant
+            if [ -n "$WIFIPASS" ] && command -v wpa_passphrase >/dev/null 2>&1; then
+                wpa_passphrase "$WIFISSID" "$WIFIPASS" > /etc/wpa_supplicant/flxwifi.conf 2>/dev/null || {
+                    printf 'network={\n ssid="%s"\n psk="%s"\n key_mgmt=WPA-PSK\n}\n' "$WIFISSID" "$WIFIPASS" > /etc/wpa_supplicant/flxwifi.conf
+                }
+            else
+                printf 'network={\n ssid="%s"\n key_mgmt=NONE\n}\n' "$WIFISSID" > /etc/wpa_supplicant/flxwifi.conf
+            fi
+            chmod 600 /etc/wpa_supplicant/flxwifi.conf
+            echo "  WiFi config saved for '$WIFISSID'."
+            # Best effort: try to connect right away (ignored in QEMU tests)
+            if command -v flxwifi >/dev/null 2>&1; then
+                echo "  Trying to connect now (best effort)..."
+                flxwifi connect "$WIFISSID" "$WIFIPASS" 2>/dev/null || true
+            fi
+        else
+            echo "  Skipping WiFi (no SSID entered)."
+        fi
+        ;;
+    *) echo "  Skipping WiFi configuration." ;;
+esac
+echo ""
+
+# ---------------------------------------------------------------------------
+# --- Disk selection ----------------------------------------------------------
+# ---------------------------------------------------------------------------
 normalize_disk() {
     case "$1" in
         /dev/*) printf '%s' "$1" ;;
@@ -65,15 +301,16 @@ normalize_disk() {
     esac
 }
 
+TARGET_DISK="$1"
 if [ -n "$TARGET_DISK" ]; then
     TARGET_DISK="$(normalize_disk "$TARGET_DISK")"
 fi
 
-# --- Manual disk selection ---------------------------------------------------
-# Interactive: accept a number from the list, a full device path (/dev/vda),
-# or a bare name (vda, sda, nvme0n1...) which gets /dev/ prepended.
 if [ -z "$TARGET_DISK" ]; then
-    echo "Available Block Storage Devices:"
+    echo "----------------------------------------------------------"
+    echo " Step 8/8 - Select target disk"
+    echo "----------------------------------------------------------"
+    echo " Available Block Storage Devices:"
     echo "--------------------------------------------------------------"
     i=1
     DISKS=""
@@ -82,178 +319,152 @@ if [ -z "$TARGET_DISK" ]; then
         case "$devname" in
             loop*|ram*|dm-*|sr*|zram*) continue ;;
         esac
-
         devpath="/dev/$devname"
         [ -b "$devpath" ] || continue
-
         size_sectors=$(cat "$blk/size" 2>/dev/null || echo 0)
         size_gb=$(awk "BEGIN {printf \"%.1f\", $size_sectors * 512 / 1073741824}")
-
         model="Unknown"
         if [ -r "$blk/device/model" ]; then
             model=$(cat "$blk/device/model" | tr -d '\r\n' | sed -e 's/^[ \t]*//' -e 's/[ \t]*$//')
         fi
-
         echo "  [$i] $devpath  (${size_gb} GB - $model)"
         DISKS="$DISKS $devpath"
         i=$((i + 1))
     done
     echo "--------------------------------------------------------------"
-
     if [ -z "$DISKS" ]; then
-        echo "No installable block devices detected!"
-        exit 1
+        die "No installable block devices detected!"
     fi
-
     printf "Enter target disk (number, /dev/vda, or just vda): "
-    read -r CHOICE
-
-    # Number selection
+    read -r CHOICE || CHOICE=""
     idx=1
     for d in $DISKS; do
-        if [ "$idx" = "$CHOICE" ]; then
-            TARGET_DISK="$d"
-            break
-        fi
+        if [ "$idx" = "$CHOICE" ]; then TARGET_DISK="$d"; break; fi
         idx=$((idx + 1))
     done
-
-    # Full path
     if [ -z "$TARGET_DISK" ] && [ -b "$CHOICE" ]; then
         TARGET_DISK="$CHOICE"
     fi
-
-    # Bare name -> /dev/<name>
     if [ -z "$TARGET_DISK" ]; then
         TARGET_DISK="$(normalize_disk "$CHOICE")"
     fi
 fi
 
 if [ -z "$TARGET_DISK" ] || [ ! -b "$TARGET_DISK" ]; then
-    echo "Error: '$CHOICE' is not a valid block device!" >&2
+    echo "Error: '$TARGET_DISK' is not a valid block device!" >&2
     echo "Use a number from the list, a full path like /dev/vda, or a bare name like vda." >&2
     exit 1
 fi
 
 echo ""
-echo "WARNING: All data on $TARGET_DISK will be PERMANENTLY ERASED!"
-printf "Type YES in capital letters to proceed: "
-read -r CONFIRM
-
+echo " WARNING: All data on $TARGET_DISK will be PERMANENTLY ERASED!"
+printf " Type YES in capital letters to proceed: "
+read -r CONFIRM || CONFIRM="no"
 if [ "$CONFIRM" != "YES" ]; then
-    echo "Installation cancelled."
+    echo " Installation cancelled."
     exit 0
 fi
 
-echo ""
-echo ">>> Step 1/6: Partitioning $TARGET_DISK with flxpart (GPT)..."
+# --- Install phase -----------------------------------------------------------
+# Quiesce the auto-mounter for the duration of the install.  flxautomount is
+# triggered by mdevd the instant the new partitions appear and would mount
+# them (e.g. /dev/vda1 -> /media/vda1, FLX_HOME -> /home) before we can
+# format/mount them -> "Device or resource busy".  A flag file makes
+# flxautomount step aside until we are done.
+touch /run/flxinstall-active
+trap 'rm -f /run/flxinstall-active' EXIT INT TERM
 
-# Unmount any existing partitions on this disk
+# Unmount anything already mounted from this disk (existing installs).
+echo ""
+echo "Unmounting existing partitions on $TARGET_DISK..."
 for part in "${TARGET_DISK}"* "${TARGET_DISK}p"*; do
     if [ -b "$part" ]; then
         umount "$part" 2>/dev/null || :
     fi
 done
+# also drop automount points that belong to this disk (/media/<node>, /home)
+TARGET_BASE=$(basename "$TARGET_DISK")
+for m in /media/"$TARGET_BASE"* /home /mnt/flx_boot /mnt/flx_home; do
+    if grep -qs " $m " /proc/mounts 2>/dev/null; then
+        umount "$m" 2>/dev/null || umount -l "$m" 2>/dev/null || :
+    fi
+done
 
+echo ">>> Step 1/6: Partitioning $TARGET_DISK with flxpart (GPT)..."
 # ESP (512MB FAT32) + BIOS Boot (1MB) + Linux Home partition (remainder).
-# The OS boots entirely from the initramfs on the ESP; the Home ext4
-# partition (LABEL=FLX_HOME) is attached as persistent /home at boot.
 flxpart --create-standard "$TARGET_DISK"
 command -v partprobe >/dev/null 2>&1 && partprobe "$TARGET_DISK" 2>/dev/null || :
 sleep 1
 
-# Determine partition names
 case "$TARGET_DISK" in
     *[0-9])
-        PART1="${TARGET_DISK}p1"
-        PART2="${TARGET_DISK}p2"
-        PART3="${TARGET_DISK}p3"
-        ;;
+        PART1="${TARGET_DISK}p1"; PART2="${TARGET_DISK}p2"; PART3="${TARGET_DISK}p3" ;;
     *)
-        PART1="${TARGET_DISK}1"
-        PART2="${TARGET_DISK}2"
-        PART3="${TARGET_DISK}3"
-        ;;
+        PART1="${TARGET_DISK}1"; PART2="${TARGET_DISK}2"; PART3="${TARGET_DISK}3" ;;
 esac
 
-# Fallback wait for device nodes
 timeout=10
 while [ ! -b "$PART1" ] || [ ! -b "$PART3" ]; do
     sleep 0.5
     timeout=$((timeout - 1))
     [ "$timeout" -le 0 ] && break
 done
-
 if [ ! -b "$PART1" ] || [ ! -b "$PART3" ]; then
-    echo "Error: Partition device nodes ($PART1, $PART3) not found after partitioning." >&2
-    exit 1
+    die "Partition device nodes ($PART1, $PART3) not found after partitioning."
 fi
 
 echo ">>> Step 2/6: Formatting Filesystems..."
+umount "$PART1" 2>/dev/null || :
+umount "$PART3" 2>/dev/null || :
 echo "Formatting ESP partition ($PART1) as FAT32..."
 $MKFS_FAT -F 32 -n "FLX_BOOT" "$PART1" >/dev/null
-
 echo "Formatting Home partition ($PART3) as Ext4 (LABEL=FLX_HOME)..."
 $MKFS_EXT4 -F -q -L "FLX_HOME" "$PART3"
 
 echo ">>> Step 3/6: Mounting ESP..."
 BOOT_DIR="/mnt/flx_boot"
 mkdir -p "$BOOT_DIR"
+umount "$PART1" 2>/dev/null || :
 mount -t vfat "$PART1" "$BOOT_DIR" || toybox mount -t vfat "$PART1" "$BOOT_DIR"
 mkdir -p "$BOOT_DIR/boot" "$BOOT_DIR/EFI/BOOT"
 
-echo ">>> Step 4/6: Deploying FreeLinX Operating System (kernel + initramfs)..."
-# Kernel source (live environment)
+echo ">>> Step 4/6: Deploying FreeLinX (kernel + initramfs, incl. config)..."
 KERNEL_SRC=""
 for k in /boot/bzImage /boot/vmlinuz /kernel/bzImage /initramfs/bzImage /vmlinuz; do
-    if [ -f "$k" ]; then
-        KERNEL_SRC="$k"
-        break
-    fi
+    if [ -f "$k" ]; then KERNEL_SRC="$k"; break; fi
 done
-
 if [ -n "$KERNEL_SRC" ]; then
     echo "Installing kernel from $KERNEL_SRC..."
     cp "$KERNEL_SRC" "$BOOT_DIR/boot/bzImage"
 else
     echo "Error: FreeLinX kernel not found in live environment." >&2
-    umount "$BOOT_DIR"
-    exit 1
+    umount "$BOOT_DIR"; exit 1
 fi
 
-# Initramfs source: the actual initramfs image if provided, otherwise (in the
-# initramfs-primary model) re-pack the entire running rootfs - the OS *is* the
-# initramfs, so a fresh repack is a byte-perfect equivalent of the live system.
 INITRD_SRC=""
 for i in /boot/initramfs.img.gz /initramfs.img.gz /boot/freelinx-desktop.img.gz; do
-    if [ -f "$i" ]; then
-        INITRD_SRC="$i"
-        break
-    fi
+    if [ -f "$i" ]; then INITRD_SRC="$i"; break; fi
 done
 
 if [ -n "$INITRD_SRC" ]; then
     echo "Installing initramfs (full OS) from $INITRD_SRC..."
     cp "$INITRD_SRC" "$BOOT_DIR/boot/initramfs.img.gz"
 else
-    echo "No initramfs image found - repacking live rootfs (initramfs-primary model)..."
+    echo "Repacking live rootfs into initramfs (config baked in)..."
     if command -v cpio >/dev/null 2>&1 && command -v gzip >/dev/null 2>&1; then
         (cd / && find . -xdev \
             -not -path './proc/*' -not -path './sys/*' \
             -not -path './dev/*'  -not -path './run/*' \
             -not -path './tmp/*'  -not -path './mnt/*' \
-            -not -path './media/*' \
+            -not -path './media/*' -not -path './home/*' \
             -print0 2>/dev/null | cpio --null -ov --format=newc 2>/dev/null \
             | gzip -1 > "$BOOT_DIR/boot/initramfs.img.gz") || {
             echo "Error: failed to repack initramfs." >&2
-            umount "$BOOT_DIR"
-            exit 1
+            umount "$BOOT_DIR"; exit 1
         }
-        echo "Packed running FreeLinX rootfs into initramfs.img.gz"
     else
         echo "Error: no initramfs image and no cpio/gzip to repack one." >&2
-        umount "$BOOT_DIR"
-        exit 1
+        umount "$BOOT_DIR"; exit 1
     fi
 fi
 
@@ -262,9 +473,8 @@ if [ -d "$LIMINE_DIR" ]; then
     if [ -f "$LIMINE_DIR/BOOTX64.EFI" ]; then
         cp "$LIMINE_DIR/BOOTX64.EFI" "$BOOT_DIR/EFI/BOOT/BOOTX64.EFI"
         cp "$LIMINE_DIR/BOOTX64.EFI" "$BOOT_DIR/BOOTX64.EFI"
-        echo "Installed Limine UEFI Bootloader (BOOTX64.EFI)"
     else
-        echo "Warning: $LIMINE_DIR/BOOTX64.EFI not found; UEFI boot may be unavailable."
+        echo "Warning: $LIMINE_DIR/BOOTX64.EFI not found; UEFI may be unavailable."
     fi
     if [ -f "$LIMINE_DIR/limine-bios.sys" ]; then
         cp "$LIMINE_DIR/limine-bios.sys" "$BOOT_DIR/boot/limine-bios.sys"
@@ -273,18 +483,11 @@ if [ -d "$LIMINE_DIR" ]; then
 else
     echo "Warning: Limine files not found in $LIMINE_DIR."
 fi
-
-# Install Limine BIOS stage. On GPT, the second stage lives in the dedicated
-# BIOS Boot partition (partition index 2).
 if command -v limine >/dev/null 2>&1; then
-    echo "Deploying Limine BIOS stage to $TARGET_DISK (BIOS Boot partition $PART2)..."
-    limine bios-install "$TARGET_DISK" 2 || {
-        echo "Warning: limine bios-install failed; UEFI boot will still work."
-    }
+    echo "Deploying Limine BIOS stage to $TARGET_DISK (BIOS Boot $PART2)..."
+    limine bios-install "$TARGET_DISK" 2 || echo "Warning: limine bios-install failed; UEFI still works."
 fi
 
-# Generate Limine configuration (Limine v12.x syntax: lowercase keys,
-# nested entries, boot(): device prefix, module_path for initramfs).
 cat > "$BOOT_DIR/limine.conf" << EOF
 timeout: 5
 serial: yes
@@ -301,29 +504,53 @@ serial: yes
     module_path: boot():/boot/initramfs.img.gz
     cmdline: rdinit=/init init=/bin/sh console=tty0 console=ttyS0,115200
 EOF
-
-# Copy config to standard Limine lookup locations
 cp "$BOOT_DIR/limine.conf" "$BOOT_DIR/boot/limine.conf"
 cp "$BOOT_DIR/limine.conf" "$BOOT_DIR/EFI/BOOT/limine.conf"
-echo "Wrote Limine configuration (timeout=5, kernel_path=boot():/boot/bzImage)."
 
-echo ">>> Step 6/6: Persistence Setup (disk=/home)..."
-# The running initramfs mounts the FLX_HOME partition as persistent /home
-# via /etc/fstab and /sbin/flxautomount (label-based). Nothing else is
-# required on disk; the OS image lives entirely inside the ESP.
-echo "Home partition ready ($PART3, LABEL=FLX_HOME -> /home at boot)."
+echo ">>> Step 6/6: Persistence (FLX_HOME) and user home..."
+# If a user account was configured, create its home on the persistent
+# FLX_HOME partition so it survives reboots.
+if [ -n "$USERNAME" ] && [ -b "$PART3" ]; then
+    HOME_MP="/mnt/flx_home"
+    mkdir -p "$HOME_MP"
+    mount -t ext4 "$PART3" "$HOME_MP" 2>/dev/null || mount "$PART3" "$HOME_MP" 2>/dev/null || true
+    if grep -qs " $HOME_MP " /proc/mounts 2>/dev/null; then
+        mkdir -p "$HOME_MP/$USERNAME"
+        # minimal skeleton
+        cat > "$HOME_MP/$USERNAME/.profile" << EOF
+# FreeLinX user profile (created by flxinstall)
+export PATH=/usr/share/X11/xtree/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+[ -r /etc/flx-locale ] && export LANG="\$(cat /etc/flx-locale)"
+[ -r /etc/flx-locale ] && export LC_ALL="\$(cat /etc/flx-locale)"
+[ -r /etc/TZ ] && export TZ="\$(cat /etc/TZ)"
+EOF
+        chown -R "${UID_CAND}:${GID_CAND}" "$HOME_MP/$USERNAME" 2>/dev/null || :
+        umount "$HOME_MP"
+        rmdir "$HOME_MP" 2>/dev/null || :
+        echo "  Created persistent home for '$USERNAME' on FLX_HOME."
+    else
+        echo "  Warning: could not mount FLX_HOME to seed user home."
+    fi
+fi
 
-# Unmounting
 echo "Syncing data to disk..."
 sync
 umount "$BOOT_DIR"
 rmdir "$BOOT_DIR" 2>/dev/null || :
 
+rm -f /run/flxinstall-active
+trap - EXIT INT TERM
+
 echo ""
-echo "==========================="
+echo "=========================================================="
 echo " FreeLinX installed to $TARGET_DISK!"
 echo " Boot model: Initramfs-primary, persistent /home."
-echo "==========================="
-echo "You can now reboot your system into FreeLinX."
-echo "Your files in /home are stored on $PART3 and persist across reboots."
+echo "=========================================================="
+[ -n "$USERNAME" ] && echo " User account : $USERNAME  (home on $PART3)"
+echo " Hostname     : $HOSTNAME"
+echo " Language     : $LANG_LC"
+echo " Keyboard     : $KBD_LAYOUT"
+echo " Timezone     : $TZ_STR"
+echo ""
+echo " You can now reboot your system into FreeLinX."
 echo ""
