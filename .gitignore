@@ -42,3 +42,10 @@ vmtest/*.pid
 
 # Nested working repos
 drivers/.git/
+# local QEMU test disks (keep untracked - never commit)
+disk.img
+flx-install.img
+flx-fresh.img
+flx-win.img
+iso/*.img
+iso/*.img.gz.bak*

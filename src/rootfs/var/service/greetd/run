@@ -1,6 +1,19 @@
 #!/bin/sh
-# FreeLinX login manager (greetd). greetd reads /etc/greetd/config.toml and
-# launches the tuigreet greeter; after authentication the session command
-# (--cmd /usr/bin/flx-session) starts the desktop. Shadow auth happens via
-# getspnam()/crypt() in the greetd binary itself - no PAM, no libpam.
-exec /usr/bin/greetd
+# FreeLinX login manager (greetd) - GATED on the baked desktop profile.
+#
+#   HEADLESS-FIRST philosophy: the base is headless (CLI) and the login
+#   page is OPT-IN. The greeter (ly/tuigreet login page) ONLY greets a
+#   system that was baked as a GUI desktop at install time (flxinstall
+#   wrote /etc/flx-desktop = "gui").
+#
+#   * Live ISO (no baked marker)      -> tty1 root terminal (run flxinstall)
+#   * Installed HEADLESS (marker)     -> tty1 root terminal (headless CLI)
+#   * Installed GUI (marker = gui)    -> ly login page greets you -> login
+#                                        -> Openbox desktop (flx-session)
+FLX_DESK="$(cat /etc/flx-desktop 2>/dev/null || echo headless)"
+if [ "$FLX_DESK" = "gui" ]; then
+    exec /usr/bin/greetd
+fi
+# Headless / live: present a root terminal on tty1 (VGA). The shell restarts
+# if it exits, just like a getty. greetd stays intact for GUI builds.
+exec /bin/sh -l < /dev/tty1 > /dev/tty1 2>&1
