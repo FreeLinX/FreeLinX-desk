@@ -23,7 +23,22 @@ export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 
 umask 022
 
-# --- pseudo filesystems -----------------------------------------------------
+# FreeLinX desktop 
+CMDLINE="$(cat /proc/cmdline 2>/dev/null || true)"
+
+case " $CMDLINE " in
+    *" flx.desktop=gui "*)
+        printf '%s\n' gui > /etc/flx-desktop
+        ;;
+    *" flx.desktop=headless "*)
+        printf '%s\n' headless > /etc/flx-desktop
+        ;;
+    *)
+        [ -f /etc/flx-desktop ] || printf '%s\n' headless > /etc/flx-desktop
+        ;;
+esac
+
+# pseudo filesystems
 mount -t proc     proc     /proc 2>/dev/null || :
 mount -t sysfs    sysfs    /sys   2>/dev/null || :
 mount -t devtmpfs devtmpfs /dev   2>/dev/null || :
@@ -39,7 +54,7 @@ mount -t tmpfs    tmpfs    /run   2>/dev/null || :
 # Enable sysrq for reboot/poweroff via /proc/sysrq-trigger
 echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || :
 
-# --- Device Manager (mdevd) & Driver Auto-Probe ------------------------------
+# Device Manager (mdevd) & Driver Auto-probe
 if [ -x /sbin/mdevd ]; then
     /sbin/mdevd -f /etc/mdev.conf >/dev/null 2>&1 &
     if [ -x /sbin/mdevd-coldplug ]; then
@@ -50,7 +65,7 @@ if [ -x /sbin/flxdriver ]; then
     /sbin/flxdriver probe >/dev/null 2>&1 || :
 fi
 
-# --- Persistent /home (disk=/home boot model) --------------------------------
+# Persistent /home (disk=/home boot model)
 # The ext4 partition labeled FLX_HOME carries the persistent /home.
 # It is normally mounted by /sbin/flxautomount via mdevd hotplug; the scan
 # below is a cold-boot fallback so /home is ready before services start.
@@ -77,8 +92,8 @@ if [ -x /bin/mount ] || [ -x /sbin/mount ]; then
     fi
 fi
 
-# --- Input devices (evdev) ---------------------------------------------------
-# Map keyboards and mouse/tablet evdev nodes to /dev/fl-kbd and /dev/fl-pointer
+# Input devices (evdev)
+# # Map keyboards and mouse/tablet evdev nodes to /dev/fl-kbd and /dev/fl-pointer
 # for Xorg evdev driver.
 rm -f /dev/fl-kbd /dev/fl-pointer
 NAME=""

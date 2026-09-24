@@ -1,19 +1,15 @@
 #!/bin/sh
 
-FLX_DESK="$(cat /etc/flx-desktop 2>/dev/null || true)"
-CMDLINE="$(cat /proc/cmdline 2>/dev/null || true)"
+FLX_DESK="$(cat /etc/flx-desktop 2>/dev/null || echo headless)"
 
-case " $CMDLINE " in
-    *" flx.desktop=gui "*)
-        FLX_DESK=gui
-        ;;
-esac
 if [ "$FLX_DESK" = "gui" ]; then
-    case " $CMDLINE " in
+    case " $(cat /proc/cmdline 2>/dev/null) " in
         *" flx.autologin=1 "*)
             exec /usr/bin/flx-session
             ;;
     esac
+
     exec /usr/bin/greetd
 fi
+
 exec /bin/sh -l < /dev/tty1 > /dev/tty1 2>&1

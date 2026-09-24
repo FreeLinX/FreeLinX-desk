@@ -1,9 +1,6 @@
 [terminal]
-# The VT to run the greeter on.
 vt = 1
 
 [default_session]
-# The greeter (login UI); after a successful login the greeter's --cmd
-# (here: /usr/bin/flx-session) is started as the user session.
-command = "/usr/bin/tuigreet --time --cmd /usr/bin/flx-session"
-user = "root"
+command = "/usr/bin/tuigreet --time --greeting 'Welcome to FreeLinX' --cmd /usr/bin/flx-session"
+user = "greeter"

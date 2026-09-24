@@ -111,6 +111,30 @@ if [ -d "$DEPS/gtk-3.24.52/share/themes" ]; then
     cp -a "$DEPS/gtk-3.24.52/share/themes/." "$ROOT/usr/share/themes/"
 fi
 
+# --- Linux-PAM runtime --------------------------------------------------------
+if [ -d "$DEPS/linux-pam/lib" ]; then
+    mkdir -p "$ROOT/lib"
+    cp -a "$DEPS/linux-pam/lib"/libpam*.so* "$ROOT/lib/" 2>/dev/null || true
+fi
+
+if [ -d "$DEPS/linux-pam/lib/security" ]; then
+    mkdir -p "$ROOT/lib/security"
+    cp -a "$DEPS/linux-pam/lib/security"/. "$ROOT/lib/security/"
+fi
+
+if [ -f "$DEPS/linux-pam/sbin/unix_chkpwd" ]; then
+    mkdir -p "$ROOT/usr/sbin"
+    cp -a "$DEPS/linux-pam/sbin/unix_chkpwd" "$ROOT/usr/sbin/"
+fi
+
+if [ -f "$DEPS/linux-pam/usr/sbin/unix_chkpwd" ]; then
+    mkdir -p "$ROOT/usr/sbin"
+    cp -a "$DEPS/linux-pam/usr/sbin/unix_chkpwd" "$ROOT/usr/sbin/"
+fi
+
+
+
+
 # --- dbus (daemon, tools, session/system config, bus services) ---------------
 if [ -d "$DEPS/dbus-1.16.2/usr/bin" ]; then
     mkdir -p "$ROOT/usr/bin"
