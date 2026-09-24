@@ -4,8 +4,9 @@
 # pid 1: mount the pseudo filesystems, bring up the hostname, then exec
 # runsvdir to supervise the services in /var/service (dbus, ..., X/Openbox
 # session). If runsvdir is missing we drop to a rescue shell.
-
-set -eu
+# NOTE: no 'set -e' here - pid 1 must never exit because one command failed
+# (that would be a kernel panic). Only unset variables are treated as errors.
+set -u
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 export PATH

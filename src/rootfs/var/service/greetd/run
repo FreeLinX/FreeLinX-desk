@@ -1,19 +1,12 @@
 #!/bin/sh
-# FreeLinX login manager (greetd) - GATED on the baked desktop profile.
-#
-#   HEADLESS-FIRST philosophy: the base is headless (CLI) and the login
-#   page is OPT-IN. The greeter (ly/tuigreet login page) ONLY greets a
-#   system that was baked as a GUI desktop at install time (flxinstall
-#   wrote /etc/flx-desktop = "gui").
-#
-#   * Live ISO (no baked marker)      -> tty1 root terminal (run flxinstall)
-#   * Installed HEADLESS (marker)     -> tty1 root terminal (headless CLI)
-#   * Installed GUI (marker = gui)    -> ly login page greets you -> login
-#                                        -> Openbox desktop (flx-session)
+# /etc/flx-desktop = "gui" -> graphical session; otherwise root terminal on tty1.
+# Written by flxinstall, or by /init from the kernel cmdline flx.desktop=gui|headless.
+# kernel cmdline flx.autologin=1 -> skip the login page (live media / QEMU).
 FLX_DESK="$(cat /etc/flx-desktop 2>/dev/null || echo headless)"
 if [ "$FLX_DESK" = "gui" ]; then
+    case " $(cat /proc/cmdline 2>/dev/null) " in
+        *" flx.autologin=1 "*) exec /usr/bin/flx-session ;;
+    esac
     exec /usr/bin/greetd
 fi
-# Headless / live: present a root terminal on tty1 (VGA). The shell restarts
-# if it exits, just like a getty. greetd stays intact for GUI builds.
-exec /bin/sh -l < /dev/tty1 > /dev/tty1 2>&1
+exec /bin/sh -l < /dev/tty1 > /dev/tty1 2>&11

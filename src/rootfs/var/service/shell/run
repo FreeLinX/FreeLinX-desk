@@ -1,3 +1,4 @@
 #!/bin/sh
-[ -e /dev/ttyS1 ] || exit 1
+# If ttyS1 does not exist, idle quietly instead of respawning every second.
+[ -e /dev/ttyS1 ] || exec sleep 86400
 exec /bin/sh -l < /dev/ttyS1 > /dev/ttyS1 2>&1

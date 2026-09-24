@@ -1,20 +1,16 @@
 #!/bin/sh
-# FreeLinX Desktop - Universal QEMU / KVM Launch Script
-# Portable across any machine, host Linux distro, nested VM, or bare-metal environment.
+# FreeLinX Desktop - QEMU / KVM launch script
+# Env knobs: RAM=2048 (min 1400) CPUS=4 HEADLESS=1 GL=1 NOAUDIO=1
+#   FLX_DESKTOP=gui|headless  FLX_AUTOLOGIN=1|0  FLX_DISK=disk.img
+#   FLX_ISO=file.iso  UEFI=1  FLX_INITRD=path  FLX_BOOT_DISK=1
+# Extra arguments are passed to QEMU unchanged.
 set -eu
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 KERNEL="${SCRIPT_DIR}/kernel/bzImage"
-INITRD="${SCRIPT_DIR}/src/build/x86_64/freelinx-desktop.img.gz"
-
-if [ ! -f "$INITRD" ]; then
-    INITRD="${SCRIPT_DIR}/src/build/freelinx-desktop.img.gz"
-fi
-
-if [ ! -f "$INITRD" ]; then
-    echo "[FreeLinX] Initramfs image not found. Building image from src/rootfs..."
-    "${SCRIPT_DIR}/build-image.sh"
-fi
+INITRD="${FLX_INITRD:-${SCRIPT_DIR}/src/build/x86_64/freelinx-desktop.img.gz}"
+RAM="${RAM:-2048}"
+CPUS="${CPUS:-4}"
 
 QEMU_BIN="qemu-system-x86_64"
 if ! command -v "$QEMU_BIN" >/dev/null 2>&1; then
@@ -22,69 +18,74 @@ if ! command -v "$QEMU_BIN" >/dev/null 2>&1; then
     exit 1
 fi
 
-# ── 1. Virtualization Acceleration (KVM vs Emulation) ────────────────────────
-ACCEL_OPT="-enable-kvm -cpu host"
-if [ ! -w /dev/kvm ] 2>/dev/null || ! "$QEMU_BIN" -enable-kvm -help >/dev/null 2>&1; then
-    echo "[FreeLinX] Notice: /dev/kvm acceleration not available; falling back to software emulation."
-    ACCEL_OPT="-cpu qemu64"
+if [ -z "${FLX_ISO:-}" ] && [ "${FLX_BOOT_DISK:-0}" != "1" ] && [ ! -f "$INITRD" ]; then
+    echo "[FreeLinX] Initramfs image not found. Building image from src/rootfs..."
+    "${SCRIPT_DIR}/build-image.sh"
 fi
 
-# ── 2. Display Backend Probing (GTK, SDL, VirGL 3D, Curses, Headless) ─────────
-DISPLAY_OPT=""
-VGA_DEVICE="-vga virtio"
+if [ "$RAM" -lt 1400 ] 2>/dev/null; then
+    echo "[FreeLinX][warn] RAM=${RAM}MB is too small: the initramfs will fail to unpack. Use RAM>=1400." >&2
+fi
 
-if [ "${HEADLESS:-0}" = "1" ]; then
-    DISPLAY_OPT="-display none"
-elif [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
-    echo "[FreeLinX] Notice: No graphical display server detected (DISPLAY/WAYLAND_DISPLAY not set)."
-    echo "[FreeLinX] Falling back to text console display (-display curses)."
-    DISPLAY_OPT="-display curses"
+have_display() { "$QEMU_BIN" -display help 2>&1 | grep -qw "$1"; }
+have_device()  { "$QEMU_BIN" -device help  2>&1 | grep -q "\"$1\""; }
+
+# Acceleration
+if [ -w /dev/kvm ]; then
+    set -- "$@" -enable-kvm -cpu host
 else
-    # Host has graphical server active; probe hardware GL & windowing backends
-    if [ "${GL:-1}" != "0" ] && [ "${NOGL:-0}" != "1" ]; then
-        if "$QEMU_BIN" -display gtk,gl=on -help >/dev/null 2>&1; then
-            DISPLAY_OPT="-display gtk,gl=on"
-        elif "$QEMU_BIN" -display sdl,gl=on -help >/dev/null 2>&1; then
-            DISPLAY_OPT="-display sdl,gl=on"
-        fi
+    echo "[FreeLinX] Notice: /dev/kvm not usable; falling back to software emulation (slow)."
+    set -- "$@" -cpu qemu64
+fi
+set -- "$@" -smp "$CPUS" -m "$RAM"
 
-        if "$QEMU_BIN" -device virtio-vga-gl -display none -help >/dev/null 2>&1; then
-            VGA_DEVICE="-device virtio-vga-gl"
-            echo "[FreeLinX] Hardware 3D Acceleration: Active (VirGL / virtio-vga-gl)"
-        fi
-    fi
-
-    # Fallback to software 2D display if GL display is disabled/unsupported
-    if [ -z "$DISPLAY_OPT" ]; then
-        if "$QEMU_BIN" -display gtk -help >/dev/null 2>&1; then
-            DISPLAY_OPT="-display gtk"
-        elif "$QEMU_BIN" -display sdl -help >/dev/null 2>&1; then
-            DISPLAY_OPT="-display sdl"
-        elif "$QEMU_BIN" -display default -help >/dev/null 2>&1; then
-            DISPLAY_OPT=""
-        else
-            DISPLAY_OPT="-display curses"
-        fi
+# Display
+VGA_DEV="virtio-vga"
+if [ "${HEADLESS:-0}" = "1" ]; then
+    set -- "$@" -display none
+elif [ -z "${DISPLAY:-}" ] && [ -z "${WAYLAND_DISPLAY:-}" ]; then
+    echo "[FreeLinX] Notice: no DISPLAY/WAYLAND_DISPLAY; running headless (serial console on this terminal)."
+    set -- "$@" -display none
+else
+    if [ "${GL:-0}" = "1" ] && have_device virtio-vga-gl && have_display gtk; then
+        VGA_DEV="virtio-vga-gl"; set -- "$@" -display gtk,gl=on
+    elif have_display gtk; then
+        set -- "$@" -display gtk
+    elif have_display sdl; then
+        set -- "$@" -display sdl
     fi
 fi
+set -- "$@" -device "$VGA_DEV" -device virtio-tablet-pci -nic user,model=virtio-net-pci
 
-# ── 3. Audio Emulation (Intel HDA / ALSA guest support) ───────────────────────
-AUDIO_OPT="-device ich9-intel-hda -device hda-duplex"
-if [ "${NOAUDIO:-0}" = "1" ]; then
-    AUDIO_OPT=""
+# Audio
+if [ "${NOAUDIO:-0}" != "1" ]; then
+    set -- "$@" -device ich9-intel-hda -device hda-duplex
 fi
 
-echo "[FreeLinX] Starting FreeLinX Desktop (QEMU/KVM)..."
-exec "$QEMU_BIN" \
-  $ACCEL_OPT \
-  -smp "${CPUS:-4}" -m "${RAM:-2048}" \
-  -kernel "$KERNEL" \
-  -initrd "$INITRD" \
-  -append "console=ttyS0,115200 rdinit=/init quiet loglevel=2" \
-  $VGA_DEVICE \
-  -device virtio-tablet-pci \
-  -nic user,model=virtio-net-pci \
-  $AUDIO_OPT \
-  -serial stdio \
-  $DISPLAY_OPT \
-  "$@"
+# Optional disk / UEFI
+if [ -n "${FLX_DISK:-}" ]; then
+    set -- "$@" -drive "file=${FLX_DISK},format=raw,if=virtio"
+fi
+if [ "${UEFI:-0}" = "1" ]; then
+    OVMF=""
+    for f in /usr/share/OVMF/OVMF_CODE.fd /usr/share/OVMF/OVMF_CODE_4M.fd /usr/share/ovmf/OVMF.fd /usr/share/qemu/OVMF.fd; do
+        [ -f "$f" ] && { OVMF="$f"; break; }
+    done
+    [ -n "$OVMF" ] || { echo "[FreeLinX][error] UEFI=1 but no OVMF firmware found (install 'ovmf')." >&2; exit 1; }
+    set -- "$@" -drive "if=pflash,format=raw,readonly=on,file=${OVMF}"
+fi
+
+# Boot source
+if [ -n "${FLX_ISO:-}" ]; then
+    set -- "$@" -cdrom "$FLX_ISO" -boot d
+elif [ "${FLX_BOOT_DISK:-0}" = "1" ]; then
+    [ -n "${FLX_DISK:-}" ] || { echo "[FreeLinX][error] FLX_BOOT_DISK=1 needs FLX_DISK=<disk image>" >&2; exit 1; }
+    set -- "$@" -boot c
+else
+    CMDLINE="console=ttyS0,115200 rdinit=/init quiet loglevel=2"
+    CMDLINE="$CMDLINE flx.desktop=${FLX_DESKTOP:-gui} flx.autologin=${FLX_AUTOLOGIN:-1}"
+    set -- "$@" -kernel "$KERNEL" -initrd "$INITRD" -append "$CMDLINE"
+fi
+
+echo "[FreeLinX] Starting FreeLinX Desktop (QEMU)..."
+exec "$QEMU_BIN" "$@" -serial stdio

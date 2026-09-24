@@ -49,3 +49,6 @@ flx-fresh.img
 flx-win.img
 iso/*.img
 iso/*.img.gz.bak*
+
+# Limine binary tree fetched by iso/build-iso.sh
+iso/limine/
