@@ -1,28 +1,15 @@
-# FreeLinX/ports - security/linux-pam : Linux Pluggable Authentication Modules.
-#
-# Linux-PAM 1.7.x uses Meson, not Autotools.
-#
-# FreeLinX goals:
-#   - musl + LLVM/Clang
-#   - no GNU libc
-#   - no gettext/i18n
-#   - no audit
-#   - no SELinux
-#   - no D-Bus
-#   - no logind
-#   - pam_unix enabled
-#   - minimal authentication stack
+# FreeLinX/ports - security/linux-pam
 
 NAME       := linux-pam
 VERSION    := 1.7.0
 CATEGORY   := security
 TARGET     := $(FREELINX_TRIPLE)
 LICENSE    := BSD-3-Clause / GPL-2.0
+
 DEPENDENCIES :=
 
-PAM_PREFIX := $(FREELINX_BUILD_DIR)/deps/linux-pam
+PAM_PREFIX := $(abspath ../../build/deps/linux-pam)
 
-# Meson installs libpam.so and versioned symlinks here.
 PROJECT_BIN := $(PAM_PREFIX)/lib/libpam.so
 BUILD_BIN   := $(PROJECT_BIN)
 
@@ -31,14 +18,15 @@ FLX_PROJECT_CPPFLAGS :=
 FLX_PROJECT_LDFLAGS  :=
 
 include ../../mk/project-port.mk
-# Linux-PAM is intentionally dynamic.
-# PAM modules are loaded as shared objects at runtime.
+
+# PAM is dynamically linked.
 FLX_PROJECT_STATIC :=
 FLX_PROJECT_LIBS :=
 
+# Remove FreeLinX global static linking for PAM.
 PAM_CFLAGS   := $(filter-out -static,$(CFLAGS))
 PAM_CXXFLAGS := $(filter-out -static,$(CXXFLAGS))
-PAM_LDFLAGS  := $(filter-out -static,$(LDFLAGS))
+PAM_LDFLAGS  := $(filter-out -static,$(LDFLAGS)) -fuse-ld=lld --rtlib=compiler-rt
 
 export CFLAGS   := $(PAM_CFLAGS)
 export CXXFLAGS := $(PAM_CXXFLAGS)
@@ -47,7 +35,28 @@ export LIBS     :=
 
 PROJECT_CFG_CMDS = \
 	rm -rf build && \
+	printf '%s\n' \
+		'[binaries]' \
+		'c = '\''$(FREELINX_CC)'\''' \
+		'ar = '\''$(FREELINX_AR)'\''' \
+		'strip = '\''$(FREELINX_TOOLCHAIN_BIN)/llvm-strip'\''' \
+		'pkgconfig = '\''false'\''' \
+		'' \
+		'[host_machine]' \
+		'system = '\''linux'\''' \
+		'cpu_family = '\''x86_64'\''' \
+		'cpu = '\''x86_64'\''' \
+		'endian = '\''little'\''' \
+		'' \
+		'[properties]' \
+		'needs_exe_wrapper = true' \
+		'' \
+		'[built-in options]' \
+		'c_link_args = ['\''-fuse-ld=lld'\'', '\''--rtlib=compiler-rt'\'']' \
+		'cpp_link_args = ['\''-fuse-ld=lld'\'', '\''--rtlib=compiler-rt'\'']' \
+		> freelinx-cross.ini && \
 	meson setup build \
+		--cross-file freelinx-cross.ini \
 		--prefix=/ \
 		--libdir=lib \
 		--bindir=bin \

@@ -1,0 +1,657 @@
+From 1216261a8a8c536e40fe7774eadcba8040f813b2 Mon Sep 17 00:00:00 2001
+From: "Dmitry V. Levin" <ldv@strace.io>
+Date: Thu, 14 Aug 2025 08:00:00 +0000
+Subject: [PATCH] build: provide a separate version script for each module
+
+GNU ld with --no-undefined-version option issues a warning for each
+undefined symbol mentioned in the version script, and --fatal-warnings
+option turns such warnings into errors.  Other linkers, e.g. lld and
+mold, have --no-undefined-version option enabled by default.
+
+Given that different modules export different set of pam_sm_* symbols,
+the only way of resolving this issue without turning
+--no-undefined-version and --fatal-warnings options off is to provide
+a separate version script for each module.
+
+To avoid potential regressions in the future, this change also adds
+--no-undefined-version option to the linker.
+
+Resolves: https://github.com/linux-pam/linux-pam/issues/922
+---
+ meson.build                                              | 1 +
+ modules/maps/modules-account-session.map                 | 7 +++++++
+ modules/maps/modules-account.map                         | 5 +++++
+ .../modules-auth-account-password-session.map}           | 0
+ modules/maps/modules-auth-account-password.map           | 8 ++++++++
+ modules/maps/modules-auth-account-session.map            | 9 +++++++++
+ modules/maps/modules-auth-account.map                    | 7 +++++++
+ modules/maps/modules-auth-session.map                    | 8 ++++++++
+ modules/maps/modules-auth.map                            | 6 ++++++
+ modules/maps/modules-password.map                        | 5 +++++
+ modules/maps/modules-session.map                         | 6 ++++++
+ modules/meson.build                                      | 6 ------
+ modules/module-meson.build                               | 6 ++++++
+ modules/pam_access/module.map                            | 1 +
+ modules/pam_canonicalize_user/module.map                 | 1 +
+ modules/pam_debug/module.map                             | 1 +
+ modules/pam_deny/module.map                              | 1 +
+ modules/pam_echo/module.map                              | 1 +
+ modules/pam_env/module.map                               | 1 +
+ modules/pam_exec/module.map                              | 1 +
+ modules/pam_faildelay/module.map                         | 1 +
+ modules/pam_faillock/module.map                          | 1 +
+ modules/pam_filter/module.map                            | 1 +
+ modules/pam_ftp/module.map                               | 1 +
+ modules/pam_group/module.map                             | 1 +
+ modules/pam_issue/module.map                             | 1 +
+ modules/pam_keyinit/module.map                           | 1 +
+ modules/pam_lastlog/module.map                           | 1 +
+ modules/pam_limits/module.map                            | 1 +
+ modules/pam_listfile/module.map                          | 1 +
+ modules/pam_localuser/module.map                         | 1 +
+ modules/pam_loginuid/module.map                          | 1 +
+ modules/pam_mail/module.map                              | 1 +
+ modules/pam_mkhomedir/module.map                         | 1 +
+ modules/pam_motd/module.map                              | 1 +
+ modules/pam_namespace/module.map                         | 1 +
+ modules/pam_nologin/module.map                           | 1 +
+ modules/pam_permit/module.map                            | 1 +
+ modules/pam_pwhistory/module.map                         | 1 +
+ modules/pam_rhosts/module.map                            | 1 +
+ modules/pam_rootok/module.map                            | 1 +
+ modules/pam_securetty/module.map                         | 1 +
+ modules/pam_selinux/module.map                           | 1 +
+ modules/pam_sepermit/module.map                          | 1 +
+ modules/pam_setquota/module.map                          | 1 +
+ modules/pam_shells/module.map                            | 1 +
+ modules/pam_stress/module.map                            | 1 +
+ modules/pam_succeed_if/module.map                        | 1 +
+ modules/pam_time/module.map                              | 1 +
+ modules/pam_timestamp/module.map                         | 1 +
+ modules/pam_tty_audit/module.map                         | 1 +
+ modules/pam_umask/module.map                             | 1 +
+ modules/pam_unix/module.map                              | 1 +
+ modules/pam_userdb/module.map                            | 1 +
+ modules/pam_usertype/module.map                          | 1 +
+ modules/pam_warn/module.map                              | 1 +
+ modules/pam_wheel/module.map                             | 1 +
+ modules/pam_xauth/module.map                             | 1 +
+ 58 files changed, 113 insertions(+), 6 deletions(-)
+ create mode 100644 modules/maps/modules-account-session.map
+ create mode 100644 modules/maps/modules-account.map
+ rename modules/{modules.map => maps/modules-auth-account-password-session.map} (100%)
+ create mode 100644 modules/maps/modules-auth-account-password.map
+ create mode 100644 modules/maps/modules-auth-account-session.map
+ create mode 100644 modules/maps/modules-auth-account.map
+ create mode 100644 modules/maps/modules-auth-session.map
+ create mode 100644 modules/maps/modules-auth.map
+ create mode 100644 modules/maps/modules-password.map
+ create mode 100644 modules/maps/modules-session.map
+ create mode 120000 modules/pam_access/module.map
+ create mode 120000 modules/pam_canonicalize_user/module.map
+ create mode 120000 modules/pam_debug/module.map
+ create mode 120000 modules/pam_deny/module.map
+ create mode 120000 modules/pam_echo/module.map
+ create mode 120000 modules/pam_env/module.map
+ create mode 120000 modules/pam_exec/module.map
+ create mode 120000 modules/pam_faildelay/module.map
+ create mode 120000 modules/pam_faillock/module.map
+ create mode 120000 modules/pam_filter/module.map
+ create mode 120000 modules/pam_ftp/module.map
+ create mode 120000 modules/pam_group/module.map
+ create mode 120000 modules/pam_issue/module.map
+ create mode 120000 modules/pam_keyinit/module.map
+ create mode 120000 modules/pam_lastlog/module.map
+ create mode 120000 modules/pam_limits/module.map
+ create mode 120000 modules/pam_listfile/module.map
+ create mode 120000 modules/pam_localuser/module.map
+ create mode 120000 modules/pam_loginuid/module.map
+ create mode 120000 modules/pam_mail/module.map
+ create mode 120000 modules/pam_mkhomedir/module.map
+ create mode 120000 modules/pam_motd/module.map
+ create mode 120000 modules/pam_namespace/module.map
+ create mode 120000 modules/pam_nologin/module.map
+ create mode 120000 modules/pam_permit/module.map
+ create mode 120000 modules/pam_pwhistory/module.map
+ create mode 120000 modules/pam_rhosts/module.map
+ create mode 120000 modules/pam_rootok/module.map
+ create mode 120000 modules/pam_securetty/module.map
+ create mode 120000 modules/pam_selinux/module.map
+ create mode 120000 modules/pam_sepermit/module.map
+ create mode 120000 modules/pam_setquota/module.map
+ create mode 120000 modules/pam_shells/module.map
+ create mode 120000 modules/pam_stress/module.map
+ create mode 120000 modules/pam_succeed_if/module.map
+ create mode 120000 modules/pam_time/module.map
+ create mode 120000 modules/pam_timestamp/module.map
+ create mode 120000 modules/pam_tty_audit/module.map
+ create mode 120000 modules/pam_umask/module.map
+ create mode 120000 modules/pam_unix/module.map
+ create mode 120000 modules/pam_userdb/module.map
+ create mode 120000 modules/pam_usertype/module.map
+ create mode 120000 modules/pam_warn/module.map
+ create mode 120000 modules/pam_wheel/module.map
+ create mode 120000 modules/pam_xauth/module.map
+
+diff --git a/meson.build b/meson.build
+index 0827a53ec..c58a4286f 100644
+--- a/meson.build
++++ b/meson.build
+@@ -150,6 +150,7 @@ add_project_link_arguments(
+   # --as-needed and --no-undefined are enabled by default
+   cc.get_supported_link_arguments([
+     '-Wl,--fatal-warnings',
++    '-Wl,--no-undefined-version',
+     '-Wl,-O1',
+   ]),
+   language: 'c')
+diff --git a/modules/maps/modules-account-session.map b/modules/maps/modules-account-session.map
+new file mode 100644
+index 000000000..da87def89
+--- /dev/null
++++ b/modules/maps/modules-account-session.map
+@@ -0,0 +1,7 @@
++{
++  global:
++    pam_sm_acct_mgmt;
++    pam_sm_close_session;
++    pam_sm_open_session;
++  local: *;
++};
+diff --git a/modules/maps/modules-account.map b/modules/maps/modules-account.map
+new file mode 100644
+index 000000000..2b35aeb7b
+--- /dev/null
++++ b/modules/maps/modules-account.map
+@@ -0,0 +1,5 @@
++{
++  global:
++    pam_sm_acct_mgmt;
++  local: *;
++};
+diff --git a/modules/modules.map b/modules/maps/modules-auth-account-password-session.map
+similarity index 100%
+rename from modules/modules.map
+rename to modules/maps/modules-auth-account-password-session.map
+diff --git a/modules/maps/modules-auth-account-password.map b/modules/maps/modules-auth-account-password.map
+new file mode 100644
+index 000000000..1f9e00b19
+--- /dev/null
++++ b/modules/maps/modules-auth-account-password.map
+@@ -0,0 +1,8 @@
++{
++  global:
++    pam_sm_acct_mgmt;
++    pam_sm_authenticate;
++    pam_sm_chauthtok;
++    pam_sm_setcred;
++  local: *;
++};
+diff --git a/modules/maps/modules-auth-account-session.map b/modules/maps/modules-auth-account-session.map
+new file mode 100644
+index 000000000..dcc94d87d
+--- /dev/null
++++ b/modules/maps/modules-auth-account-session.map
+@@ -0,0 +1,9 @@
++{
++  global:
++    pam_sm_acct_mgmt;
++    pam_sm_authenticate;
++    pam_sm_close_session;
++    pam_sm_open_session;
++    pam_sm_setcred;
++  local: *;
++};
+diff --git a/modules/maps/modules-auth-account.map b/modules/maps/modules-auth-account.map
+new file mode 100644
+index 000000000..71928f8bf
+--- /dev/null
++++ b/modules/maps/modules-auth-account.map
+@@ -0,0 +1,7 @@
++{
++  global:
++    pam_sm_acct_mgmt;
++    pam_sm_authenticate;
++    pam_sm_setcred;
++  local: *;
++};
+diff --git a/modules/maps/modules-auth-session.map b/modules/maps/modules-auth-session.map
+new file mode 100644
+index 000000000..40ec74d64
+--- /dev/null
++++ b/modules/maps/modules-auth-session.map
+@@ -0,0 +1,8 @@
++{
++  global:
++    pam_sm_authenticate;
++    pam_sm_close_session;
++    pam_sm_open_session;
++    pam_sm_setcred;
++  local: *;
++};
+diff --git a/modules/maps/modules-auth.map b/modules/maps/modules-auth.map
+new file mode 100644
+index 000000000..eb970e076
+--- /dev/null
++++ b/modules/maps/modules-auth.map
+@@ -0,0 +1,6 @@
++{
++  global:
++    pam_sm_authenticate;
++    pam_sm_setcred;
++  local: *;
++};
+diff --git a/modules/maps/modules-password.map b/modules/maps/modules-password.map
+new file mode 100644
+index 000000000..b2538d456
+--- /dev/null
++++ b/modules/maps/modules-password.map
+@@ -0,0 +1,5 @@
++{
++  global:
++    pam_sm_chauthtok;
++  local: *;
++};
+diff --git a/modules/maps/modules-session.map b/modules/maps/modules-session.map
+new file mode 100644
+index 000000000..b413987fd
+--- /dev/null
++++ b/modules/maps/modules-session.map
+@@ -0,0 +1,6 @@
++{
++  global:
++    pam_sm_close_session;
++    pam_sm_open_session;
++  local: *;
++};
+diff --git a/modules/meson.build b/modules/meson.build
+index 20cebdbb7..68a7a63ce 100644
+--- a/modules/meson.build
++++ b/modules/meson.build
+@@ -1,9 +1,3 @@
+-pam_module_map = 'modules.map'
+-pam_module_map_path = meson.current_source_dir() / pam_module_map
+-
+-pam_module_link_deps = ['..' / pam_module_map]
+-pam_module_link_args = ['-Wl,--version-script=' + pam_module_map_path]
+-
+ subdir('pam_access')
+ subdir('pam_canonicalize_user')
+ subdir('pam_debug')
+diff --git a/modules/module-meson.build b/modules/module-meson.build
+index dce38b90a..a4cc15712 100644
+--- a/modules/module-meson.build
++++ b/modules/module-meson.build
+@@ -128,6 +128,12 @@ if module == 'pam_xauth'
+   pam_module_deps += [libselinux]
+ endif
+ 
++pam_module_map = 'module.map'
++pam_module_map_path = meson.current_source_dir() / pam_module_map
++
++pam_module_link_deps = [pam_module_map]
++pam_module_link_args = ['-Wl,--version-script=' + pam_module_map_path]
++
+ pam_module = shared_module(
+   module,
+   name_prefix: '',
+diff --git a/modules/pam_access/module.map b/modules/pam_access/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_access/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_canonicalize_user/module.map b/modules/pam_canonicalize_user/module.map
+new file mode 120000
+index 000000000..190be9a26
+--- /dev/null
++++ b/modules/pam_canonicalize_user/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth.map
+\ No newline at end of file
+diff --git a/modules/pam_debug/module.map b/modules/pam_debug/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_debug/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_deny/module.map b/modules/pam_deny/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_deny/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_echo/module.map b/modules/pam_echo/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_echo/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_env/module.map b/modules/pam_env/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_env/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_exec/module.map b/modules/pam_exec/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_exec/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_faildelay/module.map b/modules/pam_faildelay/module.map
+new file mode 120000
+index 000000000..190be9a26
+--- /dev/null
++++ b/modules/pam_faildelay/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth.map
+\ No newline at end of file
+diff --git a/modules/pam_faillock/module.map b/modules/pam_faillock/module.map
+new file mode 120000
+index 000000000..6cc612ef1
+--- /dev/null
++++ b/modules/pam_faillock/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account.map
+\ No newline at end of file
+diff --git a/modules/pam_filter/module.map b/modules/pam_filter/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_filter/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_ftp/module.map b/modules/pam_ftp/module.map
+new file mode 120000
+index 000000000..190be9a26
+--- /dev/null
++++ b/modules/pam_ftp/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth.map
+\ No newline at end of file
+diff --git a/modules/pam_group/module.map b/modules/pam_group/module.map
+new file mode 120000
+index 000000000..190be9a26
+--- /dev/null
++++ b/modules/pam_group/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth.map
+\ No newline at end of file
+diff --git a/modules/pam_issue/module.map b/modules/pam_issue/module.map
+new file mode 120000
+index 000000000..190be9a26
+--- /dev/null
++++ b/modules/pam_issue/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth.map
+\ No newline at end of file
+diff --git a/modules/pam_keyinit/module.map b/modules/pam_keyinit/module.map
+new file mode 120000
+index 000000000..96519a4f2
+--- /dev/null
++++ b/modules/pam_keyinit/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-session.map
+\ No newline at end of file
+diff --git a/modules/pam_lastlog/module.map b/modules/pam_lastlog/module.map
+new file mode 120000
+index 000000000..fa8c55e7d
+--- /dev/null
++++ b/modules/pam_lastlog/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-session.map
+\ No newline at end of file
+diff --git a/modules/pam_limits/module.map b/modules/pam_limits/module.map
+new file mode 120000
+index 000000000..b90af7a85
+--- /dev/null
++++ b/modules/pam_limits/module.map
+@@ -0,0 +1 @@
++../maps/modules-session.map
+\ No newline at end of file
+diff --git a/modules/pam_listfile/module.map b/modules/pam_listfile/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_listfile/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_localuser/module.map b/modules/pam_localuser/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_localuser/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_loginuid/module.map b/modules/pam_loginuid/module.map
+new file mode 120000
+index 000000000..d4486c2b3
+--- /dev/null
++++ b/modules/pam_loginuid/module.map
+@@ -0,0 +1 @@
++../maps/modules-account-session.map
+\ No newline at end of file
+diff --git a/modules/pam_mail/module.map b/modules/pam_mail/module.map
+new file mode 120000
+index 000000000..96519a4f2
+--- /dev/null
++++ b/modules/pam_mail/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-session.map
+\ No newline at end of file
+diff --git a/modules/pam_mkhomedir/module.map b/modules/pam_mkhomedir/module.map
+new file mode 120000
+index 000000000..b90af7a85
+--- /dev/null
++++ b/modules/pam_mkhomedir/module.map
+@@ -0,0 +1 @@
++../maps/modules-session.map
+\ No newline at end of file
+diff --git a/modules/pam_motd/module.map b/modules/pam_motd/module.map
+new file mode 120000
+index 000000000..b90af7a85
+--- /dev/null
++++ b/modules/pam_motd/module.map
+@@ -0,0 +1 @@
++../maps/modules-session.map
+\ No newline at end of file
+diff --git a/modules/pam_namespace/module.map b/modules/pam_namespace/module.map
+new file mode 120000
+index 000000000..b90af7a85
+--- /dev/null
++++ b/modules/pam_namespace/module.map
+@@ -0,0 +1 @@
++../maps/modules-session.map
+\ No newline at end of file
+diff --git a/modules/pam_nologin/module.map b/modules/pam_nologin/module.map
+new file mode 120000
+index 000000000..6cc612ef1
+--- /dev/null
++++ b/modules/pam_nologin/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account.map
+\ No newline at end of file
+diff --git a/modules/pam_permit/module.map b/modules/pam_permit/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_permit/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_pwhistory/module.map b/modules/pam_pwhistory/module.map
+new file mode 120000
+index 000000000..7df2e1b62
+--- /dev/null
++++ b/modules/pam_pwhistory/module.map
+@@ -0,0 +1 @@
++../maps/modules-password.map
+\ No newline at end of file
+diff --git a/modules/pam_rhosts/module.map b/modules/pam_rhosts/module.map
+new file mode 120000
+index 000000000..190be9a26
+--- /dev/null
++++ b/modules/pam_rhosts/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth.map
+\ No newline at end of file
+diff --git a/modules/pam_rootok/module.map b/modules/pam_rootok/module.map
+new file mode 120000
+index 000000000..175e8b86d
+--- /dev/null
++++ b/modules/pam_rootok/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password.map
+\ No newline at end of file
+diff --git a/modules/pam_securetty/module.map b/modules/pam_securetty/module.map
+new file mode 120000
+index 000000000..6cc612ef1
+--- /dev/null
++++ b/modules/pam_securetty/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account.map
+\ No newline at end of file
+diff --git a/modules/pam_selinux/module.map b/modules/pam_selinux/module.map
+new file mode 120000
+index 000000000..96519a4f2
+--- /dev/null
++++ b/modules/pam_selinux/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-session.map
+\ No newline at end of file
+diff --git a/modules/pam_sepermit/module.map b/modules/pam_sepermit/module.map
+new file mode 120000
+index 000000000..6cc612ef1
+--- /dev/null
++++ b/modules/pam_sepermit/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account.map
+\ No newline at end of file
+diff --git a/modules/pam_setquota/module.map b/modules/pam_setquota/module.map
+new file mode 120000
+index 000000000..b90af7a85
+--- /dev/null
++++ b/modules/pam_setquota/module.map
+@@ -0,0 +1 @@
++../maps/modules-session.map
+\ No newline at end of file
+diff --git a/modules/pam_shells/module.map b/modules/pam_shells/module.map
+new file mode 120000
+index 000000000..6cc612ef1
+--- /dev/null
++++ b/modules/pam_shells/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account.map
+\ No newline at end of file
+diff --git a/modules/pam_stress/module.map b/modules/pam_stress/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_stress/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_succeed_if/module.map b/modules/pam_succeed_if/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_succeed_if/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_time/module.map b/modules/pam_time/module.map
+new file mode 120000
+index 000000000..1057580e1
+--- /dev/null
++++ b/modules/pam_time/module.map
+@@ -0,0 +1 @@
++../maps/modules-account.map
+\ No newline at end of file
+diff --git a/modules/pam_timestamp/module.map b/modules/pam_timestamp/module.map
+new file mode 120000
+index 000000000..96519a4f2
+--- /dev/null
++++ b/modules/pam_timestamp/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-session.map
+\ No newline at end of file
+diff --git a/modules/pam_tty_audit/module.map b/modules/pam_tty_audit/module.map
+new file mode 120000
+index 000000000..b90af7a85
+--- /dev/null
++++ b/modules/pam_tty_audit/module.map
+@@ -0,0 +1 @@
++../maps/modules-session.map
+\ No newline at end of file
+diff --git a/modules/pam_umask/module.map b/modules/pam_umask/module.map
+new file mode 120000
+index 000000000..b90af7a85
+--- /dev/null
++++ b/modules/pam_umask/module.map
+@@ -0,0 +1 @@
++../maps/modules-session.map
+\ No newline at end of file
+diff --git a/modules/pam_unix/module.map b/modules/pam_unix/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_unix/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_userdb/module.map b/modules/pam_userdb/module.map
+new file mode 120000
+index 000000000..6cc612ef1
+--- /dev/null
++++ b/modules/pam_userdb/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account.map
+\ No newline at end of file
+diff --git a/modules/pam_usertype/module.map b/modules/pam_usertype/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_usertype/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_warn/module.map b/modules/pam_warn/module.map
+new file mode 120000
+index 000000000..894551fba
+--- /dev/null
++++ b/modules/pam_warn/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account-password-session.map
+\ No newline at end of file
+diff --git a/modules/pam_wheel/module.map b/modules/pam_wheel/module.map
+new file mode 120000
+index 000000000..6cc612ef1
+--- /dev/null
++++ b/modules/pam_wheel/module.map
+@@ -0,0 +1 @@
++../maps/modules-auth-account.map
+\ No newline at end of file
+diff --git a/modules/pam_xauth/module.map b/modules/pam_xauth/module.map
+new file mode 120000
+index 000000000..b90af7a85
+--- /dev/null
++++ b/modules/pam_xauth/module.map
+@@ -0,0 +1 @@
++../maps/modules-session.map
+\ No newline at end of file
