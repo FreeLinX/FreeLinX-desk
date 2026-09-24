@@ -1,12 +1,19 @@
 #!/bin/sh
-# /etc/flx-desktop = "gui" -> graphical session; otherwise root terminal on tty1.
-# Written by flxinstall, or by /init from the kernel cmdline flx.desktop=gui|headless.
-# kernel cmdline flx.autologin=1 -> skip the login page (live media / QEMU).
-FLX_DESK="$(cat /etc/flx-desktop 2>/dev/null || echo headless)"
+
+FLX_DESK="$(cat /etc/flx-desktop 2>/dev/null || true)"
+CMDLINE="$(cat /proc/cmdline 2>/dev/null || true)"
+
+case " $CMDLINE " in
+    *" flx.desktop=gui "*)
+        FLX_DESK=gui
+        ;;
+esac
 if [ "$FLX_DESK" = "gui" ]; then
-    case " $(cat /proc/cmdline 2>/dev/null) " in
-        *" flx.autologin=1 "*) exec /usr/bin/flx-session ;;
+    case " $CMDLINE " in
+        *" flx.autologin=1 "*)
+            exec /usr/bin/flx-session
+            ;;
     esac
     exec /usr/bin/greetd
 fi
-exec /bin/sh -l < /dev/tty1 > /dev/tty1 2>&11
+exec /bin/sh -l < /dev/tty1 > /dev/tty1 2>&1
