@@ -131,12 +131,16 @@ cat /tmp/xorg.log > "$FLX_LOG" 2>&1 || true
 
 export DISPLAY=:0
 export XLOCALEDIR=/usr/share/X11/locale
-export HOME=/root
-export USER=root
+# When greeted by greetd after a real login, run the desktop AS the logged-in
+# user (greetd/PAM provide $USER, $HOME).  Without a login context (live
+# autologin / runit-as-root), fall back to the root session.
+: "${USER:=root}"
+: "${HOME:=/root}"
+export USER HOME
 export ENV=/etc/profile
-export XDG_CONFIG_HOME=/root/.config
-export XDG_DATA_HOME=/root/.local/share
-export XDG_CACHE_HOME=/root/.cache
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CACHE_HOME="$HOME/.cache"
 export PATH=/usr/share/X11/xtree/bin:/usr/bin:/bin:/usr/sbin:/sbin
 mkdir -p "$XDG_CONFIG_HOME/openbox"
 

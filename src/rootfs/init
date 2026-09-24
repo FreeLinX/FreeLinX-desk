@@ -23,14 +23,17 @@ export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket
 
 umask 022
 
+# pseudo filesystems (mount proc FIRST - /proc/cmdline drives the desktop mode)
+mount -t proc     proc     /proc 2>/dev/null || :
+
 # FreeLinX desktop 
 CMDLINE="$(cat /proc/cmdline 2>/dev/null || true)"
 
 case " $CMDLINE " in
-    *" flx.desktop=gui "*)
+    *flx.desktop=gui*)
         printf '%s\n' gui > /etc/flx-desktop
         ;;
-    *" flx.desktop=headless "*)
+    *flx.desktop=headless*)
         printf '%s\n' headless > /etc/flx-desktop
         ;;
     *)
@@ -38,8 +41,7 @@ case " $CMDLINE " in
         ;;
 esac
 
-# pseudo filesystems
-mount -t proc     proc     /proc 2>/dev/null || :
+# pseudo filesystems continued
 mount -t sysfs    sysfs    /sys   2>/dev/null || :
 mount -t devtmpfs devtmpfs /dev   2>/dev/null || :
 ln -snf /proc/self/fd /dev/fd
@@ -203,6 +205,15 @@ if [ -r /etc/hostname ]; then
     _hostname=$(cat /etc/hostname 2>/dev/null | tr -d '[:space:]')
 fi
 [ -n "$_hostname" ] && hostname "$_hostname"
+
+# --- explicit rescue shell (flx.rescue=1, used by the bootloader rescue
+# entry; the old init=/bin/sh trick does not work with rdinit=/init) ----------
+case " $CMDLINE " in
+    *flx.rescue=1*)
+        echo "FreeLinX: rescue shell (flx.rescue=1) - type 'exit' to halt." >&2
+        exec /bin/sh -l < /dev/console > /dev/console 2>&1
+        ;;
+esac
 
 # --- runit service supervision -----------------------------------------------
 if [ -x /sbin/runsvdir ]; then

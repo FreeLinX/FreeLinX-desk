@@ -70,6 +70,31 @@ if [ "$(id -u)" -ne 0 ]; then
     die "flxinstall must be run as root."
 fi
 
+# --- optional presets (flxinstall -p file [-y] [disk]) ----------------------
+# Presets make the wizard fully non-interactive so the GUI installer and
+# automated tests can drive it.  The -p file is a POSIX sh snippet that sets
+# any of: LANG_LC KBD_LAYOUT TZ_STR HOSTNAME ROOTPW ROOT_HASH USERNAME
+# REALNAME USERPW WIFISSID WIFIPASS DI TARGET_DISK_PRESET
+# -y skips the final wipe-confirmation prompt.
+FLX_CFG=""
+FLX_YES=0
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -p|--presets) FLX_CFG="$2"; shift 2 ;;
+        -y|--yes) FLX_YES=1; shift ;;
+        -*) echo "Unknown option: $1" >&2; exit 1 ;;
+        *) break ;;
+    esac
+done
+if [ -n "$FLX_CFG" ]; then
+    [ -r "$FLX_CFG" ] || die "presets file not readable: $FLX_CFG"
+    echo "Using presets from $FLX_CFG (non-interactive)..."
+    . "$FLX_CFG"
+fi
+
+# days since epoch: used as shadow sp_lstchg so accounts don't look "expired"
+SHA_DAYS=$(( $(date +%s) / 86400 ))
+
 # --- locate required utilities ----------------------------------------------
 command -v flxpart >/dev/null 2>&1 || die "flxpart utility not found."
 
@@ -106,8 +131,10 @@ echo " Step 1/9 - Language"
 echo "----------------------------------------------------------"
 LANG_CLIST="English (en_US.UTF-8)|German (de_DE.UTF-8)|French (fr_FR.UTF-8)|Spanish (es_ES.UTF-8)|Italian (it_IT.UTF-8)|Portuguese (pt_PT.UTF-8)|Dutch (nl_NL.UTF-8)|Turkish (tr_TR.UTF-8)|Russian (ru_RU.UTF-8)|Arabic (ar_SA.UTF-8)|Persian (fa_IR.UTF-8)|Japanese (ja_JP.UTF-8)|Chinese (zh_CN.UTF-8)"
 LANG_LOCALES="en_US.UTF-8|de_DE.UTF-8|fr_FR.UTF-8|es_ES.UTF-8|it_IT.UTF-8|pt_PT.UTF-8|nl_NL.UTF-8|tr_TR.UTF-8|ru_RU.UTF-8|ar_SA.UTF-8|fa_IR.UTF-8|ja_JP.UTF-8|zh_CN.UTF-8"
-LI=$(menu_select "Choose your language" "$LANG_CLIST")
-LANG_LC=$(echo "$LANG_LOCALES" | cut -d'|' -f"$LI")
+if [ -z "${LANG_LC:-}" ]; then
+    LI=$(menu_select "Choose your language" "$LANG_CLIST")
+    LANG_LC=$(echo "$LANG_LOCALES" | cut -d'|' -f"$LI")
+fi
 LC_LANG=${LANG_LC%.*}   # strip .UTF-8
 printf '%s\n' "$LANG_LC" > /etc/flx-locale
 echo "  Language set to: $LANG_LC"
@@ -119,10 +146,12 @@ echo " Step 2/9 - Keyboard layout"
 echo "----------------------------------------------------------"
 KBD_CLIST="US English (us)|German (de)|French (fr)|British (gb)|Spanish (es)|Italian (it)|Portuguese (pt)|Turkish (tr)|Russian (ru)|Arabic (ar)|Persian (fa)|Japanese (jp)|Custom (enter X layout)"
 KBD_LAYOUTS="us|de|fr|gb|es|it|pt|tr|ru|ar|fa|jp|custom"
-KI=$(menu_select "Choose your keyboard layout" "$KBD_CLIST")
-KBD_LAYOUT=$(echo "$KBD_LAYOUTS" | cut -d'|' -f"$KI")
-if [ "$KBD_LAYOUT" = "custom" ]; then
-    KBD_LAYOUT=$(ask_default "Enter X11 keyboard layout (e.g. us, de, fr, gb)" "us")
+if [ -z "${KBD_LAYOUT:-}" ]; then
+    KI=$(menu_select "Choose your keyboard layout" "$KBD_CLIST")
+    KBD_LAYOUT=$(echo "$KBD_LAYOUTS" | cut -d'|' -f"$KI")
+    if [ "$KBD_LAYOUT" = "custom" ]; then
+        KBD_LAYOUT=$(ask_default "Enter X11 keyboard layout (e.g. us, de, fr, gb)" "us")
+    fi
 fi
 printf '%s\n' "$KBD_LAYOUT" > /etc/flx-kbd
 echo "  Keyboard layout: $KBD_LAYOUT"
@@ -136,10 +165,12 @@ echo " Step 3/9 - Timezone"
 echo "----------------------------------------------------------"
 TZ_CLIST="UTC|UTC +1 (Berlin/Paris/Rome)|UTC +2 (Istanbul/Athens)|UTC +3 (Moscow,Nairobi)|UTC +3:30 (Tehran)|UTC +4 (Dubai/Baku)|UTC +5:30 (Mumbai)|UTC +7 (Bangkok/Hanoi)|UTC +8 (Beijing/Singapore)|UTC +9 (Tokyo/Seoul)|UTC -5 (New York)|UTC -6 (Chicago)|UTC -7 (Denver)|UTC -8 (Los Angeles)|UTC +0 - Custom (enter POSIX TZ)"
 TZ_POSIX="UTC0|UTC-1|UTC-2|UTC-3|UTC-3:30|UTC-4|UTC-5:30|UTC-7|UTC-8|UTC-9|UTC+5|UTC+6|UTC+7|UTC+8|custom"
-TI=$(menu_select "Choose your timezone (UTC offset)" "$TZ_CLIST")
-TZ_STR=$(echo "$TZ_POSIX" | cut -d'|' -f"$TI")
-if [ "$TZ_STR" = "custom" ]; then
-    TZ_STR=$(ask_default "Enter POSIX TZ string (e.g. 'UTC-1' = UTC+1, 'EST5' = US Eastern)" "UTC0")
+if [ -z "${TZ_STR:-}" ]; then
+    TI=$(menu_select "Choose your timezone (UTC offset)" "$TZ_CLIST")
+    TZ_STR=$(echo "$TZ_POSIX" | cut -d'|' -f"$TI")
+    if [ "$TZ_STR" = "custom" ]; then
+        TZ_STR=$(ask_default "Enter POSIX TZ string (e.g. 'UTC-1' = UTC+1, 'EST5' = US Eastern)" "UTC0")
+    fi
 fi
 printf '%s\n' "$TZ_STR" > /etc/TZ
 export TZ="$TZ_STR"
@@ -150,7 +181,9 @@ echo ""
 echo "----------------------------------------------------------"
 echo " Step 4/9 - Hostname"
 echo "----------------------------------------------------------"
-HOSTNAME=$(ask_default "Enter system hostname" "freelinx")
+if [ -z "${HOSTNAME:-}" ]; then
+    HOSTNAME=$(ask_default "Enter system hostname" "freelinx")
+fi
 printf '%s\n' "$HOSTNAME" > /etc/hostname
 hostname "$HOSTNAME" 2>/dev/null || :
 echo "  Hostname: $HOSTNAME"
@@ -160,18 +193,21 @@ echo ""
 echo "----------------------------------------------------------"
 echo " Step 5/9 - Root password"
 echo "----------------------------------------------------------"
-echo " (Leave blank to keep the current root password.)"
-printf 'Enter new root password: '
-read -r ROOTPW || ROOTPW=""
+if [ -z "${ROOTPW:-}" ]; then
+    echo " (Leave blank to keep the current root password.)"
+    printf 'Enter new root password: '
+    read -r ROOTPW || ROOTPW=""
+fi
 if [ -n "$ROOTPW" ]; then
-    if [ -x /bin/python3.12 ]; then
+    ROOTHASH="${ROOT_HASH:-}"
+    if [ -z "$ROOTHASH" ] && [ -x /bin/python3.12 ]; then
         ROOTHASH=$(/bin/python3.12 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$ROOTPW" 2>/dev/null)
     fi
     if [ -z "$ROOTHASH" ] && command -v pwhash >/dev/null 2>&1; then
         ROOTHASH=$(pwhash "$ROOTPW" 2>/dev/null)
     fi
     if [ -n "$ROOTHASH" ]; then
-        sed -i "s|^root:.*|root:$ROOTHASH:0:0:99999:7:::|" /etc/shadow
+        sed -i "s|^root:.*|root:$ROOTHASH:$SHA_DAYS:0:99999:7:::|" /etc/shadow
         echo "  Root password updated."
     else
         echo "  Warning: no hash tool available; leaving root password unchanged."
@@ -185,25 +221,39 @@ echo ""
 echo "----------------------------------------------------------"
 echo " Step 6/9 - User account"
 echo "----------------------------------------------------------"
-printf 'Create a regular user account? (y/N): '
-read -r MAKUSER || MAKUSER="n"
-USERNAME=""
+if [ -n "${USERNAME:-}" ]; then
+    MAKUSER="y"
+else
+    printf 'Create a regular user account? (y/N): '
+    read -r MAKUSER || MAKUSER="n"
+fi
 case "$MAKUSER" in
     y|Y|yes|YES)
-        USERNAME=$(ask_default "Enter username (lowercase alnum)" "")
+        if [ -z "${USERNAME:-}" ]; then
+            USERNAME=$(ask_default "Enter username (lowercase alnum)" "")
+        fi
         if [ -z "$USERNAME" ]; then
             echo "  Skipping user creation (no username entered)."
             USERNAME=""
         else
             # sanitize
             USERNAME=$(echo "$USERNAME" | tr -c 'a-z0-9' '_')
-            REALNAME=$(ask_default "Enter full name" "$USERNAME")
-            printf 'Enter password for %s (blank = disabled): ' "$USERNAME"
-            read -r USERPW || USERPW=""
+            if [ -z "${REALNAME:-}" ]; then
+                REALNAME=$(ask_default "Enter full name" "$USERNAME")
+            fi
+            : "${REALNAME:=$USERNAME}"
+            if [ -z "${USERPW:-}" ]; then
+                printf 'Enter password for %s (blank = disabled): ' "$USERNAME"
+                read -r USERPW || USERPW=""
+            fi
             USERHASH="!"
             if [ -n "$USERPW" ]; then
                 if [ -x /bin/python3.12 ]; then
                     USERHASH=$(/bin/python3.12 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$USERPW" 2>/dev/null)
+                fi
+                # pwhash fallback (python3 is gone from the offline image!)
+                if [ -z "$USERHASH" ] || [ "$USERHASH" = "!" ]; then
+                    USERHASH=$(pwhash "$USERPW" 2>/dev/null)
                 fi
                 [ -z "$USERHASH" ] && USERHASH="!"
             fi
@@ -219,33 +269,27 @@ case "$MAKUSER" in
 
             # user's own group
             echo "$USERNAME:x:$GID_CAND:" >> /etc/group
-            # primary membership: wheel(+doas), video, audio, storage, input, users
+            # append to supplemental groups (wheel/video/audio/storage/input/users)
+            # with proper comma separation + dedupe.  POSIX sh only.
             for _grp in wheel video audio storage input users; do
-                if grep -qs "^$_grp:" /etc/group 2>/dev/null; then
-                    sed -i "s|^$_grp:\(.*\):$|&|" /etc/group
-                    if ! awk -F: -v g="$_grp" -v u=",$USERNAME," 'NR==1{next} $1==g&&$0 !~ ":"u":"{found} ' /dev/null 2>/dev/null; then
-                        :
-                    fi
+                if grep -qs "^$_grp:" /etc/group; then
+                    _m=$(grep "^$_grp:" /etc/group | cut -d: -f4 | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',')
+                    _m="${_m%,}"
+                    case ",${_m}," in
+                        *",$USERNAME,"*) : ;;
+                        *)
+                            [ -n "$_m" ] && _m="${_m},"
+                            _gid=$(grep "^$_grp:" /etc/group | cut -d: -f3)
+                            awk -F: -v g="$_grp" -v nl="$_grp:x:$_gid:${_m}${USERNAME}" \
+                                'BEGIN{OFS=":"} { if ($1==g) print nl; else print }' \
+                                /etc/group > /etc/group.flx && mv /etc/group.flx /etc/group
+                            ;;
+                    esac
                 fi
             done
-            # append user to each supplemental group (posix: append to last field)
-            for _grp in wheel video audio storage input users; do
-                if grep -qs "^$_grp:" /etc/group 2>/dev/null; then
-                    sed -i "s|^\($_grp:[^:]*:[^:]*:\).*|\1$(grep "^$_grp:" /etc/group | cut -d: -f4)$USERNAME|" /etc/group
-                    sed -i "s|^\($_grp:[^:]*:[^:]*:\)|&|" /etc/group
-                fi
-            done
-            # fix wheel: ensure :USERNAME at end
-            sed -i "s|^wheel:\([^:]*\):\([^:]*\):\(.*\)|wheel:\1:\2:\3$USERNAME|" /etc/group
-            # normalize wheel trailing colons
-            sed -i "s|^wheel:\([^:]*\):\([^:]*\)::*|wheel:\1:\2:$USERNAME|" /etc/group
-            # filter duplicate members in wheel
-            WHEELMEM=$(grep '^wheel:' /etc/group | cut -d: -f4 | tr ',' '\n' | sort -u | grep -v '^$' | tr '\n' ',')
-            WHEELMEM="${WHEELMEM%,}"
-            sed -i "s|^wheel:.*|wheel:x:10:${WHEELMEM}|" /etc/group
 
             echo "$USERNAME:x:$UID_CAND:$GID_CAND:$REALNAME:/home/$USERNAME:/bin/sh" >> /etc/passwd
-            echo "$USERNAME:$USERHASH:0:0:99999:7:::" >> /etc/shadow
+            echo "$USERNAME:$USERHASH:$SHA_DAYS:0:99999:7:::" >> /etc/shadow
             echo "  User '$USERNAME' (uid $UID_CAND) added. Home will be /home/$USERNAME"
             echo "  (persistent, on the FLX_HOME partition)."
         fi
@@ -258,16 +302,24 @@ echo ""
 echo "----------------------------------------------------------"
 echo " Step 7/9 - WiFi"
 echo "----------------------------------------------------------"
-printf 'Configure a WiFi network? (y/N): '
-read -r MAKEWIFI || MAKEWIFI="n"
+if [ -n "${WIFISSID:-}" ]; then
+    MAKEWIFI="y"
+else
+    printf 'Configure a WiFi network? (y/N): '
+    read -r MAKEWIFI || MAKEWIFI="n"
+fi
 case "$MAKEWIFI" in
     y|Y|yes|YES)
         echo "  Note: config is saved into the installed system and applied"
         echo "  at boot when a wireless card is present."
-        WIFISSID=$(ask_default "Enter WiFi SSID" "")
+        if [ -z "${WIFISSID:-}" ]; then
+            WIFISSID=$(ask_default "Enter WiFi SSID" "")
+        fi
         if [ -n "$WIFISSID" ]; then
-            printf 'Enter WiFi password (blank for open network): '
-            read -r WIFIPASS || WIFIPASS=""
+            if [ -z "${WIFIPASS:-}" ]; then
+                printf 'Enter WiFi password (blank for open network): '
+                read -r WIFIPASS || WIFIPASS=""
+            fi
             mkdir -p /etc/wpa_supplicant
             if [ -n "$WIFIPASS" ] && command -v wpa_passphrase >/dev/null 2>&1; then
                 wpa_passphrase "$WIFISSID" "$WIFIPASS" > /etc/wpa_supplicant/flxwifi.conf 2>/dev/null || {
@@ -301,8 +353,16 @@ echo " is baked into this offline image. Choose what to install:"
 echo "   1) Headless (CLI terminal only, headless-first)"
 echo "   2) GUI (Openbox + login page greets you after boot)"
 printf "Install type (1=headless, 2=gui) [1]: "
-read -r DI || DI="1"
-[ -z "$DI" ] && DI="1"
+if [ -z "${DI:-}" ]; then
+    read -r DI || DI="1"
+    [ -z "$DI" ] && DI="1"
+else
+    case "$DI" in
+        2|2g|gui|GUI) : ;;
+        1|1h|headless|HEADLESS) DI="1" ;;
+    esac
+    [ -z "$DI" ] && DI="1"
+fi
 case "$DI" in
     2) printf 'gui\n' > /etc/flx-desktop
        echo "  Desktop: GUI (Openbox). Login page will greet you after boot." ;;
@@ -321,7 +381,7 @@ normalize_disk() {
     esac
 }
 
-TARGET_DISK="$1"
+TARGET_DISK="${1:-${TARGET_DISK_PRESET:-}}"
 if [ -n "$TARGET_DISK" ]; then
     TARGET_DISK="$(normalize_disk "$TARGET_DISK")"
 fi
@@ -378,8 +438,12 @@ fi
 
 echo ""
 echo " WARNING: All data on $TARGET_DISK will be PERMANENTLY ERASED!"
-printf " Type YES in capital letters to proceed: "
-read -r CONFIRM || CONFIRM="no"
+if [ "${FLX_YES:-0}" = "1" ]; then
+    CONFIRM="YES"
+else
+    printf " Type YES in capital letters to proceed: "
+    read -r CONFIRM || CONFIRM="no"
+fi
 if [ "$CONFIRM" != "YES" ]; then
     echo " Installation cancelled."
     exit 0
@@ -522,7 +586,7 @@ serial: yes
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
-    cmdline: rdinit=/init init=/bin/sh console=tty0 console=ttyS0,115200
+    cmdline: rdinit=/init flx.rescue=1 console=tty0 console=ttyS0,115200 quiet loglevel=2
 EOF
 cp "$BOOT_DIR/limine.conf" "$BOOT_DIR/boot/limine.conf"
 cp "$BOOT_DIR/limine.conf" "$BOOT_DIR/EFI/BOOT/limine.conf"
@@ -577,12 +641,12 @@ echo ""
 echo " REBOOT NOW: quit this live system (Ctrl-Alt-Del or power off),"
 echo " remove the live media, and boot from the installed disk."
 if [ "$DESK_MODE" = "gui" ]; then
-    echo " Your FreeLinX GUI desktop is installed - the login page (ly)"
-    echo " will greet you after boot. Enter your password and the desktop"
-    echo " greets you."
+    echo " Your FreeLinX GUI desktop is installed - the greetd login page"
+    echo " (tuigreet) will greet you after boot. Enter your password and the"
+    echo " desktop greets you."
 else
     echo " Your FreeLinX HEADLESS system is installed - booting goes"
     echo " straight to a root terminal (headless-first). You can pull the"
-    echo " GUI (openbox + ly login page) later from the FreeLinX repo."
+    echo " GUI (openbox + greetd login page) later from the FreeLinX repo."
 fi
 echo ""

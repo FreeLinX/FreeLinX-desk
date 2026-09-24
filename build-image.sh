@@ -40,6 +40,12 @@ chmod 0700 "$STAGE/root"
 chmod 1777 "$STAGE/tmp"
 [ -d "$STAGE/var/tmp" ] && chmod 1777 "$STAGE/var/tmp"
 [ -f "$STAGE/usr/bin/doas" ] && chmod 4755 "$STAGE/usr/bin/doas"
+[ -f "$STAGE/usr/sbin/unix_chkpwd" ] && chmod 4755 "$STAGE/usr/sbin/unix_chkpwd"
+# linux-pam's pam_unix forks the helper at /sbin/unix_chkpwd (CHKPWD_HELPER);
+# /usr/sbin is where we install the binary -> provide the expected path.
+if [ -f "$STAGE/usr/sbin/unix_chkpwd" ] && [ ! -e "$STAGE/sbin/unix_chkpwd" ]; then
+    ln -s ../usr/sbin/unix_chkpwd "$STAGE/sbin/unix_chkpwd"
+fi
 [ -f "$STAGE/etc/doas.conf" ] && chmod 0600 "$STAGE/etc/doas.conf"
 
 find "$STAGE" -name .gitkeep -type f -exec rm -f {} +

@@ -1,0 +1,8 @@
+# FreeLinX: greetd-greeter PAM service.
+# Used by greetd to launch the greeter (tuigreet) as the 'greeter' user.
+# The greeter does not authenticate - it merely presents the login UI, so
+# everything is permissive here.  Real authentication happens through the
+# 'greetd' service (pam_unix shadow auth) once the user submits credentials.
+auth required pam_permit.so
+account required pam_permit.so
+session required pam_permit.so

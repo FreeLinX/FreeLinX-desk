@@ -4,12 +4,19 @@ FLX_DESK="$(cat /etc/flx-desktop 2>/dev/null || echo headless)"
 
 if [ "$FLX_DESK" = "gui" ]; then
     case " $(cat /proc/cmdline 2>/dev/null) " in
-        *" flx.autologin=1 "*)
+        *flx.autologin=1*)
             exec /usr/bin/flx-session
             ;;
     esac
 
-    exec /usr/bin/greetd
+    # Make sure the greeter user owns its home (cpio packs everything
+    # root:root; greetd needs a writable HOME for the greeter).
+    if [ -d /var/lib/greetd ]; then
+        chown 998:998 /var/lib/greetd 2>/dev/null || true
+        chmod 750 /var/lib/greetd 2>/dev/null || true
+    fi
+
+    exec /usr/bin/greetd >> /tmp/greetd.log 2>&1
 fi
 
 exec /bin/sh -l < /dev/tty1 > /dev/tty1 2>&1

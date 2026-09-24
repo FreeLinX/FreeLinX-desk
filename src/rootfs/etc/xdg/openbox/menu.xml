@@ -125,6 +125,9 @@
   <item label="Keyboard Layout (AZ/US) (setxkbmap)">
     <action name="Execute"><command>uxterm -T "Keyboard Layout" -e sh -c "setxkbmap us,az -option grp:alt_shift_toggle &amp;&amp; echo 'Keyboard layout set to US/AZ (toggle: Alt+Shift)'; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
+  <item label="Install FreeLinX to Disk (Graphical)">
+    <action name="Execute"><command>flxinstall-gui</command></action>
+  </item>
   <item label="Install FreeLinX to Disk">
     <action name="Execute"><command>uxterm -e sh -c "doas /sbin/flxinstall; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>

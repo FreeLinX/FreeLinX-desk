@@ -11,3 +11,4 @@ video:x:44:
 input:x:97:
 storage:x:99:
 users:x:100:
+greeter:x:998:
