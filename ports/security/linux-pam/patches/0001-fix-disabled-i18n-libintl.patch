@@ -1,0 +1,10 @@
+--- a/meson.build
++++ b/meson.build
+@@ -195,6 +195,7 @@
+ 
+ libdl = dependency('dl')
+ 
++libintl = null_dep
+ if not get_option('i18n').disabled()
+   libintl = dependency('intl', required: get_option('i18n'))
+   if libintl.found()
