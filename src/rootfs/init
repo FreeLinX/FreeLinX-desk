@@ -94,6 +94,49 @@ if [ -x /bin/mount ] || [ -x /sbin/mount ]; then
     fi
 fi
 
+# Persistent system state (FLX_SYS, disk=/root overlay model)
+# Installed images carry /etc/flx-installed (baked by flxinstall).  On such
+# systems, the ext4 partition labeled FLX_SYS holds persistent copies of
+# /usr, /etc, /var and /root.  Bind-mounting them keeps xpkg-installed
+# packages, system config and package state across reboots while the base
+# initramfs stays pristine.  The live ISO never has the marker, so a stale
+# FLX_SYS partition on an attached disk is ignored there.  A tree is only
+# bind-mounted when its persistent copy is non-empty, so an empty/partial
+# FLX_SYS can never shadow the working base with nothing.
+if [ -f /etc/flx-installed ]; then
+    FLX_SYS_DEV=""
+    for pt in /sys/class/block/*; do
+        [ -d "$pt" ] || continue
+        case "$(basename "$pt")" in
+            *[0-9]) ;;
+            *) continue ;;
+        esac
+        BLKOUT="$(blkid "/dev/$(basename "$pt")" 2>/dev/null || true)"
+        FLX_LABEL=$(echo "$BLKOUT" | grep -o 'LABEL="[^"]*"' | cut -d'"' -f2 || true)
+        if [ "$FLX_LABEL" = "FLX_SYS" ]; then
+            FLX_SYS_DEV="/dev/$(basename "$pt")"
+            break
+        fi
+    done
+    if [ -n "$FLX_SYS_DEV" ] && ! grep -qs ' /mnt/flx_sys ' /proc/mounts; then
+        mkdir -p /mnt/flx_sys
+        mount -t ext4 -o defaults,noatime "$FLX_SYS_DEV" /mnt/flx_sys 2>/dev/null || :
+        if grep -qs ' /mnt/flx_sys ' /proc/mounts; then
+            if [ -x /sbin/flxbind ]; then
+                for d in usr etc var root; do
+                    if [ -d "/mnt/flx_sys/$d" ] && [ -n "$(ls -A "/mnt/flx_sys/$d" 2>/dev/null)" ]; then
+                        /sbin/flxbind "/mnt/flx_sys/$d" "/$d" 2>/dev/null || :
+                    fi
+                done
+                _nbound=$(mount 2>/dev/null | grep -c ' on /usr \| on /etc \| on /var \| on /root ' || echo 0)
+                echo "FLX_SYS persistent system engaged: $_nbound trees bound" >/dev/ttyS0 2>/dev/null || :
+            else
+                echo "FLX_SYS partition found but flxbind missing - persistence disabled" >/dev/ttyS0 2>/dev/null || :
+            fi
+        fi
+    fi
+fi
+
 # Input devices (evdev)
 # # Map keyboards and mouse/tablet evdev nodes to /dev/fl-kbd and /dev/fl-pointer
 # for Xorg evdev driver.

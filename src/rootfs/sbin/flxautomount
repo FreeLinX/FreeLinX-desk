@@ -53,6 +53,11 @@ case "$ACTION" in
             FS_LABEL=$(echo "$OUT" | grep -o 'LABEL="[^"]*"' | cut -d'"' -f2 || true)
         fi
 
+        # Persistent system overlay: FLX_SYS is mounted by /init (never here).
+        if [ "$FS_LABEL" = "FLX_SYS" ]; then
+            exit 0
+        fi
+
         # Persistent /home: mount the FLX_HOME partition at /home (not /media)
         if [ "$FS_LABEL" = "FLX_HOME" ]; then
             mkdir -p /home

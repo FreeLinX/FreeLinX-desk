@@ -31,6 +31,20 @@ DEPS="${FREELINX_PORTS_DIR}/build/deps"
 SYSROOT="${FREELINX_TOOLCHAIN_DIR}/x86_64-linux-musl"
 ROOT="${FREELINX_STAGE_ROOTFS}"
 
+# Absolute deps prefix that libinput, Xorg and openbox were *configured* with
+# on the machine where build/deps was produced.  Unlike DEPS (which is where
+# this script looks for artifacts *now*), this one is compiled INTO those
+# binaries, so the guest needs a directory at exactly that path which
+# redirects to the canonical /usr location - see the alias blocks below.
+#
+# It used to be spelled out inline as
+# /home/kanan/FreeLinX-workspace/ports/build/deps, which made the script
+# unreproducible: the value silently described one specific developer's
+# machine, was not overridable, and did not match DEPS on any other checkout.
+# Keep the historical value as the default so an existing deps tree still
+# works, but make it settable and keep it in ONE place.
+FLX_BAKED_DEPS_PREFIX="${FLX_BAKED_DEPS_PREFIX:-/home/kanan/FreeLinX-workspace/ports/build/deps}"
+
 freelinx_info "Staging graphical runtime into: $ROOT"
 
 [ -d "$DEPS" ] || freelinx_die "ports deps tree not found: $DEPS (run the ports build first)"
@@ -100,7 +114,7 @@ fi
 if [ -d "$DEPS/libinput/share/libinput" ]; then
     mkdir -p "$ROOT/usr/share/libinput"
     cp -a "$DEPS/libinput/share/libinput/." "$ROOT/usr/share/libinput/"
-    bake_pfx="/home/kanan/FreeLinX-workspace/ports/build/deps/libinput"
+    bake_pfx="$FLX_BAKED_DEPS_PREFIX/libinput"
     mkdir -p "$ROOT$bake_pfx/share"
     ln -sfn /usr/share/libinput "$ROOT$bake_pfx/share/libinput"
 fi
@@ -185,7 +199,7 @@ fi
 # The server bakes its prefix (${DEPS}/x11) into the runtime and the guest
 # resolves it via the /usr/share/X11/xtree alias (same trick as libinput).
 XT="$ROOT/usr/share/X11/xtree"
-B_X11="/home/kanan/FreeLinX-workspace/ports/build/deps/x11"
+B_X11="$FLX_BAKED_DEPS_PREFIX/x11"
 if [ -f "$DEPS/x11/bin/Xorg" ] || [ -d "$DEPS/x11/lib/xorg/modules" ]; then
     mkdir -p "$XT/bin" "$XT/lib/xorg/modules/drivers" "$XT/var/lib/xkb"
     [ -f "$DEPS/x11/bin/Xorg" ] && cp -a "$DEPS/x11/bin/Xorg" "$XT/bin/Xorg"
@@ -202,7 +216,7 @@ if [ -f "$DEPS/x11/bin/Xorg" ] || [ -d "$DEPS/x11/lib/xorg/modules" ]; then
         mkdir -p "$XT/lib/xorg/modules/input"
         cp -a "$DEPS/x11/lib/xorg/modules/input/." "$XT/lib/xorg/modules/input/"
     fi
-    mkdir -p "$ROOT/home/kanan/FreeLinX-workspace/ports/build/deps"
+    mkdir -p "$ROOT$FLX_BAKED_DEPS_PREFIX"
     ln -sfn /usr/share/X11/xtree "$ROOT$B_X11"
     mkdir -p "$ROOT/var/lib/xkb"
 fi
@@ -221,8 +235,8 @@ if [ -f "$OB/bin/openbox" ]; then
     [ -d "$OB/share/themes" ] && { mkdir -p "$XT/share/themes"; cp -a "$OB/share/themes/." "$XT/share/themes/"; }
     [ -d "$OB/share/xsessions" ] && { mkdir -p "$ROOT/usr/share/xsessions"; cp -a "$OB/share/xsessions/." "$ROOT/usr/share/xsessions/"; }
     [ -d "$OB/share/openbox" ] && { mkdir -p "$XT/share/openbox"; cp -a "$OB/share/openbox/." "$XT/share/openbox/"; }
-    mkdir -p "$ROOT/home/kanan/FreeLinX-workspace/ports/build/deps"
-    ln -sfn /usr/share/X11/xtree "$ROOT/home/kanan/FreeLinX-workspace/ports/build/deps/openbox-3.6.1"
+    mkdir -p "$ROOT$FLX_BAKED_DEPS_PREFIX"
+    ln -sfn /usr/share/X11/xtree "$ROOT$FLX_BAKED_DEPS_PREFIX/openbox-3.6.1"
 fi
 
 # --- runtime directories -----------------------------------------------------

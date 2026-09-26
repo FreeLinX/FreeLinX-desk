@@ -200,9 +200,14 @@ if [ -z "${ROOTPW:-}" ]; then
 fi
 if [ -n "$ROOTPW" ]; then
     ROOTHASH="${ROOT_HASH:-}"
+    if [ -z "$ROOTHASH" ] && [ -x /sbin/flxhash ]; then
+        ROOTHASH=$(flxhash "$ROOTPW" 2>/dev/null)
+    fi
     if [ -z "$ROOTHASH" ] && [ -x /bin/python3.12 ]; then
         ROOTHASH=$(/bin/python3.12 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$ROOTPW" 2>/dev/null)
     fi
+    # pwhash fallback produces legacy DES hashes that the PAM stack
+    # refuses to verify; only use it if nothing stronger is available.
     if [ -z "$ROOTHASH" ] && command -v pwhash >/dev/null 2>&1; then
         ROOTHASH=$(pwhash "$ROOTPW" 2>/dev/null)
     fi
@@ -236,8 +241,10 @@ case "$MAKUSER" in
             echo "  Skipping user creation (no username entered)."
             USERNAME=""
         else
-            # sanitize
-            USERNAME=$(echo "$USERNAME" | tr -c 'a-z0-9' '_')
+            # sanitize (keep the trailing newline in the tr set -- a bare
+            # `tr -c 'a-z0-9' '_'` would also turn echo's terminating \n
+            # into '_' and append a stray underscore to every username)
+            USERNAME=$(printf '%s\n' "$USERNAME" | tr -c 'a-z0-9\n' '_')
             if [ -z "${REALNAME:-}" ]; then
                 REALNAME=$(ask_default "Enter full name" "$USERNAME")
             fi
@@ -248,12 +255,22 @@ case "$MAKUSER" in
             fi
             USERHASH="!"
             if [ -n "$USERPW" ]; then
-                if [ -x /bin/python3.12 ]; then
-                    USERHASH=$(/bin/python3.12 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$USERPW" 2>/dev/null)
+                if [ -x /sbin/flxhash ]; then
+                    USERHASH=$(flxhash "$USERPW" 2>/dev/null)
+                fi
+                if [ -z "$USERHASH" ] || [ "$USERHASH" = "!" ]; then
+                    if [ -x /bin/python3.12 ]; then
+                        USERHASH=$(/bin/python3.12 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$USERPW" 2>/dev/null)
+                    fi
                 fi
                 # pwhash fallback (python3 is gone from the offline image!)
+                # emits legacy DES hashes that the PAM stack rejects; keep
+                # "!" (locked account) rather than an unusable hash when no
+                # stronger generator is available.
                 if [ -z "$USERHASH" ] || [ "$USERHASH" = "!" ]; then
-                    USERHASH=$(pwhash "$USERPW" 2>/dev/null)
+                    if command -v pwhash >/dev/null 2>&1; then
+                        USERHASH=$(pwhash "$USERPW" 2>/dev/null)
+                    fi
                 fi
                 [ -z "$USERHASH" ] && USERHASH="!"
             fi
@@ -475,35 +492,39 @@ for m in /media/"$TARGET_BASE"* /home /mnt/flx_boot /mnt/flx_home; do
 done
 
 echo ">>> Step 1/6: Partitioning $TARGET_DISK with flxpart (GPT)..."
-# ESP (512MB FAT32) + BIOS Boot (1MB) + Linux Home partition (remainder).
+# ESP (512MB FAT32) + BIOS Boot (1MB) + FLX_SYS (persistent /usr /etc /var /root)
+# + Linux Home partition (remainder).
 flxpart --create-standard "$TARGET_DISK"
 command -v partprobe >/dev/null 2>&1 && partprobe "$TARGET_DISK" 2>/dev/null || :
 sleep 1
 
 case "$TARGET_DISK" in
     *[0-9])
-        PART1="${TARGET_DISK}p1"; PART2="${TARGET_DISK}p2"; PART3="${TARGET_DISK}p3" ;;
+        PART1="${TARGET_DISK}p1"; PART2="${TARGET_DISK}p2"; PART3="${TARGET_DISK}p3"; PART4="${TARGET_DISK}p4" ;;
     *)
-        PART1="${TARGET_DISK}1"; PART2="${TARGET_DISK}2"; PART3="${TARGET_DISK}3" ;;
+        PART1="${TARGET_DISK}1"; PART2="${TARGET_DISK}2"; PART3="${TARGET_DISK}3"; PART4="${TARGET_DISK}4" ;;
 esac
 
 timeout=10
-while [ ! -b "$PART1" ] || [ ! -b "$PART3" ]; do
+while [ ! -b "$PART1" ] || [ ! -b "$PART4" ]; do
     sleep 0.5
     timeout=$((timeout - 1))
     [ "$timeout" -le 0 ] && break
 done
-if [ ! -b "$PART1" ] || [ ! -b "$PART3" ]; then
-    die "Partition device nodes ($PART1, $PART3) not found after partitioning."
+if [ ! -b "$PART1" ] || [ ! -b "$PART4" ]; then
+    die "Partition device nodes ($PART1 .. $PART4) not found after partitioning."
 fi
 
 echo ">>> Step 2/6: Formatting Filesystems..."
 umount "$PART1" 2>/dev/null || :
 umount "$PART3" 2>/dev/null || :
+umount "$PART4" 2>/dev/null || :
 echo "Formatting ESP partition ($PART1) as FAT32..."
 $MKFS_FAT -F 32 -n "FLX_BOOT" "$PART1" >/dev/null
-echo "Formatting Home partition ($PART3) as Ext4 (LABEL=FLX_HOME)..."
-$MKFS_EXT4 -F -q -L "FLX_HOME" "$PART3"
+echo "Formatting System partition ($PART3) as Ext4 (LABEL=FLX_SYS)..."
+$MKFS_EXT4 -F -q -L "FLX_SYS" "$PART3"
+echo "Formatting Home partition ($PART4) as Ext4 (LABEL=FLX_HOME)..."
+$MKFS_EXT4 -F -q -L "FLX_HOME" "$PART4"
 
 echo ">>> Step 3/6: Mounting ESP..."
 BOOT_DIR="/mnt/flx_boot"
@@ -530,9 +551,19 @@ for i in /boot/initramfs.img.gz /initramfs.img.gz /boot/freelinx-desktop.img.gz;
     if [ -f "$i" ]; then INITRD_SRC="$i"; break; fi
 done
 
+# Mark this system as installed (not live ISO).  /init only engages the
+# FLX_SYS persistent overlay when this marker is present, so the live ISO
+# never picks up a stale FLX_SYS partition from an attached disk.
+touch /etc/flx-installed 2>/dev/null || :
+
 if [ -n "$INITRD_SRC" ]; then
     echo "Installing initramfs (full OS) from $INITRD_SRC..."
     cp "$INITRD_SRC" "$BOOT_DIR/boot/initramfs.img.gz"
+    # Bake the installed-system marker into the copied image as well (the
+    # kernel unpacks trailing concatenated cpio archives).
+    (cd / && find ./etc/flx-installed -print0 2>/dev/null \
+        | cpio --null -ov --format=newc 2>/dev/null \
+        >> "$BOOT_DIR/boot/initramfs.img.gz") 2>/dev/null || :
 else
     echo "Repacking live rootfs into initramfs (config baked in)..."
     if command -v cpio >/dev/null 2>&1 && command -v gzip >/dev/null 2>&1; then
@@ -550,6 +581,37 @@ else
         echo "Error: no initramfs image and no cpio/gzip to repack one." >&2
         umount "$BOOT_DIR"; exit 1
     fi
+fi
+
+echo ">>> Seeding persistent system partition (FLX_SYS)..."
+# Copy the live /usr /etc /var /root trees onto the FLX_SYS partition
+# (ext4, LABEL=FLX_SYS).  On every boot /init bind-mounts these trees from
+# FLX_SYS so xpkg-installed packages, config and state survive reboots.
+SYS_MP="/mnt/flx_sys"
+mkdir -p "$SYS_MP"
+umount "$PART3" 2>/dev/null || :
+mount -t ext4 "$PART3" "$SYS_MP" 2>/dev/null || mount "$PART3" "$SYS_MP" 2>/dev/null || true
+if grep -qs " $SYS_MP " /proc/mounts 2>/dev/null; then
+    for d in usr etc var root; do
+        mkdir -p "$SYS_MP/$d"
+        if [ -z "$(ls -A "$SYS_MP/$d" 2>/dev/null)" ]; then
+            echo "  seeding /$d -> FLX_SYS ..."
+            # tar is used instead of cp -a: toybox cp -a cannot copy
+            # symlink trees (e.g. /root/.config/openbox/* -> /etc/xdg/...)
+            # without erroring out, which previously left /var and /root
+            # unseeded and made the system RAM-only after reboot.
+            if command -v tar >/dev/null 2>&1; then
+                (cd / && tar cf - "$d" 2>/dev/null) | (cd "$SYS_MP" && tar xf - 2>/dev/null) \
+                    || echo "  warning: seeding /$d failed (system will stay RAM-only)."
+            else
+                echo "  warning: tar missing - skipping seed of /$d."
+            fi
+        else
+            echo "  /$d already populated on FLX_SYS (kept)."
+        fi
+    done
+else
+    echo "  Warning: could not mount FLX_SYS ($PART3) to seed persistent trees."
 fi
 
 echo ">>> Step 5/6: Configuring Bootloader (Limine UEFI + BIOS)..."
@@ -594,10 +656,10 @@ cp "$BOOT_DIR/limine.conf" "$BOOT_DIR/EFI/BOOT/limine.conf"
 echo ">>> Step 6/6: Persistence (FLX_HOME) and user home..."
 # If a user account was configured, create its home on the persistent
 # FLX_HOME partition so it survives reboots.
-if [ -n "$USERNAME" ] && [ -b "$PART3" ]; then
+if [ -n "$USERNAME" ] && [ -b "$PART4" ]; then
     HOME_MP="/mnt/flx_home"
     mkdir -p "$HOME_MP"
-    mount -t ext4 "$PART3" "$HOME_MP" 2>/dev/null || mount "$PART3" "$HOME_MP" 2>/dev/null || true
+    mount -t ext4 "$PART4" "$HOME_MP" 2>/dev/null || mount "$PART4" "$HOME_MP" 2>/dev/null || true
     if grep -qs " $HOME_MP " /proc/mounts 2>/dev/null; then
         mkdir -p "$HOME_MP/$USERNAME"
         # minimal skeleton
@@ -628,9 +690,10 @@ trap - EXIT INT TERM
 echo ""
 echo "=========================================================="
 echo " FreeLinX installed to $TARGET_DISK!"
-echo " Boot model: Initramfs-primary, persistent /home."
+echo " Boot model: Initramfs-primary + FLX_SYS persistent system."
 echo "=========================================================="
-[ -n "$USERNAME" ] && echo " User account : $USERNAME  (home on $PART3)"
+[ -n "$USERNAME" ] && echo " User account : $USERNAME  (home on $PART4)"
+echo " System       : FLX_SYS ($PART3) - /usr /etc /var /root persist"
 echo " Hostname     : $HOSTNAME"
 echo " Language     : $LANG_LC"
 echo " Keyboard     : $KBD_LAYOUT"
