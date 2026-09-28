@@ -34,7 +34,7 @@ if [ -z "$FW_TARBALL" ]; then
     done
 fi
 
-for t in cpio gzip find tar; do
+for t in cpio zstd find tar; do
     command -v "$t" >/dev/null 2>&1 || { echo "Error: '$t' is required but not installed." >&2; exit 1; }
 done
 [ -d "$ROOTFS" ] || { echo "Error: rootfs not found: $ROOTFS" >&2; exit 1; }
@@ -108,6 +108,6 @@ fi
 find "$STAGE" -name .gitkeep -type f -exec rm -f {} +
 
 echo "Packing FreeLinX Desktop initramfs ..."
-(cd "$STAGE" && find . -print0 | cpio --null -o --quiet --format=newc --owner=0:0 | gzip -1 > "$OUT_IMG")
+(cd "$STAGE" && find . -print0 | cpio --null -o --quiet --format=newc --owner=0:0 | zstd -q -T0 -12 > "$OUT_IMG")
 ln -sf "src/build/x86_64/freelinx-desktop.img.gz" "${SCRIPT_DIR}/initrd.img"
 echo "Build complete: $OUT_IMG ($(du -h "$OUT_IMG" | cut -f1))"
