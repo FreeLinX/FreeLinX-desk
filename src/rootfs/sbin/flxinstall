@@ -158,23 +158,21 @@ echo "  Keyboard layout: $KBD_LAYOUT"
 echo ""
 
 # --- Step 3: Timezone / time ------------------------------------------------
-# The image ships without tzdata, so we write a POSIX TZ string
-# (works with musl/toybox date via the TZ environment variable).
-echo "----------------------------------------------------------"
-echo " Step 3/9 - Timezone"
-echo "----------------------------------------------------------"
-TZ_CLIST="UTC|UTC +1 (Berlin/Paris/Rome)|UTC +2 (Istanbul/Athens)|UTC +3 (Moscow,Nairobi)|UTC +3:30 (Tehran)|UTC +4 (Dubai/Baku)|UTC +5:30 (Mumbai)|UTC +7 (Bangkok/Hanoi)|UTC +8 (Beijing/Singapore)|UTC +9 (Tokyo/Seoul)|UTC -5 (New York)|UTC -6 (Chicago)|UTC -7 (Denver)|UTC -8 (Los Angeles)|UTC +0 - Custom (enter POSIX TZ)"
-TZ_POSIX="UTC0|UTC-1|UTC-2|UTC-3|UTC-3:30|UTC-4|UTC-5:30|UTC-7|UTC-8|UTC-9|UTC+5|UTC+6|UTC+7|UTC+8|custom"
+# IANA zone names (/usr/share/zoneinfo ships in the image). /etc/TZ holds the
+# name for musl's TZ variable; /etc/localtime points at the same zone.
+TZ_CLIST="UTC|Asia/Baku|Europe/Istanbul|Europe/Moscow|Asia/Tbilisi|Asia/Tehran|Asia/Dubai|Europe/London|Europe/Berlin|Europe/Paris|Asia/Kolkata|Asia/Shanghai|Asia/Tokyo|America/New_York|America/Chicago|America/Los_Angeles|Other (type a zone name)"
 if [ -z "${TZ_STR:-}" ]; then
-    TI=$(menu_select "Choose your timezone (UTC offset)" "$TZ_CLIST")
-    TZ_STR=$(echo "$TZ_POSIX" | cut -d'|' -f"$TI")
-    if [ "$TZ_STR" = "custom" ]; then
-        TZ_STR=$(ask_default "Enter POSIX TZ string (e.g. 'UTC-1' = UTC+1, 'EST5' = US Eastern)" "UTC0")
-    fi
+    TI=$(menu_select "Choose your time zone" "$TZ_CLIST")
+    TZ_STR=$(echo "$TZ_CLIST" | cut -d'|' -f"$TI")
+    case "$TZ_STR" in
+        Other*) TZ_STR=$(ask_default "Zone name (e.g. Asia/Baku, see /usr/share/zoneinfo)" "UTC") ;;
+    esac
 fi
+[ -f "/usr/share/zoneinfo/$TZ_STR" ] || { echo "  Unknown zone '$TZ_STR', using UTC."; TZ_STR=UTC; }
+ln -sf "/usr/share/zoneinfo/$TZ_STR" /etc/localtime
 printf '%s\n' "$TZ_STR" > /etc/TZ
 export TZ="$TZ_STR"
-echo "  Timezone: $TZ_STR  (POSIX TZ)"
+echo "  Timezone: $TZ_STR"
 echo ""
 
 # --- Step 4: Hostname -------------------------------------------------------

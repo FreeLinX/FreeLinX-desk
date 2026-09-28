@@ -112,7 +112,9 @@ export CC="$TC/bin/clang --target=x86_64-linux-musl --sysroot=$SYS -rtlib=compil
 export CXX="$TC/bin/clang++ --target=x86_64-linux-musl --sysroot=$SYS -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind"
 # No CFLAGS/CXXFLAGS/HOST_*FLAGS in the environment: make re-exports them with
 # its -MD -MF .deps/... dependency flags and cc-rs build scripts pick those up.
-export LDFLAGS="-Wl,--undefined-version"
+# libc++ is linked statically: Firefox compiles with -fvisibility=hidden and
+# the resulting hidden references cannot bind to libc++.so exports.
+export LDFLAGS="-Wl,--undefined-version -static-libstdc++"
 # Host tools (build-time only, never shipped).
 export HOST_CC="$TC/bin/clang --target=x86_64-pc-linux-gnu"
 export HOST_CXX="$TC/bin/clang++ --target=x86_64-pc-linux-gnu"

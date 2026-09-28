@@ -41,6 +41,17 @@ case " $CMDLINE " in
         ;;
 esac
 
+# flx.tz=Area/City sets the time zone for this boot (live ISO default: UTC).
+case " $CMDLINE " in
+    *" flx.tz="*)
+        _tz="${CMDLINE##*flx.tz=}"; _tz="${_tz%% *}"
+        if [ -f "/usr/share/zoneinfo/$_tz" ]; then
+            printf '%s\n' "$_tz" > /etc/TZ
+            ln -sf "/usr/share/zoneinfo/$_tz" /etc/localtime
+        fi
+        ;;
+esac
+
 # pseudo filesystems continued
 mount -t sysfs    sysfs    /sys   2>/dev/null || :
 mount -t devtmpfs devtmpfs /dev   2>/dev/null || :

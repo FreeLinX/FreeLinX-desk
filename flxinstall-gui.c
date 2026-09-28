@@ -39,7 +39,7 @@ static char status_msg[160] = "FreeLinX Installer ready.";
 /* ---- wizard data --------------------------------------------------------- */
 static char sel_lang[64] = "English (en_US.UTF-8)";
 static char sel_kbd[16]  = "us";
-static char sel_tz[16]   = "UTC0";
+static char sel_tz[48]   = "UTC";
 static char hostname[64] = "freelinx";
 static char rootpw[64]   = "";
 static int  user_en = 0;
@@ -393,12 +393,10 @@ static void fill_lists(void) {
         snprintf(kbd_list.items[i], sizeof(kbd_list.items[0]), "%s", kbds[i]);
     kbd_list.sel = kbd_list.top = 0;
 
+    /* IANA zone names: /usr/share/zoneinfo ships in the image, so DST rules
+     * are right (a bare UTC offset would be wrong half the year). */
     const char *tzs[] = {
-        "UTC", "UTC +1 (Berlin/Paris/Rome)", "UTC +2 (Istanbul/Athens)",
-        "UTC +3 (Moscow, Nairobi)", "UTC +3:30 (Tehran)", "UTC +4 (Dubai/Baku)",
-        "UTC +5:30 (Mumbai)", "UTC +7 (Bangkok/Hanoi)", "UTC +8 (Beijing/Singapore)",
-        "UTC +9 (Tokyo/Seoul)", "UTC -5 (New York)", "UTC -6 (Chicago)",
-        "UTC -7 (Denver)", "UTC -8 (Los Angeles)", "UTC +0 - Custom (enter POSIX TZ)"
+        "UTC", "Asia/Baku", "Europe/Istanbul", "Europe/Moscow", "Asia/Tbilisi", "Asia/Yerevan", "Asia/Tehran", "Asia/Dubai", "Asia/Tashkent", "Asia/Almaty", "Europe/London", "Europe/Berlin", "Europe/Paris", "Europe/Kyiv", "Asia/Kolkata", "Asia/Shanghai", "Asia/Tokyo", "America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "America/Sao_Paulo", "Australia/Sydney"
     };
     tz_list.count = sizeof(tzs) / sizeof(tzs[0]);
     for (int i = 0; i < tz_list.count; i++)
@@ -458,13 +456,13 @@ static void draw_ui(cairo_t *cr, cairo_surface_t *surf) {
         cairo_show_text(cr, "Navigate with the Back / Next buttons, arrow keys and Enter.");
         cairo_set_source_rgb(cr, 0.45, 0.45, 0.45);
         cairo_move_to(cr, 28, 240);
-        cairo_show_text(cr, "A fresh root password is recommended (blank keeps the live default).");
+        cairo_show_text(cr, "You will set a root password and, optionally, a user account.");
     } else if (page == PG_LANG) {
         draw_list(cr, &lang_list, 40, cy, WIN_W - 80, ch, "Choose language");
     } else if (page == PG_KBD) {
         draw_list(cr, &kbd_list, 40, cy, WIN_W - 80, ch, "Choose keyboard layout");
     } else if (page == PG_TZ) {
-        draw_list(cr, &tz_list, 40, cy, WIN_W - 80, ch, "Choose timezone (UTC offset)");
+        draw_list(cr, &tz_list, 40, cy, WIN_W - 80, ch, "Choose your time zone");
     } else if (page == PG_HOST) {
         draw_text_field(cr, 90, 150, 380, 28, "Hostname", hostname, 0, active_field == 0, 1);
         cairo_select_font_face(cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -669,10 +667,8 @@ static void apply_kbd(void) {
         snprintf(sel_kbd, sizeof(sel_kbd), "%s", lay[kbd_list.sel]);
 }
 static void apply_tz(void) {
-    const char *tz[] = { "UTC0", "UTC-1", "UTC-2", "UTC-3", "UTC-3:30", "UTC-4",
-        "UTC-5:30", "UTC-7", "UTC-8", "UTC-9", "UTC+5", "UTC+6", "UTC+7", "UTC+8", "custom" };
-    if (tz_list.sel >= 0 && tz_list.sel < 15)
-        snprintf(sel_tz, sizeof(sel_tz), "%s", tz[tz_list.sel]);
+    if (tz_list.sel >= 0 && tz_list.sel < tz_list.count)
+        snprintf(sel_tz, sizeof(sel_tz), "%s", tz_list.items[tz_list.sel]);
 }
 static void apply_disk(void) {
     if (disk_list.sel >= 0 && disk_list.sel < disk_list.count) {
