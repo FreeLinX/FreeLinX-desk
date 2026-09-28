@@ -52,3 +52,8 @@ iso/*.img.gz.bak*
 
 # Limine binary tree fetched by iso/build-iso.sh
 iso/limine/
+
+# Release firmware tarball (~14 MB of vendor blobs, rebuilt by
+# ./make-firmware-tarball.sh from a staged linux-firmware tree).
+# Never commit it - it is a build artifact of the release, not source.
+firmware-*.tar.xz

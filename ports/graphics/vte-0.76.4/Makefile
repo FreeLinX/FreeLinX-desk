@@ -24,7 +24,7 @@ PROJECT_CFG_CMDS = \
 	sed -i 's/shared_library(/static_library(/; s/    version: libvte_gtk[34]_soversion,//; /^subdir(.app.)$$/d' src/meson.build && \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
-		--cross-file "$(CURDIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=static \
 		-Dgir=false -Dvapi=false -Dgtk4=false -Dgnutls=false -Dicu=false -D_systemd=false -Dglade=false -Ddocs=false -Ddbg=false \

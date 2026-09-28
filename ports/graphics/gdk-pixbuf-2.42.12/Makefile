@@ -24,7 +24,7 @@ PROJECT_CFG_CMDS = \
 	sed -i '/gdkpixbuf_bin = \[/,/foreach/{/gdk-pixbuf-csource/d;/gdk-pixbuf-pixdata/d}' gdk-pixbuf/meson.build && \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
-		--cross-file "$(CURDIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=static \
 		-Dpng=enabled -Djpeg=disabled -Dtiff=disabled -Dgif=disabled -Dothers=disabled -Dbuiltin_loaders=png -Dtests=false -Dinstalled_tests=false -Dgtk_doc=false -Ddocs=false -Dintrospection=disabled -Dman=false -Dgio_sniffing=false \

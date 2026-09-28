@@ -24,7 +24,7 @@ PROJECT_CFG_CMDS = \
 	PKG_CONFIG_LIBDIR="$(PKG_CONFIG_LIBDIR)" PKG_CONFIG="$(PKG_CONFIG)" \
 	"$(MESON)" setup \
 		--wrap-mode=nofallback \
-		--cross-file "$(CURDIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=static \
 		-Dtests=disabled -Dpng=enabled -Dfreetype=enabled -Dfontconfig=enabled -Dzlib=enabled -Dxlib=enabled -Dxcb=enabled -Dxlib-xcb=enabled -Dquartz=disabled -Ddwrite=disabled -Dtee=disabled -Dtests=disabled -Dlzo=disabled -Dgtk2-utils=disabled -Dglib=enabled -Dspectre=disabled -Dsymbol-lookup=disabled -Dgtk_doc=false \

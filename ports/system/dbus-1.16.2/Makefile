@@ -19,7 +19,7 @@ export PATH := $(FREELINX_VENV_BIN):$(PATH)
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
-		--cross-file "$(CURDIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=static \
 		-Dapparmor=disabled -Dlaunchd=disabled -Dlibaudit=disabled \

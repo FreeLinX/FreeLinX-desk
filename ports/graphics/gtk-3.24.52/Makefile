@@ -22,7 +22,7 @@ include ../../mk/project-port.mk
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
-		--cross-file "$(CURDIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=static \
 		-Dwayland_backend=true -Dx11_backend=false -Dbroadway_backend=false -Dintrospection=false -Dcloudproviders=false -Dtests=false -Dexamples=false -Ddemos=false -Dcolord=no -Dprofiler=false -Dtracker3=false -Dman=false -Dgtk_doc=false -Dprint_backends=file -Dbuiltin_immodules=none -Dlibepoxy:glx=no -Dlibepoxy:egl=auto -Dlibepoxy:x11=false \
