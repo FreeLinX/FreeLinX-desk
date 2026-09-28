@@ -1,9 +1,12 @@
 # FreeLinX/Desktop
 
-FreeLinX is an independent, from-scratch, non-GNU, musl-based Linux distribution. This repository holds the **desktop**.
+FreeLinX is an independent, non-GNU Linux distribution: NetBSD userland, musl,
+LLVM toolchain, runit. This repository holds the **desktop** (Openbox) and the
+release image. See [RELEASE-NOTES.md](RELEASE-NOTES.md) for what ships.
 
-The desktop runs smoothly at 60 FPS using software rendering accelerated by `ShadowFB` (`libshadowfb.so` + `libshadow.so`) on virtio framebuffer (`/dev/fb0`), with full `evdev` keyboard and `virtio-tablet` absolute mouse integration.
-
+The desktop is CPU-rendered (Xorg fbdev with ShadowFB, or modesetting on KMS
+dumb buffers), so it needs no GPU driver; input uses `evdev` (keyboard, mouse,
+touchpad, and QEMU's `virtio-tablet`).
 
 ---
 
@@ -71,81 +74,47 @@ HEADLESS=1 ./run.sh
 
 ## Network & Web Browsing
 
-FreeLinX Desktop provides a fully functional, non-GNU networking stack out of the box:
-
-- **Wired Ethernet (`eth0`)**:
-  - Automatically brought up during boot by `/init`.
-  - Configured via DHCP (`dhcpcd`) with a fallback static address (`10.0.2.15/24`, gateway `10.0.2.2`).
-  - DNS resolution configured in `/etc/resolv.conf` using QEMU's internal proxy (`10.0.2.3`), Cloudflare (`1.1.1.1`), and Google (`8.8.8.8`).
-  - Trusted CA root certificates installed at `/etc/ssl/certs/ca-certificates.crt` for HTTPS connections.
-
-- **Graphical Web Browser (`flxbrowser` / `links -g`)**:
-  - Launches automatically on boot or from the right-click desktop menu (`Web browser`).
-  - Supports full graphical rendering, SSL/TLS encryption, and fast page navigation.
-  - Features an embedded DuckDuckGo Lite search form on the welcome page (`/usr/share/freelinx/welcome.html`).
-  - Simply type your query and press **Search** to browse the live web.
-
-- **Graphical Network Manager (`flxnetmgr`)**:
-  - Docked at the bottom-right corner of the desktop, or launchable from the menu.
-  - **Interfaces Tab**: Shows live link state, IP address, and MAC address for all adapters. Includes **Bring UP**, **Take DOWN**, and **Renew DHCP** buttons.
-  - **Wireless / WiFi Tab**: Real wireless hardware scanner using `wpa_cli` / Linux wireless extensions. *(Zero mock data — strictly interfaces with physical hardware).*
-  - **Tools & DNS Tab**: Displays current Default Gateway, configured DNS resolvers, and provides a real-time **Ping 1.1.1.1** diagnostic test.
-
-- **Real WiFi Hardware Passthrough in QEMU**:
-  To use a physical USB WiFi adapter inside the FreeLinX QEMU guest:
-  1. Identify the adapter's Vendor ID and Product ID on your host: `lsusb`
-  2. Launch QEMU passing the USB device:
-     ```sh
-     ./run.sh -device qemu-xhci -device usb-host,vendorid=0xXXXX,productid=0xYYYY
-     ```
+- **Ethernet** comes up at boot (`dhcpcd`; under QEMU a static
+  `10.0.2.15/24` user-net config). CA roots: `/etc/ssl/certs/ca-certificates.crt`.
+- **Browsers**: Firefox ESR (panel launcher, `flxbrowser`, `x-www-browser`);
+  NetSurf, Dillo, Links and w3m from the *Network* menu.
+- **Network manager** (`flxnetmgr`, panel/menu): interface state, bring
+  up/down, renew DHCP, WiFi scan and connect (`wpa_supplicant`), DNS and ping.
+- **Time zone**: *Network → Time Zone…* (`flxtz`), the installer, or
+  `flx.tz=Area/City` on the kernel command line.
+- **Real WiFi in QEMU**: pass a USB adapter through:
+  ```sh
+  ./run.sh -device qemu-xhci -device usb-host,vendorid=0xXXXX,productid=0xYYYY
+  ```
 
 ---
 
 ## Desktop Controls & Shortcuts
 
-- **Root Menu**: Right-click anywhere on the desktop wallpaper to open the application menu.
-- **Mouse Capture**: Seamless absolute pointer integration via `virtio-tablet-pci` (no grab keys required).
-- **File Manager (`fview`)**: Navigate files with arrow keys or mouse; double-click or press `Enter` on any text file to edit it in `vim`.
-- **Window Management**: Classic Openbox keybindings:
-  - `Alt + Tab` — Cycle between open windows.
-  - `Alt + F4` — Close current window.
-  - `Super + Space` (or right click) — Open root menu.
+- **Panel** (bottom): Firefox, terminal, files, network, installer; window
+  list; clock.
+- **Root menu**: right-click the desktop.
+- `Alt + Tab` cycle windows, `Alt + F4` close, `Super + p` / `Alt + F2` run
+  (dmenu).
 
 ---
 
-## Building & Packaging
+## Building
 
-### Repacking the initramfs image
-
-If you edit any files in `src/rootfs/` (such as configurations, scripts, or assets), repack the runnable image with:
-
-```sh
-./build-image.sh
-```
-
-This creates `src/build/x86_64/freelinx-desktop.img.gz` and refreshes the `initrd.img` symlink.
-
-### Recompiling native C applications
-
-To recompile `flxnetmgr`, `fview`, `st`, and `xeyes` using the static musl-clang toolchain:
+The desktop stack is built by the scripts in `stack/` from pinned sources
+(`stack/sources.txt`) with the FreeLinX LLVM toolchain:
 
 ```sh
-./build-apps.sh
+stack/build-stack.sh     # musl sysroot, X11/Xorg/GTK, userland
+stack/build-rust.sh      # Linux-PAM, greetd, tuigreet
+stack/build-firefox.sh   # Firefox ESR
+stack/install-stack.sh   # copy into src/rootfs and run check-nognu.sh
+./build-image.sh         # pack the initramfs (fails on GNU/glibc artefacts)
+sh iso/buildiso.sh       # hybrid BIOS/UEFI ISO -> iso/freelinx-desktop.iso
 ```
 
----
-
-## Building from Source (Full Toolchain Pipeline)
-
-The complete build pipeline is: **toolchain → ports (userland) → kernel → rootfs → image**.
-
-1. **Toolchain** — static musl cross-toolchain (`clang`/`lld`).
-2. **Ports** (`ports/`) — each package under `ports/*/` has a `Makefile` and `distinfo`; sources are fetched into `ports/dist/` and built into staged prefixes under `ports/build/deps/<pkg>/`.
-3. **Kernel** (`kernel/`) — built with `kernel/kernel.config`. The pre-built `bzImage` is committed for immediate out-of-the-box booting.
-4. **Rootfs & Staging** (`src/`) — `src/scripts/rootfs.sh` and `src/scripts/gui-stage.sh` merge the graphical runtime (Xorg, xkbcomp, Openbox, themes, runit, dbus, libinput quirks) and install the native binaries.
-5. **Image Generation** — `src/build/x86_64/freelinx-desktop.img.gz`, consumed by the kernel as the initramfs (`rdinit=/init`).
-
-Detailed architecture documentation is available in `src/README.md`, `src/docs/architecture.md`, `src/docs/openbox-port.md`, `kernel/README.md`, and `ports/`.
+`kernel/bzImage` is Linux 6.6.21 built from `kernel/kernel.config` with the
+FreeLinX clang/LLD.
 
 ---
 
