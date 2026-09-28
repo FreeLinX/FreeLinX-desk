@@ -638,16 +638,26 @@ if command -v limine >/dev/null 2>&1; then
 fi
 
 cat > "$BOOT_DIR/limine.conf" << EOF
-timeout: 5
+timeout: 3
 serial: yes
+interface_branding: FreeLinX 1.0
+interface_branding_colour: 2
+term_background: 1a1f1a
+term_foreground: e8ece8
 
-/FreeLinX (Initramfs Desktop)
+/FreeLinX 1.0
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
     cmdline: rdinit=/init console=tty0 console=ttyS0,115200 quiet loglevel=2
 
-/FreeLinX (Rescue Shell)
+/FreeLinX 1.0 (basic graphics)
+    protocol: linux
+    kernel_path: boot():/boot/bzImage
+    module_path: boot():/boot/initramfs.img.gz
+    cmdline: rdinit=/init console=tty0 console=ttyS0,115200 quiet loglevel=2 initcall_blacklist=i915_init
+
+/Rescue Shell
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
