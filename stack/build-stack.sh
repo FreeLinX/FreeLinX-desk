@@ -541,7 +541,7 @@ step_flxapps() {
 
 # toybox (0BSD): only the process/system tools NetBSD's userland cannot
 # provide on Linux (NetBSD ps/top need kvm and sys/lwp.h).
-TOYBOX_APPLETS="ps top free uptime pgrep pkill pidof w getty login"
+TOYBOX_APPLETS="ps top free uptime pgrep pkill pidof w getty login setsid"
 step_toybox() {
     s=$(unpack toybox)
     cd "$s"
