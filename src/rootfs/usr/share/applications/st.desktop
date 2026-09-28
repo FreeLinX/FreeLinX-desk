@@ -5,6 +5,6 @@ Comment=Suckless simple terminal emulator
 Exec=st
 Terminal=false
 Type=Application
-Icon=utilities-terminal
+Icon=/usr/share/pixmaps/flx-terminal.png
 Categories=System;TerminalEmulator;
 Keywords=terminal;shell;console;
