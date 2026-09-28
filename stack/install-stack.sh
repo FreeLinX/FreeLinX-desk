@@ -33,6 +33,12 @@ cp_strip "$SYS/usr/lib/libc.so" "$R/lib/ld-musl-x86_64.so.1"
 while IFS= read -r f; do
     cp_strip "$SYS/usr/lib/$f" "$R/usr/lib/$f"
 done
+# /lib/libudev.so.1 used to be a 10-symbol stub; libinput/evdev then jumped
+# through an unresolved PLT slot.  One libudev: libudev-zero in /usr/lib.
+if [ -f "$SYS/usr/lib/libudev.so.1" ]; then
+    rm -f "$R/lib/libudev.so.1" "$R/lib/libudev.so"
+    ln -s ../usr/lib/libudev.so.1 "$R/lib/libudev.so.1"
+fi
 # A few libraries are loaded by plain name.
 for n in libc++ libc++abi libunwind; do
     [ -e "$SYS/usr/lib/$n.so.1" ] && ln -sf "$n.so.1" "$R/usr/lib/$n.so"
