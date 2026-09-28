@@ -97,13 +97,16 @@ done
 # the NetBSD userland already ships keep their NetBSD versions.
 if [ -f "$SYS/usr/bin/toybox" ]; then
     cp_strip "$SYS/usr/bin/toybox" "$R/usr/bin/toybox"
-    for t in ps top free uptime pgrep pkill pidof w; do
+    for t in ps top free uptime pgrep pkill pidof w getty; do
         have=""
         for d in bin sbin usr/bin usr/sbin; do
             [ -e "$R/$d/$t" ] && [ ! -L "$R/$d/$t" ] && have=1
         done
         [ -z "$have" ] && ln -sf toybox "$R/usr/bin/$t"
     done
+    # console logins (getty -l): toybox login reads /etc/shadow via crypt(3)
+    mkdir -p "$R/usr/libexec/toybox"
+    ln -sf /usr/bin/toybox "$R/usr/libexec/toybox/login"
 fi
 
 # --- data --------------------------------------------------------------------

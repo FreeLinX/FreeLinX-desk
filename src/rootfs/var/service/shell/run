@@ -4,6 +4,7 @@
 # If ttyS1 does not exist, idle quietly instead of respawning every second.
 [ -e /dev/ttyS1 ] || exec sleep 86400
 if [ -e /etc/flx-installed ]; then
-    exec /usr/bin/login < /dev/ttyS1 > /dev/ttyS1 2>&1
+    # getty sets up the controlling terminal; toybox login checks /etc/shadow.
+    exec /usr/bin/getty -l /usr/libexec/toybox/login 115200 ttyS1 vt100
 fi
 exec /bin/sh -l < /dev/ttyS1 > /dev/ttyS1 2>&1

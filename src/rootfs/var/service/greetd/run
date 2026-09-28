@@ -21,6 +21,6 @@ fi
 
 # Headless console: root shell on the live ISO, login prompt once installed.
 if [ -e /etc/flx-installed ]; then
-    exec /usr/bin/login < /dev/tty1 > /dev/tty1 2>&1
+    exec /usr/bin/getty -l /usr/libexec/toybox/login 38400 tty1 linux
 fi
 exec /bin/sh -l < /dev/tty1 > /dev/tty1 2>&1
