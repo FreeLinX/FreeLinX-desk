@@ -242,7 +242,14 @@ static void shell_quote(FILE *f, const char *key, const char *val) {
 
 static void log_puts(const char *s) {
     for (; *s; s++) {
+        if (*s == '\r') continue;
         if (*s == '\n') {
+            /* keep the line break itself - dropping it glued the whole log
+             * into a few 84-column rows */
+            if (inst_col > 0 && inst_log_len < sizeof(inst_log) - 2) {
+                inst_log[inst_log_len++] = '\n';
+                inst_log[inst_log_len] = '\0';
+            }
             inst_col = 0;
         } else {
             if (inst_log_len < sizeof(inst_log) - 2) {
@@ -543,20 +550,22 @@ static void draw_ui(cairo_t *cr, cairo_surface_t *surf) {
         cairo_move_to(cr, 30, y0 + 72);
         cairo_show_text(cr, "Root pw:");
         cairo_move_to(cr, 115, y0 + 72);
-        cairo_show_text(cr, rootpw[0] ? "will be set" : "kept default");
-        char line[128];
-        snprintf(line, sizeof(line), "User: %s", user_en ? username : "(none)");
-        cairo_move_to(cr, 30, y0 + 90);
-        cairo_show_text(cr, line);
-        snprintf(line, sizeof(line), "WiFi: %s", (wifi_en && wifissid[0]) ? wifissid : "(none)");
-        cairo_move_to(cr, 30, y0 + 108);
-        cairo_show_text(cr, line);
-        snprintf(line, sizeof(line), "Desktop: %s", desktop_gui ? "GUI" : "headless");
-        cairo_move_to(cr, 30, y0 + 126);
-        cairo_show_text(cr, line);
-        snprintf(line, sizeof(line), "Target: %s", target_disk[0] ? target_disk : "(pick a disk)");
-        cairo_move_to(cr, 30, y0 + 144);
-        cairo_show_text(cr, line);
+        cairo_show_text(cr, "will be set");
+        /* same label / value columns as the rows above */
+        const char *lab[4] = { "User:", "WiFi:", "Desktop:", "Target:" };
+        const char *val[4] = {
+            user_en && username[0] ? username : "(none)",
+            (wifi_en && wifissid[0]) ? wifissid : "(none)",
+            desktop_gui ? "GUI (Openbox)" : "headless",
+            target_disk[0] ? target_disk : "(pick a disk)" };
+        for (int i = 0; i < 4; i++) {
+            cairo_select_font_face(cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+            cairo_move_to(cr, 30, y0 + 90 + 18 * i);
+            cairo_show_text(cr, lab[i]);
+            cairo_select_font_face(cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+            cairo_move_to(cr, 115, y0 + 90 + 18 * i);
+            cairo_show_text(cr, val[i]);
+        }
 
         double lx = 30, ly = y0 + 152, lw = WIN_W - 60, lh = 178;
         if (inst_state == INST_IDLE) {
