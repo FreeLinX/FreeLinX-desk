@@ -92,7 +92,38 @@ done
 [ -f "$SYS/usr/libexec/dbus-daemon-launch-helper" ] && \
     cp_strip "$SYS/usr/libexec/dbus-daemon-launch-helper" "$R/usr/libexec/dbus-daemon-launch-helper"
 
+[ -f "$SYS/usr/bin/flxinstall-gui" ] && cp_strip "$SYS/usr/bin/flxinstall-gui" "$R/usr/bin/flxinstall-gui"
+# toybox fills only the gaps (ps, top, free, uptime, pgrep, pidof, w); tools
+# the NetBSD userland already ships keep their NetBSD versions.
+if [ -f "$SYS/usr/bin/toybox" ]; then
+    cp_strip "$SYS/usr/bin/toybox" "$R/usr/bin/toybox"
+    for t in ps top free uptime pgrep pkill pidof w; do
+        have=""
+        for d in bin sbin usr/bin usr/sbin; do
+            [ -e "$R/$d/$t" ] && [ ! -L "$R/$d/$t" ] && have=1
+        done
+        [ -z "$have" ] && ln -sf toybox "$R/usr/bin/$t"
+    done
+fi
+
 # --- data --------------------------------------------------------------------
+# fontconfig: conf.d used to link into a build machine's ports tree, so none
+# of the rules (sans-serif alias, hinting, ...) ever loaded.
+if [ -d "$SYS/usr/share/fontconfig/conf.avail" ]; then
+    rm -rf "$R/usr/share/fontconfig/conf.avail"
+    mkdir -p "$R/usr/share/fontconfig" "$R/etc/fonts/conf.d"
+    cp -a "$SYS/usr/share/fontconfig/conf.avail" "$R/usr/share/fontconfig/conf.avail"
+    find "$R/etc/fonts/conf.d" -type l -delete
+    for c in "$SYS/etc/fonts/conf.d"/*.conf; do
+        n=$(basename "$c")
+        ln -s "/usr/share/fontconfig/conf.avail/$n" "$R/etc/fonts/conf.d/$n"
+    done
+    cp -f "$SYS/etc/fonts/fonts.conf" "$R/etc/fonts/fonts.conf"
+fi
+if [ -d "$SYS/usr/share/zoneinfo" ]; then
+    rm -rf "$R/usr/share/zoneinfo"
+    cp -a "$SYS/usr/share/zoneinfo" "$R/usr/share/zoneinfo"
+fi
 if [ -d "$SYS/usr/share/glib-2.0/schemas" ]; then
     mkdir -p "$R/usr/share/glib-2.0"
     rm -rf "$R/usr/share/glib-2.0/schemas"

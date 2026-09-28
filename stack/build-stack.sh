@@ -521,7 +521,40 @@ step_tint2() {
 step_libXaw()  { auto libXaw --disable-specs --disable-xaw6; }
 step_xcalc()   { auto xcalc; }
 
-STEPS_USER="openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2"
+# IANA time zone database, compiled with the build host's zic (data only).
+step_tzdata() {
+    unpack tzdata >/dev/null; s="$W/src/tzdata"  # flat tarball, no top dir
+    rm -rf "$SYS/usr/share/zoneinfo"; mkdir -p "$SYS/usr/share/zoneinfo"
+    (cd "$s" && /usr/sbin/zic -b slim -d "$SYS/usr/share/zoneinfo" \
+        africa antarctica asia australasia europe northamerica southamerica etcetera backward)
+    cp -f "$s/zone1970.tab" "$s/iso3166.tab" "$SYS/usr/share/zoneinfo/"
+}
+# FreeLinX's own cairo/X11 apps, linked against this stack (the old static
+# builds used a cairo without a font backend: every text call was a no-op).
+step_flxapps() {
+    mkdir -p "$SYS/usr/bin"
+    "$CC" -O2 $("$PKG_CONFIG" --cflags cairo x11) -o "$SYS/usr/bin/flxinstall-gui" \
+        "$TOP/flxinstall-gui.c" $("$PKG_CONFIG" --libs cairo x11)
+}
+
+# toybox (0BSD): only the process/system tools NetBSD's userland cannot
+# provide on Linux (NetBSD ps/top need kvm and sys/lwp.h).
+TOYBOX_APPLETS="ps top free uptime pgrep pkill pidof w"
+step_toybox() {
+    s=$(unpack toybox)
+    cd "$s"
+    : > flx-mini.config
+    for t in $TOYBOX_APPLETS; do
+        echo "CONFIG_$(echo "$t" | tr a-z A-Z)=y" >> flx-mini.config
+    done
+    make allnoconfig KCONFIG_ALLCONFIG=flx-mini.config >/dev/null
+    make toybox CC="$CC" CFLAGS="-O2" LDFLAGS="" HOSTCC=cc
+    mkdir -p "$SYS/usr/bin"
+    install -m755 toybox "$SYS/usr/bin/toybox"
+    for t in $TOYBOX_APPLETS; do ln -sf toybox "$SYS/usr/bin/$t"; done
+}
+
+STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11
