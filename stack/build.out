@@ -1,9 +1,0 @@
->>> musl_fts
-    ok
->>> nnn
-    ok
->>> libXaw
-    ok
->>> xcalc
-    ok
-build-stack: done (/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot)
