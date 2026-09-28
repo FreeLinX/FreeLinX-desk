@@ -19,7 +19,12 @@ to package a tree that fails (`check-nognu.sh`).
 - **Login screen** (greetd + tuigreet) on installed systems; console logins
   on tty1 and the serial port via getty.
 - **Network manager** (`flxnetmgr`): interfaces, DHCP, WiFi scan/connect,
-  DNS and ping tools. `wpa_supplicant`, `dhcpcd`, OpenNTPD.
+  DNS and ping tools; `wheel` users run it without a password prompt.
+  `wpa_supplicant`, `dhcpcd`, OpenNTPD.
+- **Hardware**: NVMe and SATA disks, Intel (iwlwifi/iwlmvm), Realtek
+  (rtw88/rtw89), Atheros, Broadcom and MediaTek MT7921/MT7922 WiFi, HDA
+  audio (Realtek, HDMI, Conexant, ...) and USB audio, I2C-HID touchpads,
+  exFAT/NTFS/ISO/UDF media.
 - Terminal (`st`), file manager (`xfe`), PDF viewer (`mupdf`), media player
   (`mpv`), `vim`/`nvi`, `git`, package manager `xpkg`.
 
@@ -77,5 +82,5 @@ sh iso/buildiso.sh       # hybrid BIOS/UEFI ISO
   buffers). WebGL and video decoding in Firefox run in software.
 - `mount` needs an explicit `-t` type; removable media are mounted
   automatically under `/media`.
-- `flxnetmgr` changes network settings only when run as root (use it from
-  the live session, or start it with `doas`).
+- Laptops with Intel SOF-only audio (some 2020+ models) may need
+  `snd_intel_dspcfg.dsp_driver=1` on the kernel command line.

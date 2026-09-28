@@ -518,6 +518,11 @@ step_tint2() {
     cmk tint2 -DENABLE_RSVG=OFF -DENABLE_SN=OFF -DENABLE_TINT2CONF=OFF \
         -DENABLE_BATTERY=ON -DENABLE_UEVENT=OFF -DENABLE_EXTRA_THEMES=OFF
 }
+step_alsa_utils() {
+    auto alsa-utils --disable-nls --disable-xmlto --disable-rst2man --disable-bat \
+        --disable-alsaconf --disable-alsaloop --with-curses=ncursesw \
+        --with-udev-rules-dir=/lib/udev/rules.d --with-systemdsystemunitdir=no
+}
 step_libXaw()  { auto libXaw --disable-specs --disable-xaw6; }
 step_xcalc()   { auto xcalc; }
 
@@ -556,7 +561,7 @@ step_toybox() {
     for t in $TOYBOX_APPLETS; do ln -sf toybox "$SYS/usr/bin/$t"; done
 }
 
-STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2"
+STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11
