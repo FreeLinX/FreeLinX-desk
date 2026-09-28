@@ -92,6 +92,15 @@ done
 [ -f "$SYS/usr/libexec/dbus-daemon-launch-helper" ] && \
     cp_strip "$SYS/usr/libexec/dbus-daemon-launch-helper" "$R/usr/libexec/dbus-daemon-launch-helper"
 
+# ALSA tools (alsamixer replaces the old wrapper that had no mixer behind it)
+for b in alsamixer amixer aplay speaker-test; do
+    [ -f "$SYS/usr/bin/$b" ] && cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"
+done
+[ -f "$R/usr/bin/aplay" ] && ln -sf aplay "$R/usr/bin/arecord"
+if [ -d "$SYS/usr/share/sounds/alsa" ]; then
+    mkdir -p "$R/usr/share/sounds"; rm -rf "$R/usr/share/sounds/alsa"
+    cp -a "$SYS/usr/share/sounds/alsa" "$R/usr/share/sounds/alsa"
+fi
 for b in flxinstall-gui flxnetmgr; do
     [ -f "$SYS/usr/bin/$b" ] && cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"
 done
@@ -135,7 +144,7 @@ if [ -d "$SYS/usr/share/glib-2.0/schemas" ]; then
     cp -a "$SYS/usr/share/glib-2.0/schemas" "$R/usr/share/glib-2.0/schemas"
     glib-compile-schemas "$R/usr/share/glib-2.0/schemas"
 fi
-for d in libinput; do
+for d in libinput alsa; do
     [ -d "$SYS/usr/share/$d" ] && rm -rf "$R/usr/share/$d" && cp -a "$SYS/usr/share/$d" "$R/usr/share/$d"
 done
 for d in terminfo X11/locale; do

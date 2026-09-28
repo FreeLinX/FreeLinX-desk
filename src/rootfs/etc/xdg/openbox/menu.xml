@@ -69,7 +69,7 @@
     <action name="Execute"><command>uxterm -T "Time Zone" -e flxtz</command></action>
   </item>
   <item label="Network Manager">
-    <action name="Execute"><command>flxnetmgr</command></action>
+    <action name="Execute"><command>sh -c 'if [ "$(id -u)" = 0 ]; then exec flxnetmgr; else exec doas -n /usr/bin/flxnetmgr; fi'</command></action>
   </item>
   <item label="Network Manager (CLI)">
     <action name="Execute"><command>uxterm -e flxnet</command></action>

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Network
 Comment=Wired and WiFi network settings
-Exec=flxnetmgr
+Exec=sh -c 'if [ "$(id -u)" = 0 ]; then exec flxnetmgr; else exec doas -n /usr/bin/flxnetmgr; fi'
 Icon=/usr/share/pixmaps/flx-network.png
 Terminal=false
 Type=Application
