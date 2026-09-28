@@ -74,7 +74,7 @@
   <item label="Network Manager (CLI)">
     <action name="Execute"><command>uxterm -e flxnet</command></action>
   </item>
-  <item label="Firefox Web Browser">
+  <item label="Web Browser (FreeLinX Web)">
     <action name="Execute"><command>firefox</command></action>
   </item>
   <item label="NetSurf Lightweight Browser">
@@ -263,7 +263,7 @@
     </action>
   </item>
 
-  <item label="Web Browser (Firefox)">
+  <item label="Web Browser">
     <action name="Execute">
       <command>flxbrowser</command>
     </action>

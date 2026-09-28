@@ -131,4 +131,11 @@ cd "$SRC"
 ./mach build
 rm -rf "$DEST"
 DESTDIR="$DEST" ./mach install
+
+# musl resolves DT_NEEDED only through its search path, not by the soname of
+# a library already loaded by full path (glibc does both).  Firefox's own
+# libraries are found through /etc/ld-musl-x86_64.path (src/rootfs), which
+# lists /usr/lib/firefox; patchelf --set-rpath corrupted these lld-linked
+# objects (dlopen segfaulted), so the binaries stay untouched.
+python3 "$HERE/firefox/rebrand.py" "$DEST/usr/lib/firefox/browser/omni.ja"
 echo "build-firefox: staged in $DEST"
