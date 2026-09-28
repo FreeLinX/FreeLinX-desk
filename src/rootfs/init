@@ -64,6 +64,12 @@ mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
 mount -t devpts -o gid=5,mode=0620,ptmxmode=0666 devpts /dev/pts 2>/dev/null || :
 rm -f /dev/ptmx && ln -s /dev/pts/ptmx /dev/ptmx
 mount -t tmpfs    tmpfs    /run   2>/dev/null || :
+# POSIX shared memory (shm_open): Firefox, GTK and dbus need a world-writable
+# tmpfs here; a bare directory on devtmpfs is root-only.
+mount -t tmpfs -o mode=1777,nosuid,nodev shm /dev/shm 2>/dev/null || chmod 1777 /dev/shm
+# XDG runtime dirs: no seat manager creates /run/user/<uid>, so sessions
+# make their own (0700) inside a sticky parent.
+mkdir -p /run/user && chmod 1777 /run/user
 
 # Enable sysrq for reboot/poweroff via /proc/sysrq-trigger
 echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || :
