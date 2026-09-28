@@ -357,13 +357,19 @@ step_xorg_server() {
         -Dint10=false -Dvgahw=false -Dxdmcp=false -Dsecure-rpc=false -Dlibunwind=false \
         -Dxselinux=false -Dxcsecurity=false -Ddtrace=false -Ddocs=false -Ddevel-docs=false \
         -Dsha1=libmd -Dhal=false -Dlinux_apm=false -Dlinux_acpi=false \
-        -Dxkb_dir=/usr/share/X11/xkb -Dxkb_output_dir=/var/lib/xkb \
+        -Dxkb_dir=/usr/share/X11/xkb -Dxkb_output_dir=/var/lib/xkb -Dxkb_bin_dir=/usr/bin \
         -Ddefault_font_path=/usr/share/fonts/X11/misc,built-ins \
         -Dlog_dir=/var/log -Dmodule_dir=/usr/lib/xorg/modules
 }
 step_xf86_video_fbdev() { auto xf86-video-fbdev --disable-pciaccess; }
 step_xf86_input_evdev() { auto xf86-input-evdev; }
 step_xkbcomp()     { auto xkbcomp; }
+# libinput is the input driver (evdev 2.10 segfaults on keyboard init here).
+step_libinput() {
+    mes libinput -Dlibwacom=false -Ddebug-gui=false -Dtests=false -Ddocumentation=false \
+        -Dudev-dir=/lib/udev
+}
+step_xf86_input_libinput() { auto xf86-input-libinput; }
 
 # GTK
 step_glib() {
@@ -513,7 +519,7 @@ pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX1
 libXext libXrender libXfixes libXi libXrandr libXcursor libXcomposite libXdamage
 libXinerama libXtst libICE libSM libXt libXmu libXft libXpm libxkbfile libfontenc
 libXfont2 libxshmfence libpciaccess libdrm libxcvt mtdev libevdev libudev_zero
-xorg_server xf86_video_fbdev xf86_input_evdev xkbcomp glib glib_tools fribidi harfbuzz cairo
+xorg_server xf86_video_fbdev xf86_input_evdev xkbcomp libinput xf86_input_libinput glib glib_tools fribidi harfbuzz cairo
 pango gdk_pixbuf pixbuf_tools libxml2 dbus at_spi2_core libepoxy gtk3 alsa_lib $STEPS_USER"
 
 run_step() {

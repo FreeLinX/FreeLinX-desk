@@ -32,3 +32,149 @@
  6:36.40 W 1 warning generated.
  7:01.61 W 2 warnings generated.
  7:10.72 W 2 warnings generated.
+ 7:19.83 W 2 warnings generated.
+ 7:25.59 W 2 warnings generated.
+ 7:28.49 W 3 warnings generated.
+ 7:33.03 W 2 warnings generated.
+ 7:38.01 W 2 warnings generated.
+ 7:43.66 W 2 warnings generated.
+ 7:54.77 W 2 warnings generated.
+ 7:57.35 W 2 warnings generated.
+ 7:59.83 W 2 warnings generated.
+ 8:06.63 W 2 warnings generated.
+ 8:08.33 W 2 warnings generated.
+ 8:09.94 W 2 warnings generated.
+ 8:11.80 W 2 warnings generated.
+ 8:13.73 W 2 warnings generated.
+ 8:15.97 W 2 warnings generated.
+ 8:18.15 W 2 warnings generated.
+ 8:20.25 W 2 warnings generated.
+ 8:23.75 W 2 warnings generated.
+ 8:38.33 W 2 warnings generated.
+ 8:51.01 W 2 warnings generated.
+ 8:54.10 W 2 warnings generated.
+ 8:56.42 W 2 warnings generated.
+ 9:02.48 W 2 warnings generated.
+ 9:19.85 W 2 warnings generated.
+ 9:20.46 E error: failed to run custom build command for `glslopt v0.1.14`
+ 9:20.46 E note: To improve backtraces for build dependencies, set the CARGO_PROFILE_RELEASE_BUILD_OVERRIDE_DEBUG=true environment variable to enable debug information generation.
+ 9:20.46 E Caused by:
+ 9:20.46 E   process didn't exit successfully: `/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-3c85fb8ecd1c9dfd/build-script-build` (exit status: 1)
+ 9:20.46 E   --- stdout
+ 9:20.46 E   OUT_DIR = Some(/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out)
+ 9:20.46 E   OPT_LEVEL = Some(1)
+ 9:20.46 E   TARGET = Some(x86_64-unknown-linux-gnu)
+ 9:20.46 E   HOST = Some(x86_64-unknown-linux-gnu)
+ 9:20.46 E   cargo:rerun-if-env-changed=CC_x86_64-unknown-linux-gnu
+ 9:20.46 E   CC_x86_64-unknown-linux-gnu = None
+ 9:20.46 E   cargo:rerun-if-env-changed=CC_x86_64_unknown_linux_gnu
+ 9:20.46 E   CC_x86_64_unknown_linux_gnu = Some(/home/devuan/FreeLinX/toolchain/bin/clang)
+ 9:20.47 E   RUSTC_WRAPPER = None
+ 9:20.47 E   cargo:rerun-if-env-changed=CC_ENABLE_DEBUG_OUTPUT
+ 9:20.47 E   cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
+ 9:20.47 E   CRATE_CC_NO_DEFAULTS = None
+ 9:20.47 E   DEBUG = Some(false)
+ 9:20.47 E   cargo:rerun-if-env-changed=CFLAGS
+ 9:20.47 E   CFLAGS = Some(--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot -O2)
+ 9:20.47 E   cargo:rerun-if-env-changed=CC_SHELL_ESCAPED_FLAGS
+ 9:20.47 E   CC_SHELL_ESCAPED_FLAGS = None
+ 9:20.47 E   cargo:rerun-if-env-changed=HOST_CFLAGS
+ 9:20.47 E   HOST_CFLAGS = Some(-O2 -O3 -DNDEBUG=1 -DTRIMMED=1 -I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include -MD -MP -MF .deps/force-cargo-library-build.pp)
+ 9:20.47 E   cargo:rerun-if-env-changed=CFLAGS_x86_64_unknown_linux_gnu
+ 9:20.47 E   CFLAGS_x86_64_unknown_linux_gnu = Some(--target=x86_64-pc-linux-gnu -O2 -O3 -DNDEBUG=1 -DTRIMMED=1 -I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include)
+ 9:20.47 E   cargo:rerun-if-env-changed=CFLAGS_x86_64-unknown-linux-gnu
+ 9:20.47 E   CFLAGS_x86_64-unknown-linux-gnu = None
+ 9:20.47 E   CARGO_ENCODED_RUSTFLAGS = Some()
+ 9:20.47 E   cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.47 E   cargo:warning=1 error generated.
+ 9:20.47 E   exit status: 1
+ 9:20.47 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ecc5ce2ee3e1d37b-glcpp-lex.o" "-c" "glsl-optimizer/src/compiler/glsl/glcpp/glcpp-lex.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.47 E   cargo:warning=1 error generated.
+ 9:20.47 E   exit status: 1
+ 9:20.47 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ecc5ce2ee3e1d37b-glcpp-parse.o" "-c" "glsl-optimizer/src/compiler/glsl/glcpp/glcpp-parse.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.47 E   cargo:warning=1 error generated.
+ 9:20.48 E   exit status: 1
+ 9:20.48 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ecc5ce2ee3e1d37b-pp_standalone_scaffolding.o" "-c" "glsl-optimizer/src/compiler/glsl/glcpp/pp_standalone_scaffolding.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.48 E   cargo:warning=1 error generated.
+ 9:20.48 E   exit status: 1
+ 9:20.48 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ecc5ce2ee3e1d37b-pp.o" "-c" "glsl-optimizer/src/compiler/glsl/glcpp/pp.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.48 E   cargo:warning=1 error generated.
+ 9:20.48 E   exit status: 1
+ 9:20.48 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ff4c9c56c07e6aed-blob.o" "-c" "glsl-optimizer/src/util/blob.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.48 E   cargo:warning=1 error generated.
+ 9:20.50 E   exit status: 1
+ 9:20.50 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ff4c9c56c07e6aed-half_float.o" "-c" "glsl-optimizer/src/util/half_float.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.50 E   cargo:warning=1 error generated.
+ 9:20.50 E   exit status: 1
+ 9:20.50 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ff4c9c56c07e6aed-hash_table.o" "-c" "glsl-optimizer/src/util/hash_table.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.50 E   cargo:warning=1 error generated.
+ 9:20.51 E   exit status: 1
+ 9:20.51 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ff4c9c56c07e6aed-mesa-sha1.o" "-c" "glsl-optimizer/src/util/mesa-sha1.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.51 E   cargo:warning=1 error generated.
+ 9:20.51 E   exit status: 1
+ 9:20.51 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ff4c9c56c07e6aed-os_misc.o" "-c" "glsl-optimizer/src/util/os_misc.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.51 E   cargo:warning=1 error generated.
+ 9:20.51 E   exit status: 1
+ 9:20.51 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ff4c9c56c07e6aed-ralloc.o" "-c" "glsl-optimizer/src/util/ralloc.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.51 E   cargo:warning=1 error generated.
+ 9:20.51 E   exit status: 1
+ 9:20.52 E   cargo:warning=ToolExecError: command did not execute successfully (status code exit status: 1): LC_ALL="C" "/home/devuan/FreeLinX/toolchain/bin/clang" "-O1" "-ffunction-sections" "-fdata-sections" "-fPIC" "-m64" "--target=x86_64-unknown-linux-gnu" "-I" "glsl-optimizer/include" "-I" "glsl-optimizer/src/mesa" "-I" "glsl-optimizer/src/mapi" "-I" "glsl-optimizer/src/compiler" "-I" "glsl-optimizer/src/compiler/glsl" "-I" "glsl-optimizer/src/gallium/auxiliary" "-I" "glsl-optimizer/src/gallium/include" "-I" "glsl-optimizer/src" "-I" "glsl-optimizer/src/util" "-D__STDC_FORMAT_MACROS" "-D_GNU_SOURCE" "-DHAVE_ENDIAN_H" "-DHAVE_PTHREAD" "-DHAVE_TIMESPEC_GET" "-DMOZILLA_CONFIG_H" "-DMOZ_INCLUDE_MOZALLOC_H" "-Dmozilla_throw_gcc_h" "--sysroot=/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot" "-O2" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-MD" "-MP" "-MF" ".deps/force-cargo-library-build.pp" "--target=x86_64-pc-linux-gnu" "-O2" "-O3" "-DNDEBUG=1" "-DTRIMMED=1" "-I/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/dist/include" "-o" "/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/release/build/glslopt-25ac0edb6132db95/out/ff4c9c56c07e6aed-set.o" "-c" "glsl-optimizer/src/util/set.c"cargo:warning=error: error opening '.deps/force-cargo-library-build.pp': No such file or directory
+ 9:20.52 E   cargo:warning=1 error generated.
+ 9:20.52 E   exit status: 1
+ 9:22.00 W 2 warnings generated.
+ 9:24.60 W 2 warnings generated.
+ 9:25.83 W 2 warnings generated.
+ 9:28.13 W 2 warnings generated.
+ 9:30.72 W 2 warnings generated.
+ 9:30.86 E gmake[4]: *** [/home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/config/makefiles/rust.mk:556: force-cargo-library-build] Error 101
+ 9:30.87 E gmake[3]: *** [/home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/config/recurse.mk:79: toolkit/library/rust/target-objects] Error 2
+ 9:30.87 E gmake[3]: *** Waiting for unfinished jobs....
+ 9:31.84 W 2 warnings generated.
+ 9:31.95 W 2 warnings generated.
+ 9:32.28 W 2 warnings generated.
+ 9:34.67 W 2 warnings generated.
+ 9:36.37 W 2 warnings generated.
+ 9:36.87 W 2 warnings generated.
+ 9:37.88 W 2 warnings generated.
+ 9:38.83 W 2 warnings generated.
+ 9:40.71 W 2 warnings generated.
+ 9:43.73 W 2 warnings generated.
+ 9:44.98 W 2 warnings generated.
+ 9:46.22 W 2 warnings generated.
+ 9:48.51 W 2 warnings generated.
+ 9:48.80 W 2 warnings generated.
+ 9:50.17 W 2 warnings generated.
+10:03.67 W 2 warnings generated.
+10:11.40 W 2 warnings generated.
+10:27.23 W 2 warnings generated.
+10:29.73 W 2 warnings generated.
+10:32.49 W 2 warnings generated.
+10:34.63 W 2 warnings generated.
+10:41.64 W 2 warnings generated.
+10:48.67 W 2 warnings generated.
+10:50.90 W 2 warnings generated.
+10:53.38 W 1 warning generated.
+10:53.44 W 2 warnings generated.
+10:53.55 W 2 warnings generated.
+10:59.66 W 2 warnings generated.
+11:01.28 W 2 warnings generated.
+11:10.96 W 2 warnings generated.
+11:12.97 W 2 warnings generated.
+11:13.88 W 2 warnings generated.
+11:21.57 W 2 warnings generated.
+11:26.04 W 2 warnings generated.
+11:28.13 W 2 warnings generated.
+11:29.86 W 2 warnings generated.
+11:33.04 W 3 warnings generated.
+11:34.75 W 2 warnings generated.
+11:36.33 W 2 warnings generated.
+11:40.03 W 2 warnings generated.
+11:41.47 W 2 warnings generated.
+11:43.97 W 2 warnings generated.
+11:49.82 W 2 warnings generated.
+11:51.36 W 2 warnings generated.
+12:23.99 E gmake[2]: *** [/home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/config/recurse.mk:34: compile] Error 2
+12:23.99 E gmake[1]: *** [/home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/config/rules.mk:357: default] Error 2
+12:23.99 E gmake: *** [client.mk:58: build] Error 2
+12:24.09 W 106 compiler warnings present.
+Streaming resource usage profile to: /home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox/.mozbuild/logs/build/profile_log_20260928_202026.json
