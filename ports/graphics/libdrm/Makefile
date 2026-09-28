@@ -39,10 +39,13 @@ PROJECT_BIN = $(DRM_PREFIX)/lib/libdrm.a
 # meson needs ninja on PATH for the target build.
 export PATH := $(HOST_TOOLS):$(PATH)
 
+# Cross file is rendered from ./meson-cross.ini by mk/meson-cross.mk, which
+# resolves the @DIRNAME@ / @TOOLCHAIN_BIN@ / @SYSROOT@ placeholders meson
+# leaves untouched in port-local templates.
 PROJECT_CFG_CMDS = \
 	mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
-		--cross-file "$(PORT_DIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=static \
 		--prefix="$(DRM_PREFIX)" \

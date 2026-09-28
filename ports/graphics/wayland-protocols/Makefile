@@ -16,13 +16,15 @@ BUILD_DIR = $(FREELINX_BUILD_DIR)/obj/$(NAME)/meson
 PROJECT_BIN = $(WP_PREFIX)/share/pkgconfig/wayland-protocols.pc
 BUILD_BIN   = $(PROJECT_BIN)
 
+FLX_MESON_CROSS_TEMPLATE := $(CURDIR)/../wayland/meson-cross.ini
+
 include ../../mk/project-port.mk
 
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	PKG_CONFIG_LIBDIR="$$PKG_CONFIG_LIBDIR:$(FREELINX_HOST_WL)/lib/pkgconfig" \
 	"$(MESON)" setup \
-		--cross-file "$(CURDIR)/../wayland/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--prefix="$(WP_PREFIX)" \
 		-Dtests=false \

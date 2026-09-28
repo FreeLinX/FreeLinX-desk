@@ -27,7 +27,7 @@ PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	PKG_CONFIG_LIBDIR="$$PKG_CONFIG_LIBDIR:$(FREELINX_HOST_WL)/lib/pkgconfig" \
 	"$(MESON)" setup \
-		--cross-file "$(CURDIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		-Ddocs=disabled -Dtests=false -Dthemes=false \
 		-Dime=false -Dgrapheme-clustering=disabled \

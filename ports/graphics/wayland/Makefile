@@ -44,8 +44,8 @@ PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	PKG_CONFIG_LIBDIR="$$PKG_CONFIG_LIBDIR:$(FREELINX_HOST_WL)/lib/pkgconfig" \
 	"$(MESON)" setup \
-		--cross-file "$(PORT_DIR)/meson-cross.ini" \
-		--native-file "$(PORT_DIR)/meson-native.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
+		--native-file "$(FLX_MESON_CROSS_NATIVE)" \
 		--buildtype=release \
 		--default-library=static \
 		--prefix="$(WAY_PREFIX)" \

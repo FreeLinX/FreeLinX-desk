@@ -18,7 +18,7 @@ export PATH := $(FREELINX_VENV_BIN):$(FREELINX_BUILD_DIR)/deps/glib-2.82.5/bin:$
 PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
-		--cross-file "$(CURDIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=static \
 		-Dintrospection=false -Dvala=disabled \

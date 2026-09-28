@@ -66,7 +66,13 @@ FREELINX_JOBS?=1
 # under the build dir; all overrideable via FREELINX_* on the command line.
 # ---------------------------------------------------------------------------
 FREELINX_MESON?=meson
+FREELINX_NINJA?=ninja
 FREELINX_CMAKE?=cmake
+# An absolute pkg-config is mandatory for autotools projects: mk/project-port.mk
+# exports PKG_CONFIG to the child build, and an empty value makes every
+# PKG_CHECK_MODULES abort with "The pkg-config script could not be found or is
+# too old".  Ports that need `--static` still override it after the include.
+FREELINX_PKG_CONFIG?=/usr/bin/pkg-config
 FREELINX_VENV_BIN?=$(FREELINX_PORTS_ROOT)/../.venv/bin
 FREELINX_HOST_TOOLS?=$(FREELINX_BUILD_DIR)/host-tools
 FREELINX_HOST_WL?=$(FREELINX_BUILD_DIR)/host-wl

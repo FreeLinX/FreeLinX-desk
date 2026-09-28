@@ -39,7 +39,7 @@ export PATH := $(HOST_TOOLS):$(PATH)
 PROJECT_CFG_CMDS = \
 	mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
-		--cross-file "$(PORT_DIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=static \
 		--prefix="$(PIX_PREFIX)" \

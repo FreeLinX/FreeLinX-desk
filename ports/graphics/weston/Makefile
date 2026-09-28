@@ -49,8 +49,8 @@ PROJECT_CFG_CMDS = \
 	python3 "$(PORT_DIR)/musl-patches.py" "$(SRC_TREE)" && \
 	mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
-		--cross-file "$(PORT_DIR)/meson-cross.ini" \
-		--native-file "$(PORT_DIR)/meson-native.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
+		--native-file "$(FLX_MESON_CROSS_NATIVE)" \
 		--buildtype=release \
 		--default-library=static \
 		--prefix="/usr" \

@@ -45,6 +45,14 @@ FLX_PROJECT_LIBS?=-L$(FLX_PROJECT_LIBDIR) -lc++ -lc++abi -lunwind
 
 FLX_SHA256_CMD?=sha256sum
 
+# The repo-local virtualenv carries a current meson + ninja.  The distro meson
+# is frequently older than the version upstream now requires (pixman 0.44 needs
+# >= 1.3.0, Debian 5 ships 1.0.1), so put the venv first on PATH before any
+# project build system runs.
+export PATH:=$(FREELINX_VENV_BIN):$(PATH)
+export MESON:=$(FREELINX_MESON)
+export NINJA:=$(FREELINX_NINJA)
+
 export CC:=$(FREELINX_CC)
 export CXX:=$(FREELINX_CXX)
 export AR:=$(FREELINX_AR)
@@ -61,7 +69,7 @@ include $(FREELINX_PORTS_ROOT)/mk/pkgconfig-libdir.mk
 
 export PKG_CONFIG_LIBDIR:=$(strip $(PKG_CONFIG_LIBDIR))
 
-export PKG_CONFIG:=
+export PKG_CONFIG:=$(FREELINX_PKG_CONFIG)
 export LDFLAGS:=$(FREELINX_TARGET_FLAGS) $(FREELINX_SYSROOT_FLAGS) --rtlib=compiler-rt -static -fuse-ld=lld $(FLX_PROJECT_LDFLAGS) $(FLX_PROJECT_LIBS)
 export LIBS:=
 
@@ -115,7 +123,11 @@ do-extract: do-fetch
 # to run it inside $(SRC_TREE).
 PROJECT_CFG_CMDS?=:
 
-do-config: do-extract
+# Render port-local meson cross/native files before anything runs meson.
+# See mk/meson-cross.mk for why the template cannot be handed to meson as-is.
+include $(FREELINX_PORTS_ROOT)/mk/meson-cross.mk
+
+do-config: do-extract do-render-meson
 	@set -e; \
 	cd "$(SRC_TREE)" && $(PROJECT_CFG_CMDS)
 

@@ -23,7 +23,7 @@ PROJECT_CFG_CMDS = \
 	rm -rf "$(BUILD_DIR)" && mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
 		--wrap-mode=nofallback \
-		--cross-file "$(CURDIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=static \
 		-Ddocumentation=false -Dman-pages=false -Dintrospection=disabled -Dbuild-testsuite=false -Dbuild-examples=false -Dfontconfig=enabled -Dsysprof=disabled -Dlibthai=disabled -Dcairo=enabled -Dxft=disabled -Dfreetype=enabled \

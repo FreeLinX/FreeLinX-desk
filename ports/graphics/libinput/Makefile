@@ -38,7 +38,7 @@ export PKG_CONFIG_PATH := \
 PROJECT_CFG_CMDS = \
 	mkdir -p "$(BUILD_DIR)" && \
 	"$(MESON)" setup \
-		--cross-file "$(PORT_DIR)/meson-cross.ini" \
+		--cross-file "$(FLX_MESON_CROSS)" \
 		--buildtype=release \
 		--default-library=both \
 		--prefix="$(LI_PREFIX)" \
