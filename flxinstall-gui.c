@@ -478,9 +478,9 @@ static void draw_ui(cairo_t *cr, cairo_surface_t *surf) {
         cairo_set_font_size(cr, 10.5);
         cairo_set_source_rgb(cr, 0.45, 0.45, 0.45);
         cairo_move_to(cr, 90, 210);
-        cairo_show_text(cr, "Leave EMPTY to keep the live default (root / flx).");
+        cairo_show_text(cr, "Required: the live image has no root password.");
         cairo_move_to(cr, 90, 228);
-        cairo_show_text(cr, "Pick something private on a real install!");
+        cairo_show_text(cr, "Pick something private - you need it for doas and repairs.");
     } else if (page == PG_USER) {
         draw_check(cr, 90, 92, user_en, "Create a user account");
         draw_text_field(cr, 120, 140, 380, 28, "Username", username, 0, active_field == 0, user_en);
@@ -753,7 +753,12 @@ static void advance_page(void) {
         case PG_KBD:     apply_kbd(); goto_page(PG_TZ); break;
         case PG_TZ:      apply_tz(); goto_page(PG_HOST); break;
         case PG_HOST:    goto_page(PG_ROOTPW); break;
-        case PG_ROOTPW:  goto_page(PG_USER); break;
+        case PG_ROOTPW:
+            if (!rootpw[0]) {
+                snprintf(status_msg, sizeof(status_msg), "Please enter a root password.");
+                break;
+            }
+            goto_page(PG_USER); break;
         case PG_USER:    goto_page(PG_WIFI); break;
         case PG_WIFI:    goto_page(PG_DESK); break;
         case PG_DESK:    desktop_gui = (desk_list.sel == 0); goto_page(PG_DISK); break;

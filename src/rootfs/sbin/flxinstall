@@ -193,12 +193,17 @@ echo ""
 echo "----------------------------------------------------------"
 echo " Step 5/9 - Root password"
 echo "----------------------------------------------------------"
-if [ -z "${ROOTPW:-}" ]; then
-    echo " (Leave blank to keep the current root password.)"
-    printf 'Enter new root password: '
-    read -r ROOTPW || ROOTPW=""
+# The image ships with root locked ("!"), so an installed system needs a
+# root password unless a hash was handed in (ROOT_HASH).
+if [ -z "${ROOTPW:-}" ] && [ -z "${ROOT_HASH:-}" ]; then
+    while :; do
+        printf 'Enter new root password: '
+        read -r ROOTPW || { echo; echo "Error: no root password given." >&2; exit 1; }
+        [ -n "$ROOTPW" ] && break
+        echo "  A root password is required (the live image has none)."
+    done
 fi
-if [ -n "$ROOTPW" ]; then
+if [ -n "${ROOTPW:-}" ] || [ -n "${ROOT_HASH:-}" ]; then
     ROOTHASH="${ROOT_HASH:-}"
     if [ -z "$ROOTHASH" ] && [ -x /sbin/flxhash ]; then
         ROOTHASH=$(flxhash "$ROOTPW" 2>/dev/null)
