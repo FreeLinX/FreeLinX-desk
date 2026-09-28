@@ -47,7 +47,7 @@ libevdev https://gitlab.freedesktop.org/libevdev/libevdev/-/archive/libevdev-1.1
 libudev-zero https://github.com/illiliti/libudev-zero/archive/refs/tags/1.0.5.tar.gz bf4372f79ddbe6b0e266a3d2994ffac7018a7edf4f87632aecb5176565d96138 libudev-zero-1.0.5.tar.gz
 xorg-server https://www.x.org/releases/individual/xserver/xorg-server-21.1.24.tar.xz 1a4eb36ca65cc3b1b936566d677a9786e13c11cd5806e951ac55f3f5ce3984af 
 xf86-video-fbdev https://www.x.org/releases/individual/driver/xf86-video-fbdev-0.5.0.tar.gz a31f62db237a5c25bb087713a22a867a9b7680833ce3b644ecd712887b7b1d62 
-xf86-input-evdev https://www.x.org/releases/individual/driver/xf86-input-evdev-2.10.6.tar.xz -
+xf86-input-evdev https://www.x.org/releases/individual/driver/xf86-input-evdev-2.10.6.tar.bz2 -
 xkbcomp https://www.x.org/releases/individual/app/xkbcomp-1.4.7.tar.xz 0a288114e5f44e31987042c79aecff1ffad53a8154b8ec971c24a69a80f81f77 
 glib https://download.gnome.org/sources/glib/2.82/glib-2.82.5.tar.xz 05c2031f9bdf6b5aba7a06ca84f0b4aced28b19bf1b50c6ab25cc675277cbc3f 
 fribidi https://github.com/fribidi/fribidi/releases/download/v1.0.16/fribidi-1.0.16.tar.xz 1b1cde5b235d40479e91be2f0e88a309e3214c8ab470ec8a2744d82a5a9ea05c 
@@ -59,3 +59,12 @@ atk https://download.gnome.org/sources/atk/2.38/atk-2.38.0.tar.xz ac4de2a4ef4bd5
 libepoxy https://github.com/anholt/libepoxy/archive/refs/tags/1.5.10.tar.gz - libepoxy-1.5.10.tar.gz
 gtk https://download.gnome.org/sources/gtk/3.24/gtk-3.24.52.tar.xz 80931fa472a77b9a164f6740e3c0b444fac6770054632d35a7ff9d679e5e7b9f 
 alsa-lib https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.13.tar.bz2 8c4ff37553cbe89618e187e4c779f71a9bb2a8b27b91f87ed40987cc9233d8f6 
+openssl https://www.openssl.org/source/openssl-3.3.2.tar.gz 2e8a40b01979afe8be0bbfb3de5dc1c6709fedb46d6c89c10da114ab5fc3d281
+sqlite https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz b2809ca53124c19c60f42bf627736eae011afdcc205bb48270a5ee9a38191531
+libnl https://github.com/thom311/libnl/releases/download/libnl3_11_0/libnl-3.11.0.tar.gz -
+dbus https://dbus.freedesktop.org/releases/dbus/dbus-1.16.2.tar.xz 0ba2a1a4b16afe7bceb2c07e9ce99a8c2c3508e5dec290dbb643384bd6beb7e2
+wpa_supplicant https://w1.fi/releases/wpa_supplicant-2.11.tar.gz 912ea06f74e30a8e36fbb68064d6cdff218d8d591db0fc5d75dee6c81ac7fc0a
+ncurses https://invisible-mirror.net/archives/ncurses/ncurses-6.5.tar.gz -
+nnn https://github.com/jarun/nnn/releases/download/v5.0/nnn-v5.0.tar.gz -
+libXaw https://www.x.org/releases/individual/lib/libXaw-1.0.16.tar.xz -
+xcalc https://www.x.org/releases/individual/app/xcalc-1.1.2.tar.xz -
