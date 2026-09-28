@@ -10,7 +10,7 @@ to package a tree that fails (`check-nognu.sh`).
 - **Openbox desktop** with a bottom panel (launchers, window list, clock with
   time zone), right-click menu, and a CPU-rendered framebuffer path that
   needs no GPU driver.
-- **Firefox ESR 153** for the modern web (full JavaScript), plus NetSurf,
+- **FreeLinX Web** (Firefox ESR 153) for the modern web (full JavaScript), plus NetSurf,
   Dillo, Links and w3m as light browsers.
 - **Graphical installer** — language, keyboard, time zone (IANA names, e.g.
   `Asia/Baku`), hostname, root password, user account, WiFi, disk. Installs
