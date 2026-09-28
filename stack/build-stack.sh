@@ -535,6 +535,8 @@ step_flxapps() {
     mkdir -p "$SYS/usr/bin"
     "$CC" -O2 $("$PKG_CONFIG" --cflags cairo x11) -o "$SYS/usr/bin/flxinstall-gui" \
         "$TOP/flxinstall-gui.c" $("$PKG_CONFIG" --libs cairo x11)
+    "$CC" -O2 $("$PKG_CONFIG" --cflags cairo x11) -o "$SYS/usr/bin/flxnetmgr" \
+        "$TOP/flxnetmgr.c" $("$PKG_CONFIG" --libs cairo x11)
 }
 
 # toybox (0BSD): only the process/system tools NetBSD's userland cannot

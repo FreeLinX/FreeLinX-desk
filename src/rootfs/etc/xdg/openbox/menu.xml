@@ -68,6 +68,9 @@
   <item label="Time Zone...">
     <action name="Execute"><command>uxterm -T "Time Zone" -e flxtz</command></action>
   </item>
+  <item label="Network Manager">
+    <action name="Execute"><command>flxnetmgr</command></action>
+  </item>
   <item label="Network Manager (CLI)">
     <action name="Execute"><command>uxterm -e flxnet</command></action>
   </item>

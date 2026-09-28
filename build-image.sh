@@ -111,6 +111,17 @@ fi
 
 find "$STAGE" -name .gitkeep -type f -exec rm -f {} +
 
+# Release gate: nothing GCC-built or glibc-linked may ship.
+# FLX_ALLOW_GNU=1 skips it for local experiments only.
+if [ "${FLX_ALLOW_GNU:-0}" != "1" ]; then
+    if ! "${SCRIPT_DIR}/check-nognu.sh" "$STAGE" > "${BUILD_DIR}/check-nognu.txt" 2>&1; then
+        grep '^FAIL' "${BUILD_DIR}/check-nognu.txt" >&2
+        echo "Error: GNU/glibc artefacts in the image (see ${BUILD_DIR}/check-nognu.txt)." >&2
+        exit 1
+    fi
+    tail -1 "${BUILD_DIR}/check-nognu.txt"
+fi
+
 echo "Packing FreeLinX Desktop initramfs ..."
 (cd "$STAGE" && find . -print0 | cpio --null -o --quiet --format=newc --owner=0:0 | zstd -q -T0 -12 > "$OUT_IMG")
 ln -sf "src/build/x86_64/freelinx-desktop.img.gz" "${SCRIPT_DIR}/initrd.img"

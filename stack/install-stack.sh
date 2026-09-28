@@ -92,7 +92,9 @@ done
 [ -f "$SYS/usr/libexec/dbus-daemon-launch-helper" ] && \
     cp_strip "$SYS/usr/libexec/dbus-daemon-launch-helper" "$R/usr/libexec/dbus-daemon-launch-helper"
 
-[ -f "$SYS/usr/bin/flxinstall-gui" ] && cp_strip "$SYS/usr/bin/flxinstall-gui" "$R/usr/bin/flxinstall-gui"
+for b in flxinstall-gui flxnetmgr; do
+    [ -f "$SYS/usr/bin/$b" ] && cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"
+done
 # toybox fills only the gaps (ps, top, free, uptime, pgrep, pidof, w); tools
 # the NetBSD userland already ships keep their NetBSD versions.
 if [ -f "$SYS/usr/bin/toybox" ]; then
