@@ -2,7 +2,7 @@
 Name=Install FreeLinX
 Comment=Install FreeLinX to a disk
 Exec=flxinstall-gui
-Icon=system-software-install
+Icon=/usr/share/pixmaps/flx-install.png
 Terminal=false
 Type=Application
 Categories=System;

@@ -99,6 +99,14 @@ kernel/lib/oid_registry.ko
 kernel/lib/ucs2_string.ko
 kernel/drivers/video/console/vgacon.ko
 kernel/drivers/video/backlight/backlight.ko
+kernel/drivers/video/fbdev/core/fb.ko
+kernel/drivers/video/fbdev/core/cfbfillrect.ko
+kernel/drivers/video/fbdev/core/cfbcopyarea.ko
+kernel/drivers/video/fbdev/core/cfbimgblt.ko
+kernel/drivers/video/fbdev/core/sysfillrect.ko
+kernel/drivers/video/fbdev/core/syscopyarea.ko
+kernel/drivers/video/fbdev/core/sysimgblt.ko
+kernel/drivers/video/fbdev/core/fb_sys_fops.ko
 kernel/drivers/acpi/ac.ko
 kernel/drivers/acpi/button.ko
 kernel/drivers/acpi/fan.ko
@@ -144,6 +152,7 @@ kernel/drivers/gpu/drm/display/drm_display_helper.ko
 kernel/drivers/gpu/drm/ttm/ttm.ko
 kernel/drivers/gpu/drm/i915/i915.ko
 kernel/drivers/gpu/drm/virtio/virtio-gpu.ko
+kernel/drivers/gpu/drm/tiny/simpledrm.ko
 kernel/drivers/connector/cn.ko
 kernel/drivers/base/firmware_loader/firmware_class.ko
 kernel/drivers/block/loop.ko
@@ -330,3 +339,4 @@ kernel/net/9p/9pnet.ko
 kernel/net/9p/9pnet_fd.ko
 kernel/net/9p/9pnet_virtio.ko
 kernel/net/dns_resolver/dns_resolver.ko
+kernel/arch/x86/video/fbdev.ko
