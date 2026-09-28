@@ -1,0 +1,61 @@
+# name url sha256 [local-archive-name]   ('-' = trust on first use, see sources.lock)
+musl https://musl.libc.org/releases/musl-1.2.5.tar.gz a9a118bbe84d8764da0ea0d28b3ab3fae8477fc7e4085d90102b8596fc7c75e4
+llvm-project https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1.8/llvm-project-21.1.8.src.tar.xz -
+zlib https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz 9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23 
+libffi https://github.com/libffi/libffi/releases/download/v3.4.6/libffi-3.4.6.tar.gz b0dea9df23c863a7a50e825440f3ebffabd65df1497108e5d437747843895a4e 
+pcre2 https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.gz 86b9cb0aa3bcb7994faa88018292bc704cdbb708e785f7c74352ff6ea7d3175b 
+expat https://github.com/libexpat/libexpat/releases/download/R_2_7_1/expat-2.7.1.tar.xz -
+libpng https://downloads.sourceforge.net/project/libpng/libpng16/1.6.43/libpng-1.6.43.tar.xz 6a5ca0652392a2d7c9db2ae5b40210843c0bbc081cbd410825ab00cc59f14a6c 
+libjpeg-turbo https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.0.3/libjpeg-turbo-3.0.3.tar.gz 343e789069fc7afbcdfe44dbba7dbbf45afa98a15150e079a38e60e44578865d 
+freetype https://github.com/freetype/freetype/archive/refs/tags/VER-2-13-3.tar.gz bc5c898e4756d373e0d991bab053036c5eb2aa7c0d5c67e8662ddc6da40c4103 freetype-2.13.3.tar.gz
+fontconfig https://github.com/fontconfig/fontconfig/archive/refs/tags/2.15.0.tar.gz cdebb4b805d33e9bdefcc0ef9743db638d2acb21139bbe1a6a85878d4c3e8c9e fontconfig-2.15.0.tar.gz
+pixman https://www.cairographics.org/releases/pixman-0.44.2.tar.xz 50baf820dde0c5ff9714d03d2df4970f606a3d3b1024f5404c0398a9821cc4b0 
+libmd https://libbsd.freedesktop.org/releases/libmd-1.1.0.tar.xz -
+util-macros https://www.x.org/releases/individual/util/util-macros-1.20.2.tar.xz 9ac269eba24f672d7d7b3574e4be5f333d13f04a7712303b1821b2a51ac82e8e 
+xorgproto https://www.x.org/releases/individual/proto/xorgproto-2024.1.tar.gz 4f6b9b4faf91e5df8265b71843a91fc73dc895be6210c84117a996545df296ce 
+xcb-proto https://www.x.org/releases/individual/proto/xcb-proto-1.17.0.tar.gz 392d3c9690f8c8202a68fdb89c16fd55159ab8d65000a6da213f4a1576e97a16 
+libXau https://www.x.org/releases/individual/lib/libXau-1.0.11.tar.gz 3a321aaceb803577a4776a5efe78836eb095a9e44bbc7a465d29463e1a14f189 
+libXdmcp https://www.x.org/releases/individual/lib/libXdmcp-1.1.4.tar.gz 55041a8ff8992ab02777478c4b19c249c0f8399f05a752cb4a1a868a9a0ccb9a 
+xtrans https://www.x.org/releases/individual/lib/xtrans-1.6.0.tar.gz 936b74c60b19c317c3f3cb1b114575032528dbdaf428740483200ea874c2ca0a 
+libxcb https://www.x.org/releases/individual/lib/libxcb-1.17.0.tar.gz 2c69287424c9e2128cb47ffe92171e10417041ec2963bceafb65cb3fcf8f0b85 
+libX11 https://www.x.org/releases/individual/lib/libX11-1.8.10.tar.gz b7a1a90d881bb7b94df5cf31509e6b03f15c0972d3ac25ab0441f5fbc789650f 
+libXext https://www.x.org/releases/individual/lib/libXext-1.3.6.tar.gz 1a0ac5cd792a55d5d465ced8dbf403ed016c8e6d14380c0ea3646c4415496e3d 
+libXrender https://www.x.org/releases/individual/lib/libXrender-0.9.11.tar.gz 6aec3ca02e4273a8cbabf811ff22106f641438eb194a12c0ae93c7e08474b667 
+libXfixes https://www.x.org/releases/individual/lib/libXfixes-6.0.1.tar.gz e69eaa321173c748ba6e2f15c7cf8da87f911d3ea1b6af4b547974aef6366bec 
+libXi https://www.x.org/releases/individual/lib/libXi-1.8.2.tar.xz -
+libXrandr https://www.x.org/releases/individual/lib/libXrandr-1.5.4.tar.gz c72c94dc3373512ceb67f578952c5d10915b38cc9ebb0fd176a49857b8048e22 
+libXcursor https://www.x.org/releases/individual/lib/libXcursor-1.2.2.tar.gz 98c3a30a3f85274c167d1ac5419d681ce41f14e27bfa5fe3003c8172cd8af104 
+libXcomposite https://www.x.org/releases/individual/lib/libXcomposite-0.4.6.tar.xz -
+libXdamage https://www.x.org/releases/individual/lib/libXdamage-1.1.6.tar.xz -
+libXinerama https://www.x.org/releases/individual/lib/libXinerama-1.1.5.tar.gz 2efa855cb42dc620eff3b77700d8655695e09aaa318f791f201fa60afa72b95c 
+libXtst https://www.x.org/releases/individual/lib/libXtst-1.2.5.tar.xz -
+libICE https://www.x.org/releases/individual/lib/libICE-1.1.2.tar.gz 1da62f732f8679c20045708a29372b82dff9e7eceee543ed488b845002b3b0ff 
+libSM https://www.x.org/releases/individual/lib/libSM-1.2.5.tar.gz a11c3d23b60dce0c13256a8ce9478c1ea330719c0747b5adfbce60571198fa57 
+libXt https://www.x.org/releases/individual/lib/libXt-1.3.1.tar.gz cf2212189869adb94ffd58c7d9a545a369b83d2274930bfbe148da354030b355 
+libXmu https://www.x.org/releases/individual/lib/libXmu-1.2.1.tar.gz bf0902583dd1123856c11e0a5085bd3c6e9886fbbd44954464975fd7d52eb599 
+libXft https://www.x.org/releases/individual/lib/libXft-2.3.8.tar.gz 32e48fe2d844422e64809e4e99b9d8aed26c1b541a5acf837c5037b8d9f278a8 
+libXpm https://www.x.org/releases/individual/lib/libXpm-3.5.17.tar.xz -
+libxkbfile https://www.x.org/releases/individual/lib/libxkbfile-1.1.3.tar.xz a9b63eea997abb9ee6a8b4fbb515831c841f471af845a09de443b28003874bec 
+libfontenc https://www.x.org/releases/individual/lib/libfontenc-1.1.9.tar.xz 9d8392705cb10803d5fe1d27d236cbab3f664e26841ce01916bbbe430cf273e2 
+libXfont2 https://www.x.org/releases/individual/lib/libXfont2-2.0.9.tar.xz f042a370666815e7b941e9b7019024755bd1c6c2954afbfa515af378251799e2 
+libxshmfence https://www.x.org/releases/individual/lib/libxshmfence-1.3.2.tar.xz 870df257bc40b126d91b5a8f1da6ca8a524555268c50b59c0acd1a27f361606f 
+libpciaccess https://www.x.org/releases/individual/lib/libpciaccess-0.19.tar.xz 3c55aa86c82e54a4e3109786f0463530d53b36b6d1cfd14616454f985dd2aa43 
+libdrm https://dri.freedesktop.org/libdrm/libdrm-2.4.123.tar.xz a2b98567a149a74b0f50e91e825f9c0315d86e7be9b74394dae8b298caadb79e 
+libxcvt https://www.x.org/releases/individual/lib/libxcvt-0.1.3.tar.xz a929998a8767de7dfa36d6da4751cdbeef34ed630714f2f4a767b351f2442e01 
+mtdev http://bitmath.org/code/mtdev/mtdev-1.1.6.tar.bz2 15d7b28da8ac71d8bc8c9287c2045fd174267bc740bec10cfda332dc1204e0e0 
+libevdev https://gitlab.freedesktop.org/libevdev/libevdev/-/archive/libevdev-1.13.7/libevdev-1.13.7.tar.gz 67b0145f18acd342e5d068dd84d9596c5342323b479110e9ed3f399c5be928e6 
+libudev-zero https://github.com/illiliti/libudev-zero/archive/refs/tags/1.0.5.tar.gz bf4372f79ddbe6b0e266a3d2994ffac7018a7edf4f87632aecb5176565d96138 libudev-zero-1.0.5.tar.gz
+xorg-server https://www.x.org/releases/individual/xserver/xorg-server-21.1.24.tar.xz 1a4eb36ca65cc3b1b936566d677a9786e13c11cd5806e951ac55f3f5ce3984af 
+xf86-video-fbdev https://www.x.org/releases/individual/driver/xf86-video-fbdev-0.5.0.tar.gz a31f62db237a5c25bb087713a22a867a9b7680833ce3b644ecd712887b7b1d62 
+xf86-input-evdev https://www.x.org/releases/individual/driver/xf86-input-evdev-2.10.6.tar.xz -
+xkbcomp https://www.x.org/releases/individual/app/xkbcomp-1.4.7.tar.xz 0a288114e5f44e31987042c79aecff1ffad53a8154b8ec971c24a69a80f81f77 
+glib https://download.gnome.org/sources/glib/2.82/glib-2.82.5.tar.xz 05c2031f9bdf6b5aba7a06ca84f0b4aced28b19bf1b50c6ab25cc675277cbc3f 
+fribidi https://github.com/fribidi/fribidi/releases/download/v1.0.16/fribidi-1.0.16.tar.xz 1b1cde5b235d40479e91be2f0e88a309e3214c8ab470ec8a2744d82a5a9ea05c 
+harfbuzz https://github.com/harfbuzz/harfbuzz/releases/download/14.4.0/harfbuzz-14.4.0.tar.xz 2357ed966c6ced7bfa720b0640c0231065af01158fbea215093ffa15aed44371 
+cairo https://www.cairographics.org/releases/cairo-1.18.4.tar.xz 445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb 
+pango https://download.gnome.org/sources/pango/1.56/pango-1.56.4.tar.xz 17065e2fcc5f5a5bdbffc884c956bfc7c451a96e8c4fb2f8ad837c6413cb5a01 
+gdk-pixbuf https://download.gnome.org/sources/gdk-pixbuf/2.42/gdk-pixbuf-2.42.12.tar.xz b9505b3445b9a7e48ced34760c3bcb73e966df3ac94c95a148cb669ab748e3c7 
+atk https://download.gnome.org/sources/atk/2.38/atk-2.38.0.tar.xz ac4de2a4ef4bd5665052952fe169657e65e895c5057dffb3c2a810f6191a0c36 
+libepoxy https://github.com/anholt/libepoxy/archive/refs/tags/1.5.10.tar.gz - libepoxy-1.5.10.tar.gz
+gtk https://download.gnome.org/sources/gtk/3.24/gtk-3.24.52.tar.xz 80931fa472a77b9a164f6740e3c0b444fac6770054632d35a7ff9d679e5e7b9f 
+alsa-lib https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.13.tar.bz2 8c4ff37553cbe89618e187e4c779f71a9bb2a8b27b91f87ed40987cc9233d8f6 
