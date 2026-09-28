@@ -50,7 +50,7 @@ if [ -x "$SYS/usr/bin/greetd" ]; then
 fi
 
 # gdk-pixbuf / gio / gtk module trees and PAM modules
-for d in gdk-pixbuf-2.0 gio gtk-3.0; do
+for d in gdk-pixbuf-2.0 gio gtk-3.0 imlib2; do
     [ -d "$SYS/usr/lib/$d" ] || continue
     rm -rf "$R/usr/lib/$d"
     cp -a "$SYS/usr/lib/$d" "$R/usr/lib/$d"
@@ -78,7 +78,7 @@ fi
 
 # --- rebuilt userland binaries ---------------------------------------------
 for b in xkbcomp dbus-daemon dbus-send dbus-monitor dbus-uuidgen dbus-cleanup-sockets \
-         dbus-run-session xpkg nnn xcalc greetd agreety tuigreet; do
+         dbus-run-session xpkg nnn xcalc greetd agreety tuigreet tint2; do
     [ -f "$SYS/usr/bin/$b" ] || continue
     # keep the binary where the rootfs already had it (bin/ or usr/bin/)
     dst="$R/usr/bin/$b"
@@ -99,6 +99,9 @@ if [ -d "$SYS/usr/share/glib-2.0/schemas" ]; then
     cp -a "$SYS/usr/share/glib-2.0/schemas" "$R/usr/share/glib-2.0/schemas"
     glib-compile-schemas "$R/usr/share/glib-2.0/schemas"
 fi
+for d in libinput; do
+    [ -d "$SYS/usr/share/$d" ] && rm -rf "$R/usr/share/$d" && cp -a "$SYS/usr/share/$d" "$R/usr/share/$d"
+done
 for d in terminfo X11/locale; do
     [ -d "$SYS/usr/share/$d" ] && [ ! -d "$R/usr/share/$d" ] && \
         mkdir -p "$R/usr/share/$d" && cp -a "$SYS/usr/share/$d/." "$R/usr/share/$d/"

@@ -1,0 +1,62 @@
+# FreeLinX panel: launchers, task list, tray, clock (bottom edge)
+panel_items = LTSC
+panel_position = bottom center horizontal
+panel_size = 100% 30
+panel_margin = 0 0
+panel_padding = 4 2 4
+panel_background_id = 1
+panel_layer = top
+panel_dock = 0
+wm_menu = 1
+strut_policy = follow_size
+font_shadow = 0
+
+rounded = 0
+border_width = 0
+background_color = #2b302b 94
+border_color = #000000 0
+
+rounded = 3
+border_width = 0
+background_color = #778877 70
+border_color = #000000 0
+
+rounded = 3
+border_width = 0
+background_color = #95a595 90
+border_color = #000000 0
+
+launcher_padding = 4 2 6
+launcher_background_id = 0
+launcher_icon_size = 22
+launcher_item_app = /usr/share/applications/firefox.desktop
+launcher_item_app = /usr/share/applications/st.desktop
+launcher_item_app = /usr/share/applications/xfe.desktop
+launcher_item_app = /usr/share/applications/flxinstall.desktop
+
+taskbar_mode = single_desktop
+taskbar_padding = 2 2 4
+taskbar_background_id = 0
+taskbar_active_background_id = 0
+task_icon = 1
+task_text = 1
+task_centered = 0
+task_maximum_size = 200 26
+task_padding = 6 2 4
+task_font = sans 9
+task_font_color = #e8ece8 100
+task_background_id = 2
+task_active_background_id = 3
+task_urgent_background_id = 3
+
+systray_padding = 4 2 4
+systray_background_id = 0
+systray_icon_size = 18
+
+time1_format = %H:%M
+time2_format = %a %d %b
+time1_font = sans bold 9
+time2_font = sans 7
+clock_font_color = #e8ece8 100
+clock_padding = 8 0
+clock_background_id = 0

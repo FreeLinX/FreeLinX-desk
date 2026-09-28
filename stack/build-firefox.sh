@@ -74,7 +74,6 @@ if [ ! -f "$SRC/.flx-prepared" ]; then
     touch "$SRC/.flx-prepared"
 fi
 
-TFLAGS="--sysroot=$SYS -O2"
 cat > "$W/mozconfig" <<EOF
 ac_add_options --enable-application=browser
 ac_add_options --host=x86_64-pc-linux-gnu
@@ -111,13 +110,12 @@ export SHELL=/bin/sh
 # Target compilers: the FreeLinX toolchain against the stack sysroot.
 export CC="$TC/bin/clang --target=x86_64-linux-musl --sysroot=$SYS -rtlib=compiler-rt -unwindlib=libunwind"
 export CXX="$TC/bin/clang++ --target=x86_64-linux-musl --sysroot=$SYS -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind"
-export CFLAGS="$TFLAGS"
-export CXXFLAGS="$TFLAGS"
-export LDFLAGS="--sysroot=$SYS -rtlib=compiler-rt -unwindlib=libunwind -Wl,--undefined-version"
+# No CFLAGS/CXXFLAGS/HOST_*FLAGS in the environment: make re-exports them with
+# its -MD -MF .deps/... dependency flags and cc-rs build scripts pick those up.
+export LDFLAGS="-Wl,--undefined-version"
 # Host tools (build-time only, never shipped).
 export HOST_CC="$TC/bin/clang --target=x86_64-pc-linux-gnu"
 export HOST_CXX="$TC/bin/clang++ --target=x86_64-pc-linux-gnu"
-export HOST_CFLAGS="-O2" HOST_CXXFLAGS="-O2" HOST_LDFLAGS=""
 export AR="$TC/bin/llvm-ar" NM="$TC/bin/llvm-nm" RANLIB="$TC/bin/llvm-ranlib"
 export STRIP="$TC/bin/llvm-strip" OBJCOPY="$TC/bin/llvm-objcopy"
 export PKG_CONFIG="$W/bin/pkg-config"

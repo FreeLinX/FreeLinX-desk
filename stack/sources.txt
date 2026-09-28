@@ -73,3 +73,5 @@ at-spi2-core https://download.gnome.org/sources/at-spi2-core/2.54/at-spi2-core-2
 musl-fts https://github.com/void-linux/musl-fts/archive/refs/tags/v1.2.7.tar.gz - musl-fts-1.2.7.tar.gz
 libinput https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.27.1/libinput-1.27.1.tar.gz -
 xf86-input-libinput https://www.x.org/releases/individual/driver/xf86-input-libinput-1.5.0.tar.xz -
+imlib2 https://downloads.sourceforge.net/project/enlightenment/imlib2-src/1.12.7/imlib2-1.12.7.tar.gz b863d4c7130261d5256471a15106feb57b53d15e15fc7f52ece9af92e291eec7
+tint2 https://gitlab.com/o9000/tint2/-/archive/v17.0.2/tint2-v17.0.2.tar.gz 1f101afef2215fd0ad650165f923dbe44cb843a0c283c2974c0ff9a5e9a12f42

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Install FreeLinX
+Comment=Install FreeLinX to a disk
+Exec=flxinstall-gui
+Icon=system-software-install
+Terminal=false
+Type=Application
+Categories=System;
