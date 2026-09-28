@@ -68,7 +68,10 @@
   <item label="Network Manager (CLI)">
     <action name="Execute"><command>uxterm -e flxnet</command></action>
   </item>
-  <item label="NetSurf Modern Web Browser">
+  <item label="Firefox Web Browser">
+    <action name="Execute"><command>firefox</command></action>
+  </item>
+  <item label="NetSurf Lightweight Browser">
     <action name="Execute"><command>netsurf</command></action>
   </item>
   <item label="Dillo Web Browser">
@@ -254,9 +257,9 @@
     </action>
   </item>
 
-  <item label="Modern Web Browser (NetSurf)">
+  <item label="Web Browser (Firefox)">
     <action name="Execute">
-      <command>netsurf</command>
+      <command>flxbrowser</command>
     </action>
   </item>
 

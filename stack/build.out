@@ -1,0 +1,9 @@
+>>> xf86_input_evdev
+    ok
+>>> xkbcomp
+    ok
+>>> glib
+    ok
+>>> fribidi
+    ok
+>>> harfbuzz

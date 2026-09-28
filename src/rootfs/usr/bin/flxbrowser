@@ -1,6 +1,7 @@
 #!/bin/sh
 # FreeLinX Browser Launcher (non-GNU)
-# Launches Dillo in graphical mode if X11 is running, or Links in console mode.
+# Firefox (full JavaScript) under X11; NetSurf/Dillo as light fallbacks;
+# Links in console mode.
 
 # No local welcome page ships with the release rootfs (removed by design);
 # default to a lightweight search page when no URL is given.
@@ -10,7 +11,10 @@ URL="${1:-$HOMEPAGE}"
 [ -s /etc/resolv.conf ] || printf "nameserver 10.0.2.3\nnameserver 1.1.1.1\nnameserver 8.8.8.8\n" > /etc/resolv.conf
 
 if [ -n "${DISPLAY:-}" ]; then
-    if [ -x /usr/bin/netsurf ]; then
+    if [ -x /usr/lib/firefox/firefox ]; then
+        if [ $# -gt 0 ]; then exec /usr/lib/firefox/firefox "$@"; fi
+        exec /usr/lib/firefox/firefox
+    elif [ -x /usr/bin/netsurf ]; then
         exec /usr/bin/netsurf "$URL"
     elif [ -x /usr/bin/dillo ]; then
         exec /usr/bin/dillo "$URL"

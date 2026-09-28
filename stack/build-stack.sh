@@ -184,6 +184,12 @@ cleanup_la() { find "$SYS/usr/lib" -name '*.la' -delete 2>/dev/null || :; }
 auto() { # name [configure args...]
     n="$1"; shift
     s=$(unpack "$n")
+    # Old tarballs ship a config.sub that predates the *-linux-musl triple.
+    for f in config.sub config.guess; do
+        find "$s" -name "$f" -type f | while IFS= read -r old; do
+            [ -f "/usr/share/misc/$f" ] && cp -f "/usr/share/misc/$f" "$old"
+        done
+    done
     b="$W/build/$n"; rm -rf "$b"; mkdir -p "$b"
     (cd "$b" && "$s/configure" --host=$TARGET --build=$BUILD_TRIPLE \
         --prefix=/usr --sysconfdir=/etc --localstatedir=/var \
@@ -397,13 +403,79 @@ step_gtk3() {
 }
 step_alsa_lib()    { auto alsa-lib --disable-python --disable-topology --without-debug; }
 
+# Userland that was shipped GCC-contaminated or built against old static deps
+step_openssl() {
+    s=$(unpack openssl)
+    (cd "$s" && ./Configure linux-x86_64 --prefix=/usr --openssldir=/etc/ssl --libdir=lib \
+        shared no-tests no-docs CC="$CC" AR="$AR" RANLIB="$RANLIB" \
+        && make -j"$JOBS" && make DESTDIR="$SYS" install_sw install_ssldirs)
+}
+step_sqlite()  { auto sqlite --disable-readline --disable-editline; }
+step_libnl()   { auto libnl --disable-cli --disable-debug; }
+step_dbus() {
+    mes dbus -Dsystemd=disabled -Dx11_autolaunch=disabled -Dmodular_tests=disabled \
+        -Ddoxygen_docs=disabled -Dxml_docs=disabled -Dducktype_docs=disabled \
+        -Dqt_help=disabled -Dselinux=disabled -Dapparmor=disabled -Dlibaudit=disabled \
+        -Dinotify=enabled -Depoll=enabled -Dmessage_bus=true -Dtools=true \
+        -Dsystem_socket=/run/dbus/system_bus_socket -Druntime_dir=/run
+}
+step_wpa_supplicant() {
+    s=$(unpack wpa_supplicant)
+    cd "$s/wpa_supplicant"
+    {
+        echo 'CONFIG_DRIVER_NL80211=y'; echo 'CONFIG_LIBNL32=y'
+        echo 'CONFIG_CTRL_IFACE=y'; echo 'CONFIG_CTRL_IFACE_UNIX=y'
+        echo 'CONFIG_BACKEND=file'; echo 'CONFIG_NO_RANDOM_POOL=y'
+        echo 'CONFIG_TLS=openssl'; echo 'CONFIG_SAE=y'; echo 'CONFIG_IEEE80211W=y'
+        echo 'CONFIG_IEEE8021X_EAPOL=y'; echo 'CONFIG_EAP_PEAP=y'; echo 'CONFIG_EAP_TTLS=y'
+        echo 'CONFIG_EAP_MSCHAPV2=y'; echo 'CONFIG_EAP_TLS=y'; echo 'CONFIG_EAP_GTC=y'
+        echo 'CONFIG_EAP_MD5=y'; echo 'CONFIG_EAP_OTP=y'; echo 'CONFIG_EAP_LEAP=y'
+    } > .config
+    make -j"$JOBS" CC="$CC" PKG_CONFIG="$PKG_CONFIG" \
+        CFLAGS="-O2 -I$SYS/usr/include/libnl3" BINDIR=/sbin
+    make DESTDIR="$SYS" BINDIR=/sbin install
+}
+step_flxnet() {
+    # flxifconfig / flxroute: FreeLinX's own netlink ifconfig/route.
+    mkdir -p "$SYS/sbin"
+    for t in ifconfig route; do
+        "$CC" -O2 -I"$SYS/usr/include/libnl3" -o "$SYS/sbin/flx$t" \
+            "$TOP/ports/net/freelinx-$t/$t.c" -lnl-route-3 -lnl-3
+    done
+}
+step_xpkg() {
+    xs="${XPKG_SRC:-$TOP/../xpkg}"
+    b="$W/build/xpkg"; rm -rf "$b"; mkdir -p "$b"
+    for c in "$xs"/src/*.c; do
+        "$CC" -O2 -I"$xs/include" -c -o "$b/$(basename "$c" .c).o" "$c"
+    done
+    mkdir -p "$SYS/usr/bin"
+    "$CC" -o "$SYS/usr/bin/xpkg" "$b"/*.o -lsqlite3 -lz -lssl -lcrypto
+}
+step_ncurses() {
+    auto ncurses --with-shared --without-normal --without-debug --without-ada \
+        --enable-widec --without-cxx-binding --without-manpages --without-tests \
+        --with-pkg-config-libdir=/usr/lib/pkgconfig --enable-pc-files \
+        --with-termlib --with-default-terminfo-dir=/usr/share/terminfo \
+        --disable-stripping
+}
+step_nnn() {
+    s=$(unpack nnn)
+    (cd "$s" && make -j"$JOBS" CC="$CC" PKG_CONFIG="$PKG_CONFIG" O_NORL=1 O_NOMOUSE=0 \
+        && make DESTDIR="$SYS" PREFIX=/usr install)
+}
+step_libXaw()  { auto libXaw --disable-specs --disable-xaw6; }
+step_xcalc()   { auto xcalc; }
+
+STEPS_USER="openssl sqlite libnl dbus wpa_supplicant flxnet xpkg ncurses nnn libXaw xcalc"
+
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11
 libXext libXrender libXfixes libXi libXrandr libXcursor libXcomposite libXdamage
 libXinerama libXtst libICE libSM libXt libXmu libXft libXpm libxkbfile libfontenc
 libXfont2 libxshmfence libpciaccess libdrm libxcvt mtdev libevdev libudev_zero
 xorg_server xf86_video_fbdev xf86_input_evdev xkbcomp glib fribidi harfbuzz cairo
-pango gdk_pixbuf atk libepoxy gtk3 alsa_lib"
+pango gdk_pixbuf atk libepoxy gtk3 alsa_lib $STEPS_USER"
 
 run_step() {
     st="$W/stamps/$1"

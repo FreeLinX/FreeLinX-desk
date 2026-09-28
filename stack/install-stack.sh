@@ -1,0 +1,120 @@
+#!/bin/sh
+# FreeLinX Desktop - install the built GUI stack into src/rootfs
+#
+# Copies the runtime half of $STACK_WORK/sysroot (shared libraries, Xorg and
+# its modules, rebuilt userland, GTK data) and the staged Firefox into the
+# rootfs template, replacing the old GCC/glibc-contaminated copies, then runs
+# check-nognu.sh on the result.
+set -eu
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+TOP="$(cd "$HERE/.." && pwd)"
+TC="${FREELINX_TOOLCHAIN_DIR:-$(cd "$TOP/../toolchain" && pwd)}"
+W="${STACK_WORK:-$HERE/work}"
+SYS="$W/sysroot"
+R="${ROOTFS:-$TOP/src/rootfs}"
+STRIP="$TC/bin/llvm-strip"
+
+[ -d "$SYS/usr/lib" ] || { echo "no stack sysroot: $SYS" >&2; exit 1; }
+
+cp_strip() { # src dst
+    mkdir -p "$(dirname "$2")"
+    rm -f "$2"
+    cp -P "$1" "$2"
+    [ -L "$2" ] || "$STRIP" --strip-unneeded "$2" 2>/dev/null || :
+}
+
+# --- musl: one loader, from the stack build --------------------------------
+cp_strip "$SYS/usr/lib/libc.so" "$R/lib/ld-musl-x86_64.so.1"
+
+# --- shared libraries --------------------------------------------------------
+# Runtime objects only: *.so.N[.N...] plus the symlinks pointing at them.
+( cd "$SYS/usr/lib" && find . -maxdepth 1 \( -type f -o -type l \) -name '*.so.*' ) |
+while IFS= read -r f; do
+    cp_strip "$SYS/usr/lib/$f" "$R/usr/lib/$f"
+done
+# A few libraries are loaded by plain name.
+for n in libc++ libc++abi libunwind; do
+    [ -e "$SYS/usr/lib/$n.so.1" ] && ln -sf "$n.so.1" "$R/usr/lib/$n.so"
+done
+# libgcc_s was only a name shim over libunwind for the old prebuilt Rust
+# binaries; the rebuilt ones link libunwind directly.
+if [ -x "$SYS/usr/bin/greetd" ]; then
+    rm -f "$R/lib/libgcc_s.so.1" "$R/usr/lib/libgcc_s.so.1"
+fi
+
+# gdk-pixbuf / gio / gtk module trees and PAM modules
+for d in gdk-pixbuf-2.0 gio gtk-3.0; do
+    [ -d "$SYS/usr/lib/$d" ] || continue
+    rm -rf "$R/usr/lib/$d"
+    cp -a "$SYS/usr/lib/$d" "$R/usr/lib/$d"
+done
+if [ -d "$SYS/lib/security" ]; then
+    for m in "$SYS/lib/security"/*.so; do cp_strip "$m" "$R/lib/security/$(basename "$m")"; done
+fi
+[ -f "$SYS/usr/lib/libpam.so.0" ] && rm -f "$R/lib/libpam.so" "$R/lib/libpam.so.0" "$R/lib/libpam.so.0.85.1"
+
+# --- Xorg --------------------------------------------------------------------
+cp_strip "$SYS/usr/bin/Xorg" "$R/usr/bin/Xorg"
+rm -rf "$R/usr/lib/xorg/modules"
+mkdir -p "$R/usr/lib/xorg"
+cp -a "$SYS/usr/lib/xorg/modules" "$R/usr/lib/xorg/modules"
+find "$R/usr/lib/xorg/modules" -name '*.so' -exec "$STRIP" --strip-unneeded {} \;
+[ -f "$SYS/usr/lib/xorg/protocol.txt" ] && cp -f "$SYS/usr/lib/xorg/protocol.txt" "$R/usr/lib/xorg/"
+# The old private X tree duplicated the server and modules; point it at the
+# single copy so existing ModulePath/PATH entries keep working.
+if [ -d "$R/usr/share/X11/xtree" ]; then
+    rm -rf "$R/usr/share/X11/xtree/lib/xorg/modules" "$R/usr/share/X11/xtree/bin/Xorg"
+    mkdir -p "$R/usr/share/X11/xtree/lib/xorg"
+    ln -s /usr/lib/xorg/modules "$R/usr/share/X11/xtree/lib/xorg/modules"
+    ln -s /usr/bin/Xorg "$R/usr/share/X11/xtree/bin/Xorg"
+fi
+
+# --- rebuilt userland binaries ---------------------------------------------
+for b in xkbcomp dbus-daemon dbus-send dbus-monitor dbus-uuidgen dbus-cleanup-sockets \
+         dbus-run-session xpkg nnn xcalc greetd agreety tuigreet; do
+    [ -f "$SYS/usr/bin/$b" ] || continue
+    # keep the binary where the rootfs already had it (bin/ or usr/bin/)
+    dst="$R/usr/bin/$b"
+    [ -e "$R/bin/$b" ] && [ ! -e "$R/usr/bin/$b" ] && dst="$R/bin/$b"
+    cp_strip "$SYS/usr/bin/$b" "$dst"
+done
+for b in wpa_supplicant wpa_cli wpa_passphrase flxifconfig flxroute; do
+    s="$SYS/sbin/$b"; [ -f "$s" ] || s="$SYS/usr/sbin/$b"
+    [ -f "$s" ] && cp_strip "$s" "$R/sbin/$b"
+done
+[ -f "$SYS/usr/libexec/dbus-daemon-launch-helper" ] && \
+    cp_strip "$SYS/usr/libexec/dbus-daemon-launch-helper" "$R/usr/libexec/dbus-daemon-launch-helper"
+
+# --- data --------------------------------------------------------------------
+if [ -d "$SYS/usr/share/glib-2.0/schemas" ]; then
+    mkdir -p "$R/usr/share/glib-2.0"
+    rm -rf "$R/usr/share/glib-2.0/schemas"
+    cp -a "$SYS/usr/share/glib-2.0/schemas" "$R/usr/share/glib-2.0/schemas"
+    glib-compile-schemas "$R/usr/share/glib-2.0/schemas"
+fi
+for d in terminfo X11/locale; do
+    [ -d "$SYS/usr/share/$d" ] && [ ! -d "$R/usr/share/$d" ] && \
+        mkdir -p "$R/usr/share/$d" && cp -a "$SYS/usr/share/$d/." "$R/usr/share/$d/"
+done
+
+# --- Firefox -----------------------------------------------------------------
+FF="$W/firefox-dest/usr/lib/firefox"
+if [ -d "$FF" ]; then
+    rm -rf "$R/usr/lib/firefox"
+    cp -a "$FF" "$R/usr/lib/firefox"
+    ln -sf /usr/lib/firefox/firefox "$R/usr/bin/firefox"
+    mkdir -p "$R/usr/share/applications"
+    cp -f "$HERE/firefox/firefox.desktop" "$R/usr/share/applications/firefox.desktop"
+    mkdir -p "$R/usr/lib/firefox/defaults/pref" "$R/usr/lib/firefox/distribution"
+    cp -f "$HERE/firefox/freelinx-prefs.js" "$R/usr/lib/firefox/defaults/pref/freelinx-prefs.js"
+    for s in 16 32 48 64 128; do
+        i="$FF/browser/chrome/icons/default/default$s.png"
+        [ -f "$i" ] || continue
+        mkdir -p "$R/usr/share/icons/hicolor/${s}x${s}/apps"
+        cp -f "$i" "$R/usr/share/icons/hicolor/${s}x${s}/apps/firefox.png"
+    done
+fi
+
+echo "install-stack: done; checking the tree"
+"$TOP/check-nognu.sh" "$R"
