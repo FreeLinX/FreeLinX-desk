@@ -54,7 +54,8 @@ case "$ACTION" in
         fi
 
         # Persistent system overlay: FLX_SYS is mounted by /init (never here).
-        if [ "$FS_LABEL" = "FLX_SYS" ]; then
+        # FLX_BOOT is the installed system's own EFI partition - not media.
+        if [ "$FS_LABEL" = "FLX_SYS" ] || [ "$FS_LABEL" = "FLX_BOOT" ]; then
             exit 0
         fi
 

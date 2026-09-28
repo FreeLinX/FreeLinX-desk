@@ -32,6 +32,7 @@ launcher_icon_size = 22
 launcher_item_app = /usr/share/applications/firefox.desktop
 launcher_item_app = /usr/share/applications/st.desktop
 launcher_item_app = /usr/share/applications/xfe.desktop
+launcher_item_app = /usr/share/applications/flxnetmgr.desktop
 launcher_item_app = /usr/share/applications/flxinstall.desktop
 
 taskbar_mode = single_desktop

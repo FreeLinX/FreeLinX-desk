@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Network
+Comment=Wired and WiFi network settings
+Exec=flxnetmgr
+Icon=/usr/share/pixmaps/flx-network.png
+Terminal=false
+Type=Application
+Categories=Network;Settings;
