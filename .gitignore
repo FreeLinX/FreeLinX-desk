@@ -26,9 +26,9 @@ iso/*.img
 
 # Test logs and captures
 *.log
-*.ppm
+vmtest/*.ppm
 *.raw
-*.png
+vmtest/*.png
 *.pid
 vmtest/serial.log
 vmtest/qemu.log
