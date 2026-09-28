@@ -19,4 +19,8 @@ if [ "$FLX_DESK" = "gui" ]; then
     exec /usr/bin/greetd >> /tmp/greetd.log 2>&1
 fi
 
+# Headless console: root shell on the live ISO, login prompt once installed.
+if [ -e /etc/flx-installed ]; then
+    exec /usr/bin/login < /dev/tty1 > /dev/tty1 2>&1
+fi
 exec /bin/sh -l < /dev/tty1 > /dev/tty1 2>&1
