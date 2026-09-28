@@ -371,7 +371,29 @@ step_glib() {
         -Dtests=false -Dman-pages=disabled -Dsysprof=disabled -Ddocumentation=false \
         -Dnls=disabled -Dglib_debug=disabled
 }
-step_fribidi()     { mes fribidi -Ddocs=false -Dbin=false -Dtests=false; }
+# Build tools other packages locate via pkg-config (glib-compile-resources,
+# gdk-pixbuf-pixdata, ...) are target binaries; keep them runnable on the build
+# host by parking the ELF under usr/libexec/flx-target and putting a musl-run
+# wrapper in its place.  install-stack.sh never copies these wrappers.
+wrap_target_bins() {
+    mkdir -p "$SYS/usr/libexec/flx-target"
+    for b in "$@"; do
+        f="$SYS/usr/bin/$b"
+        [ -f "$f" ] || continue
+        head -c 4 "$f" | grep -q ELF || continue
+        mv -f "$f" "$SYS/usr/libexec/flx-target/$b"
+        printf '#!/bin/sh\nexec "%s" "%s" "$@"\n' "$W/bin/musl-run" "$SYS/usr/libexec/flx-target/$b" > "$f"
+        chmod +x "$f"
+    done
+}
+step_glib_tools() {
+    wrap_target_bins glib-compile-resources glib-compile-schemas gio-querymodules \
+        gdbus gio gresource gsettings
+}
+step_pixbuf_tools() {
+    wrap_target_bins gdk-pixbuf-csource gdk-pixbuf-pixdata gdk-pixbuf-query-loaders gdk-pixbuf-thumbnailer
+}
+step_fribidi()    { mes fribidi -Ddocs=false -Dbin=false -Dtests=false; }
 step_harfbuzz() {
     mes harfbuzz -Dglib=enabled -Dfreetype=enabled -Dcairo=disabled -Dicu=disabled \
         -Dgobject=disabled -Dintrospection=disabled -Dtests=disabled -Ddocs=disabled \
@@ -393,13 +415,20 @@ step_gdk_pixbuf() {
         -Dbuiltin_loaders=all -Dtests=false -Dinstalled_tests=false -Dgio_sniffing=false
 }
 step_atk()         { mes atk -Dintrospection=false -Ddocs=false; }
+step_libxml2()     { auto libxml2 --without-python --without-icu --without-lzma --without-readline --without-history --without-http --without-debug; }
+# GTK3's X11 backend requires atk-bridge; at-spi2-core provides atk, atspi
+# and the bridge (it supersedes the standalone atk tarball).
+step_at_spi2_core() {
+    mes at-spi2-core -Dintrospection=disabled -Ddocs=false -Duse_systemd=false \
+        -Dx11=enabled -Ddbus_daemon=/usr/bin/dbus-daemon -Ddefault_bus=dbus-daemon
+}
 step_libepoxy()    { mes libepoxy -Degl=no -Dglx=yes -Dx11=true -Dtests=false -Ddocs=false; }
 step_gtk3() {
     mes gtk -Dx11_backend=true -Dwayland_backend=false -Dbroadway_backend=false \
         -Dintrospection=false -Ddemos=false -Dexamples=false -Dtests=false \
         -Dinstalled_tests=false -Dprint_backends=file -Dcolord=no -Dcloudproviders=false \
         -Dtracker3=false -Dman=false -Dgtk_doc=false -Dxinerama=yes \
-        -Dbuiltin_immodules=yes -Datk_bridge=false
+        -Dbuiltin_immodules=yes
 }
 step_alsa_lib()    { auto alsa-lib --disable-python --disable-topology --without-debug; }
 
@@ -432,7 +461,7 @@ step_wpa_supplicant() {
         echo 'CONFIG_EAP_MD5=y'; echo 'CONFIG_EAP_OTP=y'; echo 'CONFIG_EAP_LEAP=y'
     } > .config
     make -j"$JOBS" CC="$CC" PKG_CONFIG="$PKG_CONFIG" \
-        CFLAGS="-O2 -I$SYS/usr/include/libnl3" BINDIR=/sbin
+        EXTRA_CFLAGS="-I$SYS/usr/include/libnl3" BINDIR=/sbin
     make DESTDIR="$SYS" BINDIR=/sbin install
 }
 step_flxnet() {
@@ -459,23 +488,33 @@ step_ncurses() {
         --with-termlib --with-default-terminfo-dir=/usr/share/terminfo \
         --disable-stripping
 }
+step_musl_fts() {
+    # NetBSD fts(3), packaged for musl by Void; a single source file.
+    s=$(unpack musl-fts)
+    # What its configure would find on musl.
+    printf '#define HAVE_DIRFD 1\n#define HAVE_DECL_MAX 1\n#define HAVE_DECL_UINTMAX_MAX 1\n' > "$s/config.h"
+    "$CC" -O2 -fPIC -I"$s" -c -o "$W/build/fts.o" "$s/fts.c"
+    "$AR" rcs "$SYS/usr/lib/libfts.a" "$W/build/fts.o"
+    cp -f "$s/fts.h" "$SYS/usr/include/fts.h"
+}
 step_nnn() {
     s=$(unpack nnn)
     (cd "$s" && make -j"$JOBS" CC="$CC" PKG_CONFIG="$PKG_CONFIG" O_NORL=1 O_NOMOUSE=0 \
+        LDLIBS_CURSES="$("$PKG_CONFIG" --libs ncursesw) -lfts" \
         && make DESTDIR="$SYS" PREFIX=/usr install)
 }
 step_libXaw()  { auto libXaw --disable-specs --disable-xaw6; }
 step_xcalc()   { auto xcalc; }
 
-STEPS_USER="openssl sqlite libnl dbus wpa_supplicant flxnet xpkg ncurses nnn libXaw xcalc"
+STEPS_USER="openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11
 libXext libXrender libXfixes libXi libXrandr libXcursor libXcomposite libXdamage
 libXinerama libXtst libICE libSM libXt libXmu libXft libXpm libxkbfile libfontenc
 libXfont2 libxshmfence libpciaccess libdrm libxcvt mtdev libevdev libudev_zero
-xorg_server xf86_video_fbdev xf86_input_evdev xkbcomp glib fribidi harfbuzz cairo
-pango gdk_pixbuf atk libepoxy gtk3 alsa_lib $STEPS_USER"
+xorg_server xf86_video_fbdev xf86_input_evdev xkbcomp glib glib_tools fribidi harfbuzz cairo
+pango gdk_pixbuf pixbuf_tools libxml2 dbus at_spi2_core libepoxy gtk3 alsa_lib $STEPS_USER"
 
 run_step() {
     st="$W/stamps/$1"

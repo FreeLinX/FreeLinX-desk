@@ -1,9 +1,9 @@
->>> xf86_input_evdev
+>>> musl_fts
     ok
->>> xkbcomp
+>>> nnn
     ok
->>> glib
+>>> libXaw
     ok
->>> fribidi
+>>> xcalc
     ok
->>> harfbuzz
+build-stack: done (/home/devuan/FreeLinX/Desktop-test/stack/work/sysroot)

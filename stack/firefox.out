@@ -1,0 +1,34 @@
+/home/devuan/FreeLinX/Desktop-test/ports/dist/firefox-153.3.0esr.source.tar.xz: OK
+ 0:00.30 W AI agent detected. Terminal output limited to warnings and errors.
+ 0:00.30 W Log file could not be created.
+ 0:02.04 W WARNING: When not building jemalloc, you need to build with --with-redist or set WIN32_REDIST_DIR.
+ 0:26.01 W Adding make options from /home/devuan/FreeLinX/Desktop-test/stack/work/mozconfig
+    MOZ_PARALLEL_BUILD=6
+    MOZ_OBJDIR=/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox
+    OBJDIR=/home/devuan/FreeLinX/Desktop-test/stack/work/build/firefox
+    FOUND_MOZCONFIG=/home/devuan/FreeLinX/Desktop-test/stack/work/mozconfig
+    export FOUND_MOZCONFIG
+ 1:16.38 W 1 warning generated.
+ 1:19.42 W 4 warnings generated.
+ 1:19.67 W 13 warnings generated.
+ 1:19.77 W 1 warning generated.
+ 1:19.82 W 1 warning generated.
+ 1:23.06 W 65 warnings generated.
+ 1:51.83 W 2 warnings generated.
+ 2:13.66 W /home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/accessible/atk/Platform.cpp:163:13: warning: unused function 'A11yBusProxyPropertyChanged' [-Wunused-function]
+ 2:13.66 W   163 | static void A11yBusProxyPropertyChanged(GDBusProxy* aProxy,
+ 2:13.66 W       |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 2:13.94 W 1 warning generated.
+ 2:29.40 W In file included from /home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/accessible/atk/RootAccessibleWrap.cpp:7:
+ 2:29.40 W In file included from /home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/accessible/atk/RootAccessibleWrap.cpp:7:
+ 2:29.41 W In file included from /home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/accessible/atk/RootAccessibleWrap.cpp:7:
+ 2:29.41 W In file included from /home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/accessible/atk/RootAccessibleWrap.cpp:7:
+ 2:29.42 W In file included from /home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/accessible/atk/RootAccessibleWrap.cpp:7:
+ 2:29.42 W In file included from /home/devuan/FreeLinX/Desktop-test/stack/work/src/firefox/firefox-153.3.0/accessible/atk/RootAccessibleWrap.cpp:7:
+ 2:31.79 W 6 warnings generated.
+ 2:32.36 W 2 warnings generated.
+ 5:51.49 W 1 warning generated.
+ 6:07.46 W 1 warning generated.
+ 6:36.40 W 1 warning generated.
+ 7:01.61 W 2 warnings generated.
+ 7:10.72 W 2 warnings generated.

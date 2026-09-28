@@ -28,7 +28,22 @@ SRC="$W/src/firefox/$SRCNAME"
 OBJ="$W/build/firefox"
 DEST="$W/firefox-dest"
 JOBS="${JOBS:-6}"
-LIBCLANG_DIR="${LIBCLANG_DIR:-$W/host-libclang/libclang-18.1.1.data/platlib/clang/native}"
+# libclang for bindgen must match the libc++ headers (LLVM 21) and load on the
+# glibc build host: Debian bookworm's libclang1-21/libllvm21 from apt.llvm.org
+# (same LLVM commit as the FreeLinX toolchain), unpacked, not installed.
+LIBCLANG_DIR="${LIBCLANG_DIR:-$W/host-libclang21/root/usr/lib/x86_64-linux-gnu}"
+if [ ! -f "$LIBCLANG_DIR/libclang.so" ]; then
+    B=https://apt.llvm.org/bookworm/pool/main/l/llvm-toolchain-21
+    V='21.1.8~%2B%2B20251221032947%2B2078da43e25a-1~exp1~20251221153113.67_amd64.deb'
+    mkdir -p "$W/host-libclang21"
+    for p in libclang1-21 libllvm21; do
+        curl -fsSL -o "$W/host-libclang21/p.deb" "$B/${p}_$V"
+        dpkg-deb -x "$W/host-libclang21/p.deb" "$W/host-libclang21/root"
+    done
+    rm -f "$W/host-libclang21/p.deb"
+    ln -sf libclang-21.so.1 "$LIBCLANG_DIR/libclang.so"
+fi
+export LD_LIBRARY_PATH="$LIBCLANG_DIR${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 
 [ -f "$SYS/usr/lib/pkgconfig/gtk+-x11-3.0.pc" ] || { echo "build the GUI stack first (gtk3 missing)" >&2; exit 1; }
 
@@ -41,7 +56,9 @@ echo "$SHA256  $TARBALL" | sha256sum -c -
 if [ ! -f "$SRC/.flx-prepared" ]; then
     rm -rf "$W/src/firefox"; mkdir -p "$W/src/firefox"
     tar -xf "$TARBALL" -C "$W/src/firefox"
-    for p in abseil-cpp fix-fortify-system-wrappers fix-rust-target glean-stub lfs64 \
+    # fix-rust-target is left out: it forces RUST_TARGET onto the host too,
+    # which only works for Alpine's native (musl-hosted) build.
+    for p in abseil-cpp fix-fortify-system-wrappers glean-stub lfs64 \
              musl-no-linux-prctl rust-lto-thin sandbox-sched_setscheduler time64 wasip1; do
         patch -d "$SRC" -p1 -s < "$HERE/patches/firefox/alpine/$p.patch"
     done
@@ -60,6 +77,7 @@ fi
 TFLAGS="--sysroot=$SYS -O2"
 cat > "$W/mozconfig" <<EOF
 ac_add_options --enable-application=browser
+ac_add_options --host=x86_64-pc-linux-gnu
 ac_add_options --target=x86_64-unknown-linux-musl
 ac_add_options --prefix=/usr
 ac_add_options --disable-bootstrap
@@ -79,6 +97,7 @@ ac_add_options --enable-strip
 ac_add_options --enable-linker=lld
 ac_add_options --without-wasm-sandboxed-libraries
 ac_add_options --with-libclang-path=$LIBCLANG_DIR
+ac_add_options --with-clang-path=$TC/bin/clang
 ac_add_options --with-distribution-id=org.freelinx
 mk_add_options MOZ_OBJDIR=$OBJ
 mk_add_options MOZ_PARALLEL_BUILD=$JOBS
@@ -90,14 +109,14 @@ export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=none
 export MOZ_NOSPAM=1
 export SHELL=/bin/sh
 # Target compilers: the FreeLinX toolchain against the stack sysroot.
-export CC="$TC/bin/clang --target=x86_64-linux-musl"
-export CXX="$TC/bin/clang++ --target=x86_64-linux-musl -stdlib=libc++"
+export CC="$TC/bin/clang --target=x86_64-linux-musl --sysroot=$SYS -rtlib=compiler-rt -unwindlib=libunwind"
+export CXX="$TC/bin/clang++ --target=x86_64-linux-musl --sysroot=$SYS -stdlib=libc++ -rtlib=compiler-rt -unwindlib=libunwind"
 export CFLAGS="$TFLAGS"
 export CXXFLAGS="$TFLAGS"
 export LDFLAGS="--sysroot=$SYS -rtlib=compiler-rt -unwindlib=libunwind -Wl,--undefined-version"
 # Host tools (build-time only, never shipped).
-export HOST_CC="$TC/bin/clang"
-export HOST_CXX="$TC/bin/clang++"
+export HOST_CC="$TC/bin/clang --target=x86_64-pc-linux-gnu"
+export HOST_CXX="$TC/bin/clang++ --target=x86_64-pc-linux-gnu"
 export HOST_CFLAGS="-O2" HOST_CXXFLAGS="-O2" HOST_LDFLAGS=""
 export AR="$TC/bin/llvm-ar" NM="$TC/bin/llvm-nm" RANLIB="$TC/bin/llvm-ranlib"
 export STRIP="$TC/bin/llvm-strip" OBJCOPY="$TC/bin/llvm-objcopy"
