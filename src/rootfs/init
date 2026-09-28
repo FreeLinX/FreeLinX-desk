@@ -60,6 +60,7 @@ ln -snf fd/0 /dev/stdin
 ln -snf fd/1 /dev/stdout
 ln -snf fd/2 /dev/stderr
 mkdir -p /dev/pts /run/user /dev/shm
+mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
 mount -t devpts -o gid=5,mode=0620,ptmxmode=0666 devpts /dev/pts 2>/dev/null || :
 rm -f /dev/ptmx && ln -s /dev/pts/ptmx /dev/ptmx
 mount -t tmpfs    tmpfs    /run   2>/dev/null || :
@@ -67,16 +68,24 @@ mount -t tmpfs    tmpfs    /run   2>/dev/null || :
 # Enable sysrq for reboot/poweroff via /proc/sysrq-trigger
 echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || :
 
+# The basic character devices must be usable by non-root sessions even if a
+# hotplug rule re-applies a stricter mode.
+fix_basic_devs() {
+    chmod 0666 /dev/null /dev/zero /dev/full /dev/random /dev/urandom /dev/tty 2>/dev/null || :
+}
+
 # Device Manager (mdevd) & Driver Auto-probe
 if [ -x /sbin/mdevd ]; then
     /sbin/mdevd -f /etc/mdev.conf >/dev/null 2>&1 &
     if [ -x /sbin/mdevd-coldplug ]; then
         /sbin/mdevd-coldplug >/dev/null 2>&1 || :
+        fix_basic_devs
     fi
 fi
 if [ -x /sbin/flxdriver ]; then
     /sbin/flxdriver probe >/dev/null 2>&1 || :
 fi
+fix_basic_devs   # again: coldplug events are applied asynchronously
 
 # Persistent /home (disk=/home boot model)
 # The ext4 partition labeled FLX_HOME carries the persistent /home.

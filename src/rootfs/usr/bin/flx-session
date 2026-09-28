@@ -16,7 +16,9 @@ fi
 
 FLX_LOG=/dev/null
 case "$(cat /proc/cmdline 2>/dev/null)" in
-    *console=ttyS0*) [ -c /dev/ttyS0 ] && FLX_LOG=/dev/ttyS0 ;;
+    # Only when writable: a user session (greetd) cannot open ttyS0, and a
+    # failed redirection makes sh skip the command - Xorg would never start.
+    *console=ttyS0*) [ -c /dev/ttyS0 ] && [ -w /dev/ttyS0 ] && FLX_LOG=/dev/ttyS0 ;;
 esac
 
 mkdir -p /tmp/.X11-unix /var/lib/xkb 2>/dev/null || true
@@ -106,7 +108,15 @@ fi
 
 echo "FreeLinX Input: kbd=$(readlink /dev/fl-kbd 2>/dev/null) pointer=$(readlink /dev/fl-pointer 2>/dev/null)" > "$FLX_LOG"
 
-Xorg -config /etc/X11/xorg.conf -noreset -nolisten tcp -logfile /tmp/xorg.log > "$FLX_LOG" 2>&1 &
+if [ "$(id -u)" = 0 ]; then
+    Xorg -config /etc/X11/xorg.conf -noreset -nolisten tcp -logfile /tmp/xorg.log > "$FLX_LOG" 2>&1 &
+else
+    # A user session (greetd): Xorg is setuid root and then refuses absolute
+    # -config/-logfile paths.  /etc/X11/xorg.conf is its default anyway; the
+    # log goes to ~/.local/share/xorg/.  Run on greetd's VT.
+    mkdir -p "$HOME/.local/share/xorg"
+    Xorg ":0" "vt${XDG_VTNR:-1}" -keeptty -noreset -nolisten tcp > "$FLX_LOG" 2>&1 &
+fi
 XPID=$!
 
 i=0
