@@ -41,3 +41,7 @@ if command -v dunst >/dev/null 2>&1; then
     dunst &
 fi
 
+# 4. Panel: launchers (Firefox, terminal, files, installer), windows, clock.
+if command -v tint2 >/dev/null 2>&1; then
+    tint2 -c /etc/xdg/tint2/tint2rc &
+fi

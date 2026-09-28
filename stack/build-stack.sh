@@ -509,10 +509,19 @@ step_nnn() {
         LDLIBS_CURSES="$("$PKG_CONFIG" --libs ncursesw) -lfts" \
         && make DESTDIR="$SYS" PREFIX=/usr install)
 }
+step_imlib2() {
+    auto imlib2 --without-id3 --without-heif --without-jxl --without-webp --without-tiff \
+        --without-bz2 --without-lzma --without-y4m --without-ps --without-svg --without-j2k \
+        --without-avif --without-raw --without-x-shm-fd
+}
+step_tint2() {
+    cmk tint2 -DENABLE_RSVG=OFF -DENABLE_SN=OFF -DENABLE_TINT2CONF=OFF \
+        -DENABLE_BATTERY=ON -DENABLE_UEVENT=OFF -DENABLE_EXTRA_THEMES=OFF
+}
 step_libXaw()  { auto libXaw --disable-specs --disable-xaw6; }
 step_xcalc()   { auto xcalc; }
 
-STEPS_USER="openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc"
+STEPS_USER="openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11
