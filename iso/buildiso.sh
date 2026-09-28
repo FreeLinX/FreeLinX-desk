@@ -43,18 +43,34 @@ SERIAL_ARGS=""; SERIAL_CONF=""
 cat > "$WORK/boot/limine/limine.conf" <<CONF
 timeout: 5
 ${SERIAL_CONF}
+interface_branding: FreeLinX 1.0
+interface_branding_colour: 2
+term_background: 1a1f1a
+term_foreground: e8ece8
 
-/FreeLinX Live (Desktop)
+/FreeLinX 1.0 Live Desktop
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
     cmdline: rdinit=/init console=tty0 ${SERIAL_ARGS} quiet loglevel=2 flx.desktop=gui flx.autologin=1 ${EXTRA}
 
-/FreeLinX Live (Text console - run flxinstall)
+/FreeLinX 1.0 Live Desktop (basic graphics)
+    protocol: linux
+    kernel_path: boot():/boot/bzImage
+    module_path: boot():/boot/initramfs.img.gz
+    cmdline: rdinit=/init console=tty0 ${SERIAL_ARGS} quiet loglevel=2 initcall_blacklist=i915_init flx.desktop=gui flx.autologin=1 ${EXTRA}
+
+/FreeLinX 1.0 Text Console (installer: flxinstall)
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
     cmdline: rdinit=/init console=tty0 ${SERIAL_ARGS} quiet loglevel=2 ${EXTRA}
+
+/Rescue Shell
+    protocol: linux
+    kernel_path: boot():/boot/bzImage
+    module_path: boot():/boot/initramfs.img.gz
+    cmdline: rdinit=/init console=tty0 ${SERIAL_ARGS} flx.rescue=1
 CONF
 
 rm -f "$OUT"
