@@ -99,7 +99,7 @@ done
 # the NetBSD userland already ships keep their NetBSD versions.
 if [ -f "$SYS/usr/bin/toybox" ]; then
     cp_strip "$SYS/usr/bin/toybox" "$R/usr/bin/toybox"
-    for t in ps top free uptime pgrep pkill pidof w getty; do
+    for t in ps top free uptime pgrep pkill pidof w getty setsid; do
         have=""
         for d in bin sbin usr/bin usr/sbin; do
             [ -e "$R/$d/$t" ] && [ ! -L "$R/$d/$t" ] && have=1

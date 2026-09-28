@@ -293,13 +293,13 @@
 
   <item label="Shutdown System">
     <action name="Execute">
-      <command>/sbin/poweroff</command>
+      <command>sh -c 'if [ "$(id -u)" = 0 ]; then exec /sbin/poweroff; else exec doas -n /sbin/poweroff; fi'</command>
     </action>
   </item>
 
   <item label="Restart System">
     <action name="Execute">
-      <command>/sbin/reboot</command>
+      <command>sh -c 'if [ "$(id -u)" = 0 ]; then exec /sbin/reboot; else exec doas -n /sbin/reboot; fi'</command>
     </action>
   </item>
 
