@@ -2,7 +2,7 @@
 # FreeLinX Desktop - Package the initramfs image from src/rootfs
 # Git cannot store modes or a matching kernel, so we pack from a staging copy:
 #   - kernel/bzImage is copied to /boot/vmlinuz (installer + image always match)
-#   - /etc/shadow 0600, /root 0700, /tmp 1777, doas setuid
+#   - /etc/shadow 0600, /root 0700, /tmp 1777, doas + Xorg setuid
 #   - optional: FLX_ROOT_HASH=<crypt hash> replaces the committed root hash
 #   - optional: FLX_FIRMWARE_TARBALL=<path> stages /lib/firmware
 #
@@ -98,6 +98,10 @@ chmod 1777 "$STAGE/tmp"
 [ -d "$STAGE/var/tmp" ] && chmod 1777 "$STAGE/var/tmp"
 [ -f "$STAGE/usr/bin/doas" ] && chmod 4755 "$STAGE/usr/bin/doas"
 [ -f "$STAGE/usr/sbin/unix_chkpwd" ] && chmod 4755 "$STAGE/usr/sbin/unix_chkpwd"
+# Xorg is setuid root (the classic Xorg.wrap model): a user session started by
+# greetd has no seat manager to hand it the console and framebuffer.
+[ -f "$STAGE/usr/bin/Xorg" ] && chmod 4711 "$STAGE/usr/bin/Xorg"
+[ -f "$STAGE/usr/sbin/unix_chkpwd" ] || [ ! -f "$STAGE/sbin/unix_chkpwd" ] || chmod 4755 "$STAGE/sbin/unix_chkpwd"
 # linux-pam's pam_unix forks the helper at /sbin/unix_chkpwd (CHKPWD_HELPER);
 # /usr/sbin is where we install the binary -> provide the expected path.
 if [ -f "$STAGE/usr/sbin/unix_chkpwd" ] && [ ! -e "$STAGE/sbin/unix_chkpwd" ]; then

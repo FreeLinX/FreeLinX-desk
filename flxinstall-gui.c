@@ -42,7 +42,7 @@ static char sel_kbd[16]  = "us";
 static char sel_tz[48]   = "UTC";
 static char hostname[64] = "freelinx";
 static char rootpw[64]   = "";
-static int  user_en = 0;
+static int  user_en = 1;   /* a desktop needs a non-root user */
 static char username[64] = "";
 static char realname[64] = "";
 static char userpw[64]   = "";
@@ -721,7 +721,8 @@ static void field_edit(char c) {
         if (active_field == 0) { dst = username; cap = sizeof(username); }
         else if (active_field == 1) { dst = realname; cap = sizeof(realname); }
         else if (active_field == 2) { dst = userpw; cap = sizeof(userpw); }
-    } else if (page == PG_WIFI && wifi_en) {
+    } else if (page == PG_WIFI) {
+        wifi_en = 1;           /* typing a network name turns WiFi on */
         if (active_field == 0) { dst = wifissid; cap = sizeof(wifissid); }
         else if (active_field == 1) { dst = wifipass; cap = sizeof(wifipass); }
     }
@@ -755,7 +756,21 @@ static void advance_page(void) {
                 break;
             }
             goto_page(PG_USER); break;
-        case PG_USER:    goto_page(PG_WIFI); break;
+        case PG_USER:
+            if (user_en) {
+                const char *bad = NULL;
+                if (!username[0]) bad = "Please enter a username.";
+                else if (!(username[0] >= 'a' && username[0] <= 'z'))
+                    bad = "Username must start with a lowercase letter.";
+                else for (const char *c = username; *c; c++)
+                    if (!((*c >= 'a' && *c <= 'z') || (*c >= '0' && *c <= '9') || *c == '_' || *c == '-')) {
+                        bad = "Username: use a-z, 0-9, _ and - only."; break;
+                    }
+                if (!bad && !strcmp(username, "root")) bad = "Pick a name other than root.";
+                if (!bad && !userpw[0]) bad = "Please enter a password for the user.";
+                if (bad) { snprintf(status_msg, sizeof(status_msg), "%s", bad); break; }
+            }
+            goto_page(PG_WIFI); break;
         case PG_WIFI:    goto_page(PG_DESK); break;
         case PG_DESK:    desktop_gui = (desk_list.sel == 0); goto_page(PG_DISK); break;
         case PG_DISK:    apply_disk(); goto_page(PG_CONFIRM); break;
