@@ -18,22 +18,11 @@ fi
 
 # 2. Compositor: picom (screen-tearing fix, shadows, transparency).
 #    --no-fading-openclose and no animation flags = ZERO animations.
-if command -v picom >/dev/null 2>&1; then
-    picom \
-        --daemon \
-        --backend glx \
-        --vsync \
-        --no-fading-openclose \
-        --no-fading-destroyed-argb \
-        --fading=false \
-        --shadow=true \
-        --shadow-radius=8 \
-        --shadow-opacity=0.4 \
-        --inactive-opacity=0.92 \
-        --active-opacity=1.0 \
-        --frame-opacity=1.0 \
-        --config /etc/xdg/picom/picom.conf \
-        2>/dev/null &
+# No compositor: the desktop is CPU-rendered (fbdev/KMS dumb buffers, no
+# GLX), and picom would redraw every frame on the CPU.  Opt in with
+# FLX_COMPOSITOR=1 on machines that do have a working GL stack.
+if [ "${FLX_COMPOSITOR:-0}" = "1" ] && command -v picom >/dev/null 2>&1; then
+    picom --daemon --backend xrender --no-fading-openclose --config /etc/xdg/picom/picom.conf 2>/dev/null &
 fi
 
 # 3. Notification daemon: dunst
