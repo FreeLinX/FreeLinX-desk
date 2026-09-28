@@ -12,7 +12,7 @@
 # Original version by Troy Korjuslommi
 #
 # Use en_US.UTF-8/Compose as the base compose sequence definition set
-include "/home/kanan/Projects/FreeLinX/Desktop-test/ports/build/deps/x11/share/X11/locale/en_US.UTF-8/Compose"
+include "/usr/share/X11/locale/en_US.UTF-8/Compose"
 # Define all the sequences of the standard overriding any sequence
 # from en_US.UTF-8/Compose if such a sequence was provided already
 # Sequences from Annex 3
