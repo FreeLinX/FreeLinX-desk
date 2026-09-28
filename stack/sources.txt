@@ -68,3 +68,6 @@ ncurses https://invisible-mirror.net/archives/ncurses/ncurses-6.5.tar.gz -
 nnn https://github.com/jarun/nnn/releases/download/v5.0/nnn-v5.0.tar.gz -
 libXaw https://www.x.org/releases/individual/lib/libXaw-1.0.16.tar.xz -
 xcalc https://www.x.org/releases/individual/app/xcalc-1.1.2.tar.xz -
+libxml2 https://download.gnome.org/sources/libxml2/2.13/libxml2-2.13.5.tar.xz 74fc163217a3964257d3be39af943e08861263c4231f9ef5b496b6f6d4c7b2b6
+at-spi2-core https://download.gnome.org/sources/at-spi2-core/2.54/at-spi2-core-2.54.1.tar.xz -
+musl-fts https://github.com/void-linux/musl-fts/archive/refs/tags/v1.2.7.tar.gz - musl-fts-1.2.7.tar.gz

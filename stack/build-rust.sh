@@ -49,7 +49,7 @@ if [ ! -f "$SYS/usr/lib/libpam.so" ]; then
         --sysconfdir=/etc --libdir=lib --buildtype=release \
         -Ddocs=disabled -Dexamples=false -Dxtests=false -Daudit=disabled \
         -Deconf=disabled -Dselinux=disabled -Dnis=disabled -Dlogind=disabled \
-        -Delogind=disabled -Dopenssl=disabled -Di18n=disabled -Dpam_userdb=disabled \
+        -Dopenssl=disabled -Di18n=enabled -Dpam_userdb=disabled \
         -Dsecuredir=/lib/security
     "$MESON" compile -C "$W/build/linux-pam" -j "$JOBS"
     DESTDIR="$SYS" "$MESON" install -C "$W/build/linux-pam" --no-rebuild
@@ -58,7 +58,7 @@ fi
 # --- cargo against the stack sysroot ----------------------------------------
 RT=x86_64-unknown-linux-musl
 export CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER="$W/bin/flx-cc"
-export CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C link-self-contained=no -C target-feature=-crt-static -L $SYS/usr/lib -l unwind"
+export CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_RUSTFLAGS="-C link-self-contained=no -C target-feature=-crt-static -L $SYS/usr/lib"
 export CC_x86_64_unknown_linux_musl="$W/bin/flx-cc"
 export AR_x86_64_unknown_linux_musl="$TC/bin/llvm-ar"
 export PKG_CONFIG_ALLOW_CROSS=1
@@ -67,7 +67,7 @@ export RUSTC_BOOTSTRAP=1
 cargo_build() { # srcdir outdir-bin...
     d="$1"; shift
     (cd "$d" && cargo build --release --locked --target $RT \
-        -Zbuild-std=std,panic_abort -j "$JOBS")
+        -Zbuild-std=std,panic_abort -Zbuild-std-features=llvm-libunwind -j "$JOBS")
     mkdir -p "$SYS/usr/bin"
     for b in "$@"; do
         install -m755 "$d/target/$RT/release/$b" "$SYS/usr/bin/$b"
