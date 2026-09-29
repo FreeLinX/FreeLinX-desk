@@ -9,5 +9,5 @@
 
  Right-click the desktop for the menu. Install to disk: flxinstall (as root).
  Packages: xpkg install <name>, xpkg list.
- Bugs: https://github.com/FreeLinX/Desktop-test/issues
+ Bugs: https://github.com/FreeLinX/FreeLinX/issues
 
