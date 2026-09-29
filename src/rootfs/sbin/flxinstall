@@ -649,19 +649,19 @@ term_foreground: e8ece8
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
-    cmdline: rdinit=/init console=tty0 console=ttyS0,115200 quiet loglevel=2
+    cmdline: rdinit=/init rootfstype=ramfs console=tty0 console=ttyS0,115200 quiet loglevel=2
 
 /FreeLinX 1.0 (basic graphics)
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
-    cmdline: rdinit=/init console=tty0 console=ttyS0,115200 quiet loglevel=2 initcall_blacklist=i915_init modprobe.blacklist=amdgpu,radeon,nouveau flx.xdriver=fbdev
+    cmdline: rdinit=/init rootfstype=ramfs console=tty0 console=ttyS0,115200 quiet loglevel=2 initcall_blacklist=i915_init modprobe.blacklist=amdgpu,radeon,nouveau flx.xdriver=fbdev
 
 /Rescue Shell
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
-    cmdline: rdinit=/init flx.rescue=1 console=tty0 console=ttyS0,115200 quiet loglevel=2
+    cmdline: rdinit=/init rootfstype=ramfs flx.rescue=1 console=tty0 console=ttyS0,115200 quiet loglevel=2
 EOF
 cp "$BOOT_DIR/limine.conf" "$BOOT_DIR/boot/limine.conf"
 cp "$BOOT_DIR/limine.conf" "$BOOT_DIR/EFI/BOOT/limine.conf"
