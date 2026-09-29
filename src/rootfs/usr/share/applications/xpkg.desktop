@@ -1,7 +1,7 @@
 [Desktop Entry]
-Name=Xpkg Package Manager
+Name=Packages
 GenericName=Package Manager
-Comment=FreeLinX package manager — install, remove and update packages
+Comment=Install and remove software
 Exec=uxterm -e xpkg
 Terminal=false
 Type=Application

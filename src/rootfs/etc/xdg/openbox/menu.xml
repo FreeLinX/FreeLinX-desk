@@ -233,10 +233,10 @@
 </menu>
 
 <menu id="appearance-menu" label="Appearance">
-  <item label="Plan 9 Rio Sage (#778877)">
+  <item label="Sage">
     <action name="Execute"><command>/usr/bin/flxbg "#778877"</command></action>
   </item>
-  <item label="Plan 9 Classic Teal (#55aaaa)">
+  <item label="Teal">
     <action name="Execute"><command>/usr/bin/flxbg "#55aaaa"</command></action>
   </item>
   <item label="Void Slate Dark (#24272e)">

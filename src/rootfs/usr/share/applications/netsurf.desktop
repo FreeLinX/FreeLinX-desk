@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=NetSurf
 GenericName=Web Browser
-Comment=Fast, modern and lightweight graphical web browser
+Comment=Light web browser
 Exec=netsurf %u
 Terminal=false
 Type=Application

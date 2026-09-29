@@ -68,7 +68,7 @@ static int selected_ap = -1;
 static char wifi_pass[64] = "";
 static int pass_input_active = 0;
 
-static char status_message[128] = "System ready. All network services operational.";
+static char status_message[128] = "Ready.";
 static char ping_result[128] = "Ping not tested yet.";
 static char dns_servers[128] = "";
 static char default_gw[64] = "";
@@ -365,7 +365,7 @@ static void draw_ui(cairo_t *cr) {
     cairo_set_font_size(cr, 11.5);
     cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
     cairo_move_to(cr, 10, 20);
-    cairo_show_text(cr, "FreeLinX Network Manager (non-GNU musl)");
+    cairo_show_text(cr, "Network");
 
     // Tabs
     const char *tabs[] = {"Interfaces", "Wireless / WiFi", "Tools & DNS"};
