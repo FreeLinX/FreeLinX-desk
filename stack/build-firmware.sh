@@ -46,8 +46,8 @@ pick() { # paths relative to the linux-firmware tree (globs allowed)
 }
 
 # WiFi
-pick 'iwlwifi-*' 'intel/iwlwifi' ath9k_htc ath10k ath11k ath12k rtw88 rtw89 'rtlwifi' \
-     'mediatek/WIFI_*' 'mediatek/mt7*' 'brcm/brcmfmac*' 'cypress' regulatory.db regulatory.db.p7s
+pick 'iwlwifi-*' ath9k_htc ath10k ath11k ath12k rtw88 rtw89 'rtlwifi' \
+     'mediatek/WIFI_*' 'mediatek/mt76*' 'brcm/brcmfmac*' 'cypress' regulatory.db regulatory.db.p7s
 # Bluetooth
 pick 'intel/ibt-*' rtl_bt 'mediatek/BT_*' qca 'brcm/*.hcd'
 # Ethernet
@@ -69,6 +69,25 @@ for d in "$SB"/sof* ; do
     mkdir -p "$F/intel"
     cp -rL "$d" "$F/intel/"
 done
+# iwlwifi-* at the top level are what linux 6.6 requests (the intel/iwlwifi
+# copies are the newer layout: duplicates).  Wi-Fi 7 parts this kernel has
+# no driver for are not shipped.
+# linux-firmware now keeps iwlwifi under intel/iwlwifi; linux 6.6 asks for
+# iwlwifi-*.ucode at the top level and loads at most API 83.  Ship only the
+# newest usable version per device (plus the .pnvm tables).
+for f in "$F"/intel/iwlwifi/iwlwifi-*; do
+    b=$(basename "$f")
+    case "$b" in
+        *.pnvm) cp -L "$f" "$F/$b" ;;
+        *.ucode)
+            v=$(echo "$b" | sed -n 's/.*-\([0-9][0-9]*\)\.ucode$/\1/p')
+            [ -n "$v" ] && [ "$v" -le 83 ] && cp -L "$f" "$F/$b" ;;
+    esac
+done
+(cd "$F" && ls iwlwifi-*.ucode 2>/dev/null | sed -E 's/-([0-9]+)\.ucode$/ \1/' | sort -k1,1 -k2,2n |
+    awk '{v[$1]=v[$1]" "$2; m[$1]=$2} END {for (k in v) {n=split(v[k],a," "); for (i=1;i<=n;i++) if (a[i]!=m[k]) print k"-"a[i]".ucode"}}' |
+    xargs rm -f)
+rm -rf "$F/intel/iwlwifi" "$F/mediatek/mt7996" "$F/mediatek/mt7925" "$F/mediatek/mt7927"
 # licences travel with the blobs
 cp "$L"/WHENCE "$L"/LICENCE.* "$L"/LICENSE.* "$F/" 2>/dev/null || :
 cp "$SB"/LICENCE* "$F/intel/" 2>/dev/null || :

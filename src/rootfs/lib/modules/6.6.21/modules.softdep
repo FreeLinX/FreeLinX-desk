@@ -1,2 +1,3 @@
 # Soft dependencies extracted from modules themselves.
+softdep intel_lpss pre: platform:idma64
 softdep xt_LOG pre: nf_log_syslog

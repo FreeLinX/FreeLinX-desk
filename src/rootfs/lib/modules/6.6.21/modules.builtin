@@ -171,6 +171,7 @@ kernel/drivers/gpu/drm/virtio/virtio-gpu.ko
 kernel/drivers/gpu/drm/tiny/simpledrm.ko
 kernel/drivers/connector/cn.ko
 kernel/drivers/base/firmware_loader/firmware_class.ko
+kernel/drivers/base/regmap/regmap-i2c.ko
 kernel/drivers/block/loop.ko
 kernel/drivers/block/virtio_blk.ko
 kernel/drivers/macintosh/mac_hid.ko
@@ -246,11 +247,17 @@ kernel/drivers/input/mouse/psmouse.ko
 kernel/drivers/rtc/rtc-cmos.ko
 kernel/drivers/i2c/i2c-core.ko
 kernel/drivers/i2c/i2c-smbus.ko
+kernel/drivers/i2c/i2c-mux.ko
 kernel/drivers/i2c/algos/i2c-algo-bit.ko
 kernel/drivers/i2c/busses/i2c-ccgx-ucsi.ko
 kernel/drivers/i2c/busses/i2c-i801.ko
 kernel/drivers/i2c/busses/i2c-designware-core.ko
 kernel/drivers/i2c/busses/i2c-designware-pci.ko
+kernel/drivers/media/mc/mc.ko
+kernel/drivers/media/v4l2-core/v4l2-async.ko
+kernel/drivers/media/v4l2-core/v4l2-fwnode.ko
+kernel/drivers/media/v4l2-core/v4l2-dv-timings.ko
+kernel/drivers/media/v4l2-core/videodev.ko
 kernel/drivers/pps/pps_core.ko
 kernel/drivers/ptp/ptp.ko
 kernel/drivers/ptp/ptp_kvm.ko
@@ -266,6 +273,7 @@ kernel/drivers/cpufreq/cpufreq_userspace.ko
 kernel/drivers/cpufreq/cpufreq_ondemand.ko
 kernel/drivers/cpufreq/acpi-cpufreq.ko
 kernel/drivers/cpuidle/cpuidle-haltpoll.ko
+kernel/drivers/mmc/core/mmc_core.ko
 kernel/drivers/leds/led-class.ko
 kernel/drivers/leds/trigger/ledtrig-audio.ko
 kernel/drivers/hid/hid.ko
@@ -312,6 +320,7 @@ kernel/sound/core/seq/snd-seq.ko
 kernel/sound/core/seq/snd-seq-dummy.ko
 kernel/sound/core/seq/snd-seq-midi.ko
 kernel/sound/core/seq/snd-seq-midi-event.ko
+kernel/sound/core/snd-compress.ko
 kernel/sound/pci/hda/snd-hda-codec.ko
 kernel/sound/pci/hda/snd-hda-codec-generic.ko
 kernel/sound/pci/hda/snd-hda-codec-realtek.ko
@@ -325,6 +334,12 @@ kernel/sound/pci/hda/snd-hda-codec-hdmi.ko
 kernel/sound/pci/hda/snd-hda-intel.ko
 kernel/sound/usb/snd-usb-audio.ko
 kernel/sound/usb/snd-usbmidi-lib.ko
+kernel/sound/soc/snd-soc-acpi.ko
+kernel/sound/soc/snd-soc-core.ko
+kernel/sound/soc/intel/common/snd-soc-acpi-intel-match.ko
+kernel/sound/soc/intel/atom/snd-soc-sst-atom-hifi2-platform.ko
+kernel/sound/soc/intel/atom/sst/snd-intel-sst-core.ko
+kernel/sound/soc/intel/atom/sst/snd-intel-sst-acpi.ko
 kernel/sound/hda/snd-hda-core.ko
 kernel/sound/hda/snd-intel-dspcfg.ko
 kernel/sound/hda/snd-intel-sdw-acpi.ko
