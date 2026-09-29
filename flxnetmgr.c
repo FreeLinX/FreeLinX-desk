@@ -20,6 +20,8 @@
 #include <net/if.h>
 #include <time.h>
 #include <errno.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -228,9 +230,46 @@ static void scan_interfaces(void) {
     if (!default_gw[0]) strcpy(default_gw, "Not set");
 }
 
+/*
+ * Run a helper without a shell.  SSIDs come from the air and passwords from
+ * the user: neither may ever be parsed by sh (an SSID of $(...) would run as
+ * root, since wheel users start this tool through doas).  stdout/stderr go
+ * to `logpath` (or /dev/null); `wait_for` blocks until the child exits.
+ */
+static int run_argv(char *const argv[], const char *logpath, int wait_for) {
+    pid_t pid = fork();
+    if (pid < 0) return -1;
+    if (pid == 0) {
+        /* background jobs double-fork so no zombie is left behind */
+        if (!wait_for) {
+            setsid();
+            if (fork() != 0) _exit(0);
+        }
+        int fd = open(logpath ? logpath : "/dev/null", O_WRONLY | O_CREAT | O_TRUNC, 0600);
+        if (fd >= 0) { dup2(fd, 1); dup2(fd, 2); if (fd > 2) close(fd); }
+        execv(argv[0], argv);
+        _exit(127);
+    }
+    int st = 0;
+    while (waitpid(pid, &st, 0) < 0 && errno == EINTR) { }
+    if (!wait_for) return 0;
+    return WIFEXITED(st) ? WEXITSTATUS(st) : -1;
+}
+
+static int valid_ifname(const char *s) {
+    if (!*s || strlen(s) >= IFNAMSIZ) return 0;
+    for (; *s; s++)
+        if (!((*s >= 'a' && *s <= 'z') || (*s >= 'A' && *s <= 'Z') ||
+              (*s >= '0' && *s <= '9') || *s == '.' || *s == '-' || *s == '_'))
+            return 0;
+    return 1;
+}
+
+
 static void trigger_wifi_scan(void) {
     snprintf(status_message, sizeof(status_message), "Scanning WiFi networks via flxwifi...");
-    system("/sbin/flxwifi scan > /tmp/flx_wifi_scan.txt 2>&1 &");
+    char *argv[] = { "/sbin/flxwifi", "scan", NULL };
+    run_argv(argv, "/tmp/flx_wifi_scan.txt", 0);
 }
 
 static void load_wifi_results(void) {
@@ -275,37 +314,35 @@ static void connect_selected_wifi(void) {
     WifiAP *ap = &ap_list[selected_ap];
     snprintf(status_message, sizeof(status_message), "Connecting to '%s'...", ap->ssid);
     
-    char cmd[512];
-    if (strlen(wifi_pass) > 0) {
-        snprintf(cmd, sizeof(cmd), "/sbin/flxwifi connect \"%s\" \"%s\" > /tmp/flx_wifi_conn.log 2>&1 &", ap->ssid, wifi_pass);
-    } else {
-        snprintf(cmd, sizeof(cmd), "/sbin/flxwifi connect \"%s\" > /tmp/flx_wifi_conn.log 2>&1 &", ap->ssid);
-    }
-    system(cmd);
+    char *argv_pw[] = { "/sbin/flxwifi", "connect", ap->ssid, wifi_pass, NULL };
+    char *argv_open[] = { "/sbin/flxwifi", "connect", ap->ssid, NULL };
+    run_argv(strlen(wifi_pass) > 0 ? argv_pw : argv_open, "/tmp/flx_wifi_conn.log", 0);
 }
 
 static void disconnect_wifi(void) {
     snprintf(status_message, sizeof(status_message), "Disconnecting WiFi...");
-    system("/sbin/flxwifi disconnect > /dev/null 2>&1 &");
+    char *argv[] = { "/sbin/flxwifi", "disconnect", NULL };
+    run_argv(argv, NULL, 0);
 }
 
 static void renew_dhcp(const char *iface) {
     snprintf(status_message, sizeof(status_message), "Requesting DHCP lease on %s...", iface);
-    char cmd[256];
-    snprintf(cmd, sizeof(cmd), "/sbin/dhcpcd -q -n %s > /dev/null 2>&1 &", iface);
-    system(cmd);
+    if (!valid_ifname(iface)) return;
+    char *argv[] = { "/sbin/dhcpcd", "-q", "-n", (char *)iface, NULL };
+    run_argv(argv, NULL, 0);
 }
 
 static void toggle_iface(const char *iface, int up) {
-    char cmd[256];
-    snprintf(cmd, sizeof(cmd), "/sbin/flxifconfig %s %s", iface, up ? "up" : "down");
-    system(cmd);
+    if (!valid_ifname(iface)) return;
+    char *argv[] = { "/sbin/flxifconfig", (char *)iface, up ? "up" : "down", NULL };
+    run_argv(argv, NULL, 1);
     scan_interfaces();
 }
 
 static void test_ping(void) {
     snprintf(ping_result, sizeof(ping_result), "Testing ping to 1.1.1.1...");
-    int res = system("/bin/ping -c 1 -W 2 1.1.1.1 > /dev/null 2>&1");
+    char *argv[] = { "/bin/ping", "-c", "1", "-W", "2", "1.1.1.1", NULL };
+    int res = run_argv(argv, NULL, 1);
     if (res == 0) {
         snprintf(ping_result, sizeof(ping_result), "Ping OK (1.1.1.1 reachable) - Online");
     } else {

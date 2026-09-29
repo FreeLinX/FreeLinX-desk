@@ -80,24 +80,41 @@ cmd_connect()
 	iface_up
 	ensure_sup
 	"$CLI" -i "$IFACE" flush > /dev/null 2>&1
+	# The SSID goes over as hex: SSIDs are arbitrary bytes (quotes, UTF-8, ...).
+	ssid_hex=$(printf '%s' "$ssid" | od -An -tx1 | tr -d ' \n')
+	id=$("$CLI" -i "$IFACE" add_network | tail -n 1)
+	case "$id" in *[!0-9]*|"") die "wpa_supplicant refused add_network" ;; esac
+	"$CLI" -i "$IFACE" set_network "$id" ssid "$ssid_hex" > /dev/null
 	if [ -n "$pass" ] && [ "$pass" != "-" ]; then
-		log "connecting to '$ssid' with WPA password..."
-		"$CLI" -i "$IFACE" add_network > /dev/null
-		"$CLI" -i "$IFACE" set_network 0 ssid "\"$ssid\""
-		psk=$("$PSKTOOL" "$ssid" "$pass" 2>/dev/null | sed -n 's/^\tpsk=//p')
-		if [ -n "$psk" ]; then
-			"$CLI" -i "$IFACE" set_network 0 psk "\"$psk\""
+		log "connecting to '$ssid' with WPA2/WPA3 password..."
+		case "$pass" in
+		*'"'*) plain="" ;;
+		*) plain=1 ;;
+		esac
+		len=${#pass}
+		if [ -n "$plain" ] && [ "$len" -ge 8 ] && [ "$len" -le 63 ]; then
+			"$CLI" -i "$IFACE" set_network "$id" psk "\"$pass\"" > /dev/null
+			"$CLI" -i "$IFACE" set_network "$id" sae_password "\"$pass\"" > /dev/null
+			"$CLI" -i "$IFACE" set_network "$id" key_mgmt "WPA-PSK WPA-PSK-SHA256 SAE" > /dev/null
+			"$CLI" -i "$IFACE" set_network "$id" ieee80211w 1 > /dev/null
 		else
-			"$CLI" -i "$IFACE" set_network 0 psk "\"$pass\""
+			# not expressible as a quoted passphrase: send the derived key (hex, unquoted)
+			psk=$("$PSKTOOL" "$ssid" "$pass" 2>/dev/null | awk -F= '$1 ~ /^[ \t]*psk$/ {print $2}')
+			[ -n "$psk" ] || die "password must be 8-63 characters"
+			"$CLI" -i "$IFACE" set_network "$id" psk "$psk" > /dev/null
 		fi
-		"$CLI" -i "$IFACE" enable_network 0
 	else
 		log "connecting to open network '$ssid'..."
-		"$CLI" -i "$IFACE" add_network > /dev/null
-		"$CLI" -i "$IFACE" set_network 0 ssid "\"$ssid\""
-		"$CLI" -i "$IFACE" set_network 0 key_mgmt NONE
-		"$CLI" -i "$IFACE" enable_network 0
+		"$CLI" -i "$IFACE" set_network "$id" key_mgmt NONE > /dev/null
 	fi
+	"$CLI" -i "$IFACE" select_network "$id" > /dev/null
+	# wait up to 20 s for the association before asking for an address
+	i=0
+	while [ "$i" -lt 20 ]; do
+		"$CLI" -i "$IFACE" status 2>/dev/null | grep -q '^wpa_state=COMPLETED' && break
+		sleep 1; i=$((i + 1))
+	done
+	[ "$i" -lt 20 ] || log "not associated yet (wrong password or out of range?)"
 	log "requesting IP via dhcpcd..."
 	"$DHCP" -q "$IFACE" 2>/dev/null || log "dhcpcd failed (check connection)"
 	log "done. status:"
@@ -107,7 +124,7 @@ cmd_connect()
 cmd_disconnect()
 {
 	"$CLI" -i "$IFACE" disconnect 2>/dev/null && log "disconnected" || log "not connected"
-	"$CLI" -i "$IFACE" remove_network 0 2>/dev/null || :
+	"$CLI" -i "$IFACE" remove_network all 2>/dev/null || :
 }
 
 cmd_status()

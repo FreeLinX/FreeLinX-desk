@@ -114,14 +114,29 @@ fi
 
 echo "FreeLinX Input: kbd=$(readlink /dev/fl-kbd 2>/dev/null) pointer=$(readlink /dev/fl-pointer 2>/dev/null)" > "$FLX_LOG"
 
+# Driver choice: a real KMS driver (i915, amdgpu, radeon, nouveau,
+# virtio_gpu) gets modesetting + glamor (Mesa); a plain firmware framebuffer
+# (simpledrm, "basic graphics" boot entry) keeps the fbdev/ShadowFB path.
+# flx.xdriver=fbdev|modesetting on the kernel command line overrides it.
+XCONF=xorg.conf
+_kms=$(basename "$(readlink /sys/class/drm/card0/device/driver 2>/dev/null)" 2>/dev/null)
+case "$_kms" in
+    ""|simple-framebuffer|simpledrm|efi-framebuffer|vesa-framebuffer) ;;
+    *) XCONF=xorg-modesetting.conf ;;
+esac
+case " $(cat /proc/cmdline 2>/dev/null) " in
+    *" flx.xdriver=fbdev "*) XCONF=xorg.conf ;;
+    *" flx.xdriver=modesetting "*) XCONF=xorg-modesetting.conf ;;
+esac
+
 if [ "$(id -u)" = 0 ]; then
-    Xorg -config /etc/X11/xorg.conf -noreset -nolisten tcp -logfile /tmp/xorg.log > "$FLX_LOG" 2>&1 &
+    Xorg -config "$XCONF" -noreset -nolisten tcp -logfile /tmp/xorg.log > "$FLX_LOG" 2>&1 &
 else
     # A user session (greetd): Xorg is setuid root and then refuses absolute
-    # -config/-logfile paths.  /etc/X11/xorg.conf is its default anyway; the
-    # log goes to ~/.local/share/xorg/.  Run on greetd's VT.
+    # -config/-logfile paths; a bare name is looked up in /etc/X11.  The log
+    # goes to ~/.local/share/xorg/.  Run on greetd's VT.
     mkdir -p "$HOME/.local/share/xorg"
-    Xorg ":0" "vt${XDG_VTNR:-1}" -keeptty -noreset -nolisten tcp > "$FLX_LOG" 2>&1 &
+    Xorg ":0" "vt${XDG_VTNR:-1}" -config "$XCONF" -keeptty -noreset -nolisten tcp > "$FLX_LOG" 2>&1 &
 fi
 XPID=$!
 
