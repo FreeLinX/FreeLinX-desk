@@ -95,4 +95,5 @@ sh iso/buildiso.sh       # hybrid BIOS/UEFI ISO
 - Tested in QEMU/KVM; WiFi was verified end to end with mac80211_hwsim and
   hostapd. Real-hardware reports for WiFi, Bluetooth, audio and GPUs are
   welcome - this is a release candidate.
-- The live system runs from RAM: give it at least 4 GB.
+- The system runs from RAM: it boots in 2 GB, 4 GB is recommended for
+  Firefox with several tabs.

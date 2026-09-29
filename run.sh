@@ -1,6 +1,6 @@
 #!/bin/sh
 # FreeLinX Desktop - QEMU / KVM launch script
-# Env knobs: RAM=2048 (min 1400) CPUS=4 HEADLESS=1 GL=1 NOAUDIO=1
+# Env knobs: RAM=4096 (min 2048) CPUS=4 HEADLESS=1 GL=1 NOAUDIO=1
 #   FLX_DESKTOP=gui|headless  FLX_AUTOLOGIN=1|0  FLX_DISK=disk.img
 #   FLX_ISO=file.iso  UEFI=1  FLX_INITRD=path  FLX_BOOT_DISK=1
 # Extra arguments are passed to QEMU unchanged.
@@ -9,7 +9,7 @@ set -eu
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 KERNEL="${SCRIPT_DIR}/kernel/bzImage"
 INITRD="${FLX_INITRD:-${SCRIPT_DIR}/src/build/x86_64/freelinx-desktop.img.gz}"
-RAM="${RAM:-2048}"
+RAM="${RAM:-4096}"
 CPUS="${CPUS:-4}"
 
 QEMU_BIN="qemu-system-x86_64"
@@ -23,8 +23,8 @@ if [ -z "${FLX_ISO:-}" ] && [ "${FLX_BOOT_DISK:-0}" != "1" ] && [ ! -f "$INITRD"
     "${SCRIPT_DIR}/build-image.sh"
 fi
 
-if [ "$RAM" -lt 1400 ] 2>/dev/null; then
-    echo "[FreeLinX][warn] RAM=${RAM}MB is too small: the initramfs will fail to unpack. Use RAM>=1400." >&2
+if [ "$RAM" -lt 2048 ] 2>/dev/null; then
+    echo "[FreeLinX][warn] RAM=${RAM}MB is too small: the initramfs will fail to unpack. Use RAM>=2048." >&2
 fi
 
 have_display() { "$QEMU_BIN" -display help 2>&1 | grep -qw "$1"; }
@@ -82,7 +82,7 @@ elif [ "${FLX_BOOT_DISK:-0}" = "1" ]; then
     [ -n "${FLX_DISK:-}" ] || { echo "[FreeLinX][error] FLX_BOOT_DISK=1 needs FLX_DISK=<disk image>" >&2; exit 1; }
     set -- "$@" -boot c
 else
-    CMDLINE="console=ttyS0,115200 rdinit=/init quiet loglevel=2"
+    CMDLINE="console=ttyS0,115200 rdinit=/init rootfstype=ramfs quiet loglevel=2"
     CMDLINE="$CMDLINE flx.desktop=${FLX_DESKTOP:-gui} flx.autologin=${FLX_AUTOLOGIN:-1}"
     set -- "$@" -kernel "$KERNEL" -initrd "$INITRD" -append "$CMDLINE"
 fi
