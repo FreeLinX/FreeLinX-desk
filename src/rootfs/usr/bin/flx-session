@@ -114,19 +114,28 @@ fi
 
 echo "FreeLinX Input: kbd=$(readlink /dev/fl-kbd 2>/dev/null) pointer=$(readlink /dev/fl-pointer 2>/dev/null)" > "$FLX_LOG"
 
-# Driver choice: a real KMS driver (i915, amdgpu, radeon, nouveau,
-# virtio_gpu) gets modesetting + glamor (Mesa); a plain firmware framebuffer
-# (simpledrm, "basic graphics" boot entry) keeps the fbdev/ShadowFB path.
-# flx.xdriver=fbdev|modesetting on the kernel command line overrides it.
+# Driver choice:
+#   i915, nouveau            -> modesetting + glamor (hardware Mesa driver)
+#   other KMS drivers        -> modesetting, CPU shadow (amdgpu/radeon need
+#                               radeonsi = LLVM; virtio-gpu has no virgl here)
+#   firmware framebuffer     -> fbdev + ShadowFB (simpledrm, "basic graphics")
+# flx.xdriver=fbdev|kms|glamor on the kernel command line overrides it.
 XCONF=xorg.conf
-_kms=$(basename "$(readlink /sys/class/drm/card0/device/driver 2>/dev/null)" 2>/dev/null)
+_kms=""
+for _c in /sys/class/drm/card[0-9]; do
+    [ -e "$_c/device" ] || continue
+    _kms=$(basename "$(readlink "$_c/device/driver" 2>/dev/null)" 2>/dev/null)
+    break
+done
 case "$_kms" in
     ""|simple-framebuffer|simpledrm|efi-framebuffer|vesa-framebuffer) ;;
-    *) XCONF=xorg-modesetting.conf ;;
+    i915|nouveau) XCONF=xorg-modesetting.conf ;;
+    *) XCONF=xorg-kms.conf ;;
 esac
 case " $(cat /proc/cmdline 2>/dev/null) " in
     *" flx.xdriver=fbdev "*) XCONF=xorg.conf ;;
-    *" flx.xdriver=modesetting "*) XCONF=xorg-modesetting.conf ;;
+    *" flx.xdriver=kms "*) XCONF=xorg-kms.conf ;;
+    *" flx.xdriver=glamor "*|*" flx.xdriver=modesetting "*) XCONF=xorg-modesetting.conf ;;
 esac
 
 if [ "$(id -u)" = 0 ]; then

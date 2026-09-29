@@ -18,13 +18,22 @@ to package a tree that fails (`check-nognu.sh`).
   a separate `/home`.
 - **Login screen** (greetd + tuigreet) on installed systems; console logins
   on tty1 and the serial port via getty.
-- **Network manager** (`flxnetmgr`): interfaces, DHCP, WiFi scan/connect,
-  DNS and ping tools; `wheel` users run it without a password prompt.
+- **Network manager** (`flxnetmgr`): interfaces, DHCP, WiFi scan/connect
+  (WPA2/WPA3), DNS and ping tools; `wheel` users run it without a password
+  prompt.
   `wpa_supplicant`, `dhcpcd`, OpenNTPD.
-- **Hardware**: NVMe and SATA disks, Intel (iwlwifi/iwlmvm), Realtek
-  (rtw88/rtw89), Atheros, Broadcom and MediaTek MT7921/MT7922 WiFi, HDA
-  audio (Realtek, HDMI, Conexant, ...) and USB audio, I2C-HID touchpads,
-  exFAT/NTFS/ISO/UDF media.
+- **Hardware**: NVMe/SATA/USB/SD-card storage; WiFi from Intel (iwlwifi/
+  iwlmvm), Qualcomm (ath9k/10k/11k/12k), Realtek (rtw88/rtw89), MediaTek
+  (MT7921/7922), Broadcom; Bluetooth (Intel, Realtek, MediaTek, Qualcomm,
+  Broadcom; `bluetoothctl`); audio via HDA codecs, Intel SOF/SoundWire
+  (2018+ laptops), AMD ACP and USB; I2C-HID touchpads; UVC webcams; USB4/
+  Thunderbolt; Xbox/PlayStation/Switch pads; exFAT/NTFS/ISO/UDF media.
+- **Graphics**: Mesa 24.0 with hardware OpenGL for Intel (iris/crocus/i915)
+  and NVIDIA (nouveau), glamor-accelerated X on those. AMD (amdgpu/radeon),
+  VMs and everything else get real KMS modes with a CPU shadow framebuffer;
+  firmware framebuffers (simpledrm) use fbdev. `flx.xdriver=fbdev|kms|glamor`
+  overrides the choice.
+- **Media**: H.264/AAC through FFmpeg (LGPL build), VP9/AV1 built in.
 - Terminal (`st`), file manager (`xfe`), PDF viewer (`mupdf`), media player
   (`mpv`), `vim`/`nvi`, `git`, package manager `xpkg`.
 
@@ -37,8 +46,9 @@ to package a tree that fails (`check-nognu.sh`).
 | C++ runtime | LLVM libc++ / libc++abi / libunwind 21.1.8 |
 | Userland | NetBSD 10.1 tools; toybox (0BSD) for `ps`, `top`, `free`, `uptime`, `pgrep`, `pidof`, `getty`, console `login` |
 | Init | runit + mdevd |
-| Graphics | Xorg 21.1.24 (fbdev + modesetting, evdev input), GTK 3.24, cairo, pango, harfbuzz |
+| Graphics | Xorg 21.1.24 (modesetting/glamor, fbdev; evdev input), Mesa 24.0, GTK 3.24, cairo, pango, harfbuzz |
 | Auth | Linux-PAM 1.7 (greetd), shadow SHA-512 |
+| Firmware | linux-firmware 20260916 + SOF 2026.09.1, zstd-compressed |
 | Time | IANA tzdata 2026d |
 
 Rust programs (greetd, tuigreet) are built with a from-source Rust standard
@@ -78,9 +88,11 @@ sh iso/buildiso.sh       # hybrid BIOS/UEFI ISO
 
 ## Known limitations
 
-- No GPU acceleration: rendering is done on the CPU (fbdev / KMS dumb
-  buffers). WebGL and video decoding in Firefox run in software.
-- `mount` needs an explicit `-t` type; removable media are mounted
-  automatically under `/media`.
-- Laptops with Intel SOF-only audio (some 2020+ models) may need
-  `snd_intel_dspcfg.dsp_driver=1` on the kernel command line.
+- No OpenGL acceleration on AMD GCN-and-newer GPUs (radeonsi needs an LLVM
+  build of Mesa) and none inside VMs: those draw on the CPU. Firefox picks
+  software WebRender there automatically.
+- No hardware video decoding (no VA-API); video is decoded on the CPU.
+- Tested in QEMU/KVM; WiFi was verified end to end with mac80211_hwsim and
+  hostapd. Real-hardware reports for WiFi, Bluetooth, audio and GPUs are
+  welcome - this is a release candidate.
+- The live system runs from RAM: give it at least 4 GB.

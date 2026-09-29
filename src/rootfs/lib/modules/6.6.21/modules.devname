@@ -1,0 +1,2 @@
+# Device nodes to trigger on-demand module loading.
+uhid uhid c10:239

@@ -493,6 +493,11 @@ step_ncurses() {
         --with-pkg-config-libdir=/usr/lib/pkgconfig --enable-pc-files \
         --with-termlib --with-default-terminfo-dir=/usr/share/terminfo \
         --disable-stripping
+    # software that asks for the narrow names gets the wide-char libraries
+    for n in ncurses tinfo; do
+        ln -sf "lib${n}w.so" "$SYS/usr/lib/lib${n}.so"
+        [ -e "$SYS/usr/lib/pkgconfig/${n}w.pc" ] && ln -sf "${n}w.pc" "$SYS/usr/lib/pkgconfig/${n}.pc"
+    done
 }
 step_musl_fts() {
     # NetBSD fts(3), packaged for musl by Void; a single source file.
@@ -585,13 +590,33 @@ step_ffmpeg() {
         && make -j"$JOBS" && make DESTDIR="$SYS" install)
 }
 # --- Bluetooth: bluez with libedit standing in for GNU readline -------------
-step_libedit()  { auto libedit; }
+# musl's wchar_t is UCS-4 but it does not predefine __STDC_ISO_10646__ (glibc
+# does, in stdc-predef.h); libedit refuses to build without it.
+step_libedit()  { CFLAGS="-O2 -D__STDC_ISO_10646__=201103L" auto libedit; }
 step_bluez() {
     # bluetoothctl includes <readline/readline.h>; libedit ships a compatible
     # API as <editline/readline.h>.
     mkdir -p "$SYS/usr/include/readline"
-    printf '#include <editline/readline.h>\n' > "$SYS/usr/include/readline/readline.h"
+    cat > "$SYS/usr/include/readline/readline.h" <<'RLEOF'
+#ifndef FLX_READLINE_COMPAT_H
+#define FLX_READLINE_COMPAT_H
+/* GNU readline API subset over libedit (BSD) for bluetoothctl. */
+#include <stdio.h>
+#include <editline/readline.h>
+/* not in libedit: erase the prompt line / forget the drawn state */
+static inline int rl_clear_visible_line(void)
+{
+	fputs("\r\033[K", rl_outstream ? rl_outstream : stdout);
+	fflush(rl_outstream ? rl_outstream : stdout);
+	return 0;
+}
+static inline void rl_reset_line_state(void) { rl_on_new_line(); }
+#endif
+RLEOF
     printf '#include <editline/readline.h>\n' > "$SYS/usr/include/readline/history.h"
+    # its Makefiles hard-code -lreadline: resolve that to libedit at link time
+    # (the binaries record libedit's soname).
+    ln -sf libedit.so "$SYS/usr/lib/libreadline.so"
     auto bluez --disable-systemd --disable-manpages --disable-cups --disable-obex \
         --disable-mesh --disable-midi --disable-udev --disable-hid2hci --disable-datafiles \
         --enable-client --enable-tools --enable-library --disable-test \
