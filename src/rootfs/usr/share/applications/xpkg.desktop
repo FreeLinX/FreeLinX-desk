@@ -2,7 +2,7 @@
 Name=Packages
 GenericName=Package Manager
 Comment=Install and remove software
-Exec=uxterm -e xpkg
+Exec=flxpkg
 Terminal=false
 Type=Application
 Icon=system-software-install

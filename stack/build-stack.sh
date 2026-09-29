@@ -547,6 +547,8 @@ step_flxapps() {
         "$TOP/flxinstall-gui.c" $("$PKG_CONFIG" --libs cairo x11)
     "$CC" -O2 $("$PKG_CONFIG" --cflags cairo x11) -o "$SYS/usr/bin/flxnetmgr" \
         "$TOP/flxnetmgr.c" $("$PKG_CONFIG" --libs cairo x11)
+    "$CC" -O2 -Wall $("$PKG_CONFIG" --cflags gtk+-3.0) -o "$SYS/usr/bin/flxpkg" \
+        "$TOP/flxpkg.c" $("$PKG_CONFIG" --libs gtk+-3.0)
 }
 
 # toybox (0BSD): only the process/system tools NetBSD's userland cannot
