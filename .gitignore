@@ -57,3 +57,8 @@ iso/limine/
 # ./make-firmware-tarball.sh from a staged linux-firmware tree).
 # Never commit it - it is a build artifact of the release, not source.
 firmware-*.tar.xz
+
+# Firefox (FreeLinX Web) is built by stack/build-firefox.sh and copied in by
+# stack/install-stack.sh; libxul.so alone exceeds GitHub's 100 MB file limit.
+src/rootfs/usr/lib/firefox/
+src/rootfs/usr/bin/firefox
