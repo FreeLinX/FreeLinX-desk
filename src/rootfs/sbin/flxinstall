@@ -367,27 +367,24 @@ echo ""
 echo "----------------------------------------------------------"
 echo " Step 8/9 - Desktop environment"
 echo "----------------------------------------------------------"
-echo " FreeLinX philosophy: the base install is HEADLESS (CLI only)."
-echo " Our full Openbox GUI (openbox + greetd login page + flx-session)"
-echo " is baked into this offline image. Choose what to install:"
-echo "   1) Headless (CLI terminal only, headless-first)"
-echo "   2) GUI (Openbox + login page greets you after boot)"
-printf "Install type (1=headless, 2=gui) [1]: "
+echo "   1) Console only (text login)"
+echo "   2) Desktop (Openbox with a graphical login)"
+printf "Install type (1=console, 2=desktop) [2]: "
 if [ -z "${DI:-}" ]; then
-    read -r DI || DI="1"
-    [ -z "$DI" ] && DI="1"
+    read -r DI || DI="2"
+    [ -z "$DI" ] && DI="2"
 else
     case "$DI" in
-        2|2g|gui|GUI) : ;;
-        1|1h|headless|HEADLESS) DI="1" ;;
+        2|2g|gui|GUI|desktop) DI="2" ;;
+        1|1h|headless|HEADLESS|console) DI="1" ;;
     esac
-    [ -z "$DI" ] && DI="1"
+    [ -z "$DI" ] && DI="2"
 fi
 case "$DI" in
     2) printf 'gui\n' > /etc/flx-desktop
-       echo "  Desktop: GUI (Openbox). Login page will greet you after boot." ;;
+       echo "  Desktop: Openbox with a graphical login." ;;
     *) printf 'headless\n' > /etc/flx-desktop
-       echo "  Desktop: Headless (CLI terminal only)." ;;
+       echo "  Desktop: none (console login)." ;;
 esac
 echo ""
 
@@ -495,9 +492,20 @@ for m in /media/"$TARGET_BASE"* /home /mnt/flx_boot /mnt/flx_home; do
 done
 
 echo ">>> Step 1/6: Partitioning $TARGET_DISK with flxpart (GPT)..."
-# ESP (512MB FAT32) + BIOS Boot (1MB) + FLX_SYS (persistent /usr /etc /var /root)
-# + Linux Home partition (remainder).
-flxpart --create-standard "$TARGET_DISK"
+# ESP (1 GB FAT32: kernel + the whole OS image) + BIOS Boot (1MB) + FLX_SYS
+# (persistent /usr /etc /var /root: everything xpkg installs lives here, so
+# 30% of the disk, at least 6 GB) + Linux Home partition (remainder).
+DISK_MB=$(( $(cat "/sys/class/block/$(basename "$TARGET_DISK")/size" 2>/dev/null || echo 0) / 2048 ))
+if [ "$DISK_MB" -ge 20480 ]; then
+    SYS_MB=$(( DISK_MB * 30 / 100 ))
+    [ "$SYS_MB" -lt 6144 ] && SYS_MB=6144
+    [ "$SYS_MB" -gt 65536 ] && SYS_MB=65536
+else
+    SYS_MB=$(( DISK_MB * 40 / 100 ))
+    [ "$SYS_MB" -lt 3072 ] && SYS_MB=3072
+fi
+echo "  ESP 1024 MB, system $SYS_MB MB, home: the rest of $DISK_MB MB"
+flxpart --esp-size 1024 --flx-sys-size "$SYS_MB" --create-standard "$TARGET_DISK"
 command -v partprobe >/dev/null 2>&1 && partprobe "$TARGET_DISK" 2>/dev/null || :
 sleep 1
 
@@ -569,14 +577,18 @@ if [ -n "$INITRD_SRC" ]; then
         >> "$BOOT_DIR/boot/initramfs.img.gz") 2>/dev/null || :
 else
     echo "Repacking live rootfs into initramfs (config baked in)..."
-    if command -v cpio >/dev/null 2>&1 && command -v gzip >/dev/null 2>&1; then
+    # xz (CRC32: what the kernel's decoder accepts) keeps the image well
+    # inside the ESP; gzip -1 no longer fits.
+    COMP="gzip -1"
+    command -v xz >/dev/null 2>&1 && COMP="xz -3 -T0 --check=crc32"
+    if command -v cpio >/dev/null 2>&1 && command -v ${COMP%% *} >/dev/null 2>&1; then
         (cd / && find . -xdev \
             -not -path './proc/*' -not -path './sys/*' \
             -not -path './dev/*'  -not -path './run/*' \
             -not -path './tmp/*'  -not -path './mnt/*' \
             -not -path './media/*' -not -path './home/*' \
             -print0 2>/dev/null | cpio --null -ov --format=newc 2>/dev/null \
-            | gzip -1 > "$BOOT_DIR/boot/initramfs.img.gz") || {
+            | $COMP > "$BOOT_DIR/boot/initramfs.img.gz") || {
             echo "Error: failed to repack initramfs." >&2
             umount "$BOOT_DIR"; exit 1
         }

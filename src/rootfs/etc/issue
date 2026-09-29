@@ -1,13 +1,13 @@
   ______              _      _         _  __
  |  ____|            | |    (_)       | |/ /
  | |__ _ __ ___  ___ | |     _ _ __   | ' / 
- |  __| '__/ _ \/ _ \| |    | | '_ \  |  <  
- | |  | | |  __/  __/| |____| | | | | | . \ 
- |_|  |_|  \___|\___||______|_|_| |_| |_|\_\
+ |  __| '__/ _ \\/ _ \\| |    | | '_ \\  |  <  
+ | |  | | |  __/  __/| |____| | | | | | . \\ 
+ |_|  |_|  \\___|\\___||______|_|_| |_| |_|\\_\\
 
  FreeLinX 1.0
 
  Right-click the desktop for the menu. Install to disk: flxinstall (as root).
  Packages: xpkg install <name>, xpkg list.
- Bugs: https://github.com/FreeLinX/Desktop-test/issues
+ Bugs: https://github.com/FreeLinX/FreeLinX/issues
 
