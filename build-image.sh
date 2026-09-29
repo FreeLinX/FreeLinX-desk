@@ -86,6 +86,28 @@ else
     echo "         audio codecs will not initialise on real hardware." >&2
 fi
 
+# --- package database ------------------------------------------------------
+# Register the desktop stack in the image's xpkg database, so `xpkg list`,
+# `xpkg upgrade` and `xpkg verify` see what the system really runs.  The
+# packages (stack/package-stack.sh) are the same builds install-stack.sh
+# copied; installing them over the staged tree records every file they own.
+PKGS_DIR="${FLX_PACKAGES:-$SCRIPT_DIR/stack/work/pkgs}"
+XPKG_HOST="$SCRIPT_DIR/stack/work/sysroot/usr/bin/xpkg"
+MUSL_RUN="$SCRIPT_DIR/stack/work/bin/musl-run"
+if [ "${FLX_REGISTER_PACKAGES:-1}" = 1 ] && [ -x "$XPKG_HOST" ] && ls "$PKGS_DIR"/*.xpkg >/dev/null 2>&1; then
+    echo "Registering $(ls "$PKGS_DIR"/*.xpkg | wc -l) packages in the image database"
+    XPKG_ROOT="$STAGE" NO_COLOR=1 "$MUSL_RUN" "$XPKG_HOST" --quiet --no-scripts install "$PKGS_DIR"/*.xpkg \
+        > "${BUILD_DIR}/xpkg-register.log" 2>&1 || {
+        tail -20 "${BUILD_DIR}/xpkg-register.log" >&2
+        echo "Error: registering packages failed" >&2
+        exit 1
+    }
+    # the image's own configuration wins over the packaged defaults
+    find "$STAGE/etc" -name '*.xpkgnew' -type f -delete
+    rm -rf "$STAGE/var/cache/xpkg" "$STAGE/var/lib/xpkg/lock"
+    echo "Package database: $("$MUSL_RUN" "$XPKG_HOST" --root "$STAGE" list 2>/dev/null | wc -l) packages"
+fi
+
 if [ -n "${FLX_ROOT_HASH:-}" ]; then
     _day=$(( $(date +%s) / 86400 ))
     sed "s|^root:[^:]*:[^:]*:|root:${FLX_ROOT_HASH}:${_day}:|" "$STAGE/etc/shadow" > "$STAGE/etc/shadow.new"

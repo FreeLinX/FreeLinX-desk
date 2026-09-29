@@ -115,7 +115,7 @@ for b in hostapd hostapd_cli; do
 done
 # Mesa's driver search data
 [ -d "$SYS/usr/share/drirc.d" ] && rm -rf "$R/usr/share/drirc.d" && cp -a "$SYS/usr/share/drirc.d" "$R/usr/share/drirc.d"
-for b in flxinstall-gui flxnetmgr; do
+for b in flxinstall-gui flxnetmgr flxpkg; do
     [ -f "$SYS/usr/bin/$b" ] && cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"
 done
 # toybox fills only the gaps (ps, top, free, uptime, pgrep, pidof, w); tools

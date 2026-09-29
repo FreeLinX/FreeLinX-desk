@@ -272,6 +272,12 @@
     </action>
   </item>
 
+  <item label="Packages">
+    <action name="Execute">
+      <command>flxpkg</command>
+    </action>
+  </item>
+
   <separator />
 
   <menu id="config-menu" />

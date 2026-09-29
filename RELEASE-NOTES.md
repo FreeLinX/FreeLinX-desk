@@ -34,8 +34,15 @@ to package a tree that fails (`check-nognu.sh`).
   firmware framebuffers (simpledrm) use fbdev. `flx.xdriver=fbdev|kms|glamor`
   overrides the choice.
 - **Media**: H.264/AAC through FFmpeg (LGPL build), VP9/AV1 built in.
+- **Software**: *Packages* (`flxpkg`) on the desktop and `xpkg` on the command
+  line install from a signed repository of about 390 packages - the NetBSD
+  userland, developer tools, and the whole desktop stack, so `xpkg upgrade`
+  updates Xorg, Mesa, GTK and the browser too. Indexes are Ed25519-signed and
+  every download is checked against them; TLS certificates are verified;
+  edited configuration is never overwritten. The image's own packages are
+  registered, so `xpkg list` and `xpkg verify` describe the running system.
 - Terminal (`st`), file manager (`xfe`), PDF viewer (`mupdf`), media player
-  (`mpv`), `vim`/`nvi`, `git`, package manager `xpkg`.
+  (`mpv`), `vim`/`nvi`, `git`.
 
 ## Under the hood
 
@@ -50,6 +57,7 @@ to package a tree that fails (`check-nognu.sh`).
 | Auth | Linux-PAM 1.7 (greetd), shadow SHA-512 |
 | Firmware | linux-firmware 20260916 + SOF 2026.09.1, zstd-compressed |
 | Time | IANA tzdata 2026d |
+| Packages | xpkg 1.0, repository at huggingface.co/datasets/FreeLinX/packages |
 
 Rust programs (greetd, tuigreet) are built with a from-source Rust standard
 library, so rustup's GCC-built musl objects never reach the image.
@@ -73,6 +81,7 @@ stack/build-stack.sh     # musl sysroot + X11/Xorg/GTK stack + userland
 stack/build-rust.sh      # Linux-PAM, greetd, tuigreet
 stack/build-firefox.sh   # Firefox ESR (long: ~2 h on 8 cores)
 stack/install-stack.sh   # copy the stack into src/rootfs, run the checks
+stack/package-stack.sh   # the stack as xpkg packages (registered in the image)
 ./build-image.sh         # initramfs (fails on any GNU/glibc artefact)
 sh iso/buildiso.sh       # hybrid BIOS/UEFI ISO
 ```
