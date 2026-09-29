@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=mpv Media Player
-Comment=Universal audio and video player
+Comment=Audio and video player
 Exec=mpv %U
 Icon=multimedia-video-player
 Terminal=false

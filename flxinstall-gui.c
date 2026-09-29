@@ -34,7 +34,7 @@ enum {
 
 static int page = PG_WELCOME;
 static int running = 1;
-static char status_msg[160] = "FreeLinX Installer ready.";
+static char status_msg[160] = "Ready.";
 
 /* ---- wizard data --------------------------------------------------------- */
 static char sel_lang[64] = "English (en_US.UTF-8)";
@@ -454,9 +454,9 @@ static void draw_ui(cairo_t *cr, cairo_surface_t *surf) {
         cairo_set_font_size(cr, 11.5);
         cairo_set_source_rgb(cr, 0.25, 0.25, 0.25);
         cairo_move_to(cr, 28, 132);
-        cairo_show_text(cr, "Answer a few simple questions (language, users, hostname,");
+        cairo_show_text(cr, "Set the language, users, hostname, WiFi and desktop mode,");
         cairo_move_to(cr, 28, 150);
-        cairo_show_text(cr, "WiFi, desktop mode), then pick the target disk and install.");
+        cairo_show_text(cr, "then pick the target disk and install.");
         cairo_move_to(cr, 28, 172);
         cairo_show_text(cr, "WARNING: the target disk is WIPED during installation.");
         cairo_move_to(cr, 28, 204);
@@ -511,9 +511,9 @@ static void draw_ui(cairo_t *cr, cairo_surface_t *surf) {
         cairo_set_font_size(cr, 10.5);
         cairo_set_source_rgb(cr, 0.45, 0.45, 0.45);
         cairo_move_to(cr, 40, cy + 140);
-        cairo_show_text(cr, "GUI: Openbox desktop with a welcome login screen.");
+        cairo_show_text(cr, "Desktop: Openbox with a graphical login.");
         cairo_move_to(cr, 40, cy + 158);
-        cairo_show_text(cr, "Headless: pure CLI - perfect for servers.");
+        cairo_show_text(cr, "Console: text login only, no desktop.");
     } else if (page == PG_DISK) {
         draw_list(cr, &disk_list, 40, cy, WIN_W - 80, 210, "Select target disk (WILL BE WIPED)");
         cairo_select_font_face(cr, "sans-serif", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
@@ -632,7 +632,7 @@ static void draw_ui(cairo_t *cr, cairo_surface_t *surf) {
         cairo_show_text(cr, "Remove the live media, then reboot to start FreeLinX from disk.");
         if (inst_state != INST_ERROR) {
             cairo_move_to(cr, 40, 180);
-            cairo_show_text(cr, "The login screen greets you with the account you just created.");
+            cairo_show_text(cr, "Log in with the account you just created.");
         }
     }
 

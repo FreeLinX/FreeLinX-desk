@@ -5,7 +5,7 @@ set -e
 show_menu() {
     clear
     echo "================================================="
-    echo "      FreeLinX Network Manager (non-GNU)        "
+    echo "      FreeLinX Network                  "
     echo "================================================="
     echo ""
     echo " Interfaces:"
