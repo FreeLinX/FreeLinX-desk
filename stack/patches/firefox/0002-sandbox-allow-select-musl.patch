@@ -1,0 +1,14 @@
+--- a/security/sandbox/linux/SandboxFilter.cpp
++++ b/security/sandbox/linux/SandboxFilter.cpp
+@@ -1059,6 +1059,11 @@
+       CASES_FOR_poll:
+         return Allow();
+ 
++        // musl's select() is the select syscall itself (glibc goes through
++        // pselect6), so every process type needs it, not only content.
++      CASES_FOR_select:
++        return Allow();
++
+         // Used when requesting a crash dump.
+       CASES_FOR_pipe:
+         return Allow();

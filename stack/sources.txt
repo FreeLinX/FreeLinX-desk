@@ -78,3 +78,9 @@ tint2 https://gitlab.com/o9000/tint2/-/archive/v17.0.2/tint2-v17.0.2.tar.gz 1f10
 tzdata https://data.iana.org/time-zones/releases/tzdata2026d.tar.gz - tzdata2026d.tar.gz
 toybox https://landley.net/toybox/downloads/toybox-0.8.14.tar.gz -
 alsa-utils https://www.alsa-project.org/files/pub/utils/alsa-utils-1.2.13.tar.bz2 1702a6b1cdf9ba3e996ecbc1ddcf9171e6808f5961d503d0f27e80ee162f1daa
+libXxf86vm https://www.x.org/releases/individual/lib/libXxf86vm-1.1.6.tar.xz -
+mesa https://archive.mesa3d.org/mesa-24.0.9.tar.xz -
+ffmpeg https://ffmpeg.org/releases/ffmpeg-7.1.5.tar.xz -
+libedit https://thrysoee.dk/editline/libedit-20260512-3.1.tar.gz -
+bluez https://www.kernel.org/pub/linux/bluetooth/bluez-5.87.tar.xz -
+hostapd https://w1.fi/releases/hostapd-2.11.tar.gz -

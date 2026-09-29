@@ -50,7 +50,7 @@ if [ -x "$SYS/usr/bin/greetd" ]; then
 fi
 
 # gdk-pixbuf / gio / gtk module trees and PAM modules
-for d in gdk-pixbuf-2.0 gio gtk-3.0 imlib2; do
+for d in gdk-pixbuf-2.0 gio gtk-3.0 imlib2 dri; do
     [ -d "$SYS/usr/lib/$d" ] || continue
     rm -rf "$R/usr/lib/$d"
     cp -a "$SYS/usr/lib/$d" "$R/usr/lib/$d"
@@ -101,6 +101,20 @@ if [ -d "$SYS/usr/share/sounds/alsa" ]; then
     mkdir -p "$R/usr/share/sounds"; rm -rf "$R/usr/share/sounds/alsa"
     cp -a "$SYS/usr/share/sounds/alsa" "$R/usr/share/sounds/alsa"
 fi
+# Bluetooth (bluez) and hostapd
+for b in bluetoothctl btmon; do
+    [ -f "$SYS/usr/bin/$b" ] && cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"
+done
+if [ -f "$SYS/usr/libexec/bluetooth/bluetoothd" ]; then
+    cp_strip "$SYS/usr/libexec/bluetooth/bluetoothd" "$R/usr/libexec/bluetooth/bluetoothd"
+    mkdir -p "$R/etc/dbus-1/system.d"
+    cp -f "$SYS"/etc/dbus-1/system.d/bluetooth.conf "$R/etc/dbus-1/system.d/" 2>/dev/null || :
+fi
+for b in hostapd hostapd_cli; do
+    [ -f "$SYS/sbin/$b" ] && cp_strip "$SYS/sbin/$b" "$R/sbin/$b"
+done
+# Mesa's driver search data
+[ -d "$SYS/usr/share/drirc.d" ] && rm -rf "$R/usr/share/drirc.d" && cp -a "$SYS/usr/share/drirc.d" "$R/usr/share/drirc.d"
 for b in flxinstall-gui flxnetmgr; do
     [ -f "$SYS/usr/bin/$b" ] && cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"
 done

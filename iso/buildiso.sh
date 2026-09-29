@@ -58,7 +58,7 @@ term_foreground: e8ece8
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
-    cmdline: rdinit=/init console=tty0 ${SERIAL_ARGS} quiet loglevel=2 initcall_blacklist=i915_init flx.desktop=gui flx.autologin=1 ${EXTRA}
+    cmdline: rdinit=/init console=tty0 ${SERIAL_ARGS} quiet loglevel=2 initcall_blacklist=i915_init modprobe.blacklist=amdgpu,radeon,nouveau flx.xdriver=fbdev flx.desktop=gui flx.autologin=1 ${EXTRA}
 
 /FreeLinX 1.0 Text Console (installer: flxinstall)
     protocol: linux

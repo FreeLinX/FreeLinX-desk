@@ -337,7 +337,7 @@ step_libXfont2()   { auto libXfont2 --disable-devel-docs; }
 step_libxshmfence() { auto libxshmfence; }
 step_libpciaccess() { mes libpciaccess -Dzlib=enabled; }
 step_libdrm() {
-    mes libdrm -Dintel=disabled -Dradeon=disabled -Damdgpu=disabled -Dnouveau=disabled \
+    mes libdrm -Dintel=enabled -Dradeon=enabled -Damdgpu=enabled -Dnouveau=enabled \
         -Dvmwgfx=disabled -Dcairo-tests=disabled -Dman-pages=disabled -Dvalgrind=disabled -Dtests=false
 }
 step_libxcvt()     { mes libxcvt; }
@@ -352,7 +352,7 @@ step_libudev_zero() {
 }
 step_xorg_server() {
     mes xorg-server -Dxorg=true -Dxvfb=false -Dxnest=false -Dxephyr=false -Dxwin=false \
-        -Dxquartz=false -Dglamor=false -Dglx=false -Ddri1=false -Ddri2=false -Ddri3=false \
+        -Dxquartz=false -Dglamor=true -Dglx=true -Ddri1=false -Ddri2=true -Ddri3=true \
         -Dudev=false -Dudev_kms=false -Dsystemd_logind=false -Dsuid_wrapper=false \
         -Dint10=false -Dvgahw=false -Dxdmcp=false -Dsecure-rpc=false -Dlibunwind=false \
         -Dxselinux=false -Dxcsecurity=false -Ddtrace=false -Ddocs=false -Ddevel-docs=false \
@@ -428,7 +428,7 @@ step_at_spi2_core() {
     mes at-spi2-core -Dintrospection=disabled -Ddocs=false -Duse_systemd=false \
         -Dx11=enabled -Ddbus_daemon=/usr/bin/dbus-daemon -Ddefault_bus=dbus-daemon
 }
-step_libepoxy()    { mes libepoxy -Degl=no -Dglx=yes -Dx11=true -Dtests=false -Ddocs=false; }
+step_libepoxy()    { mes libepoxy -Degl=yes -Dglx=yes -Dx11=true -Dtests=false -Ddocs=false; }
 step_gtk3() {
     mes gtk -Dx11_backend=true -Dwayland_backend=false -Dbroadway_backend=false \
         -Dintrospection=false -Ddemos=false -Dexamples=false -Dtests=false \
@@ -561,7 +561,55 @@ step_toybox() {
     for t in $TOYBOX_APPLETS; do ln -sf toybox "$SYS/usr/bin/$t"; done
 }
 
-STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils"
+# --- GPU acceleration: Mesa 24.0 (the last series whose iris needs no
+# OpenCL/LLVM toolchain; no LLVM: iris/crocus/i915 for Intel, nouveau,
+# r300/r600 for older AMD, virgl for VMs, softpipe as the CPU fallback) ------
+step_libXxf86vm() { auto libXxf86vm; }
+step_mesa() {
+    mes mesa -Dplatforms=x11 -Dgallium-drivers=iris,crocus,i915,nouveau,r300,r600,virgl,swrast \
+        -Dvulkan-drivers= -Dllvm=disabled -Dshared-llvm=disabled -Dglx=dri -Degl=enabled \
+        -Dgbm=enabled -Dgles1=disabled -Dgles2=enabled -Dopengl=true -Dglvnd=false \
+        -Dvalgrind=disabled -Dlibunwind=disabled -Dbuild-tests=false -Dgallium-va=disabled \
+        -Dgallium-vdpau=disabled -Dvideo-codecs= -Dlmsensors=disabled -Dzstd=disabled \
+        -Dintel-clc=disabled -Dmicrosoft-clc=disabled -Dosmesa=false
+}
+# --- H.264/AAC for FreeLinX Web: shared LGPL FFmpeg (no GPL parts) ----------
+step_ffmpeg() {
+    s=$(unpack ffmpeg)
+    b="$W/build/ffmpeg"; rm -rf "$b"; mkdir -p "$b"
+    (cd "$b" && "$s/configure" --prefix=/usr --enable-shared --disable-static \
+        --enable-cross-compile --target-os=linux --arch=x86_64 --cc="$CC" --cxx="$CXX" \
+        --ar="$AR" --nm="$NM" --ranlib="$RANLIB" --strip="$STRIP" --pkg-config="$PKG_CONFIG" \
+        --x86asmexe=nasm --enable-pic --disable-programs --disable-doc --disable-debug \
+        --disable-autodetect --disable-network --enable-zlib \
+        && make -j"$JOBS" && make DESTDIR="$SYS" install)
+}
+# --- Bluetooth: bluez with libedit standing in for GNU readline -------------
+step_libedit()  { auto libedit; }
+step_bluez() {
+    # bluetoothctl includes <readline/readline.h>; libedit ships a compatible
+    # API as <editline/readline.h>.
+    mkdir -p "$SYS/usr/include/readline"
+    printf '#include <editline/readline.h>\n' > "$SYS/usr/include/readline/readline.h"
+    printf '#include <editline/readline.h>\n' > "$SYS/usr/include/readline/history.h"
+    auto bluez --disable-systemd --disable-manpages --disable-cups --disable-obex \
+        --disable-mesh --disable-midi --disable-udev --disable-hid2hci --disable-datafiles \
+        --enable-client --enable-tools --enable-library --disable-test \
+        --with-dbusconfdir=/etc --with-dbussystembusdir=/usr/share/dbus-1/system-services \
+        READLINE_CFLAGS="-I$SYS/usr/include" READLINE_LIBS="-ledit -lncursesw"
+}
+# --- hostapd (access point; lets flxnetmgr's WiFi path be tested with hwsim)
+step_hostapd() {
+    s=$(unpack hostapd)
+    cd "$s/hostapd"
+    cp defconfig .config
+    { echo 'CONFIG_DRIVER_NL80211=y'; echo 'CONFIG_LIBNL32=y'; echo 'CONFIG_TLS=openssl';
+      echo 'CONFIG_SAE=y'; echo 'CONFIG_IEEE80211W=y'; } >> .config
+    make -j"$JOBS" CC="$CC" PKG_CONFIG="$PKG_CONFIG" EXTRA_CFLAGS="-I$SYS/usr/include/libnl3" BINDIR=/sbin
+    make DESTDIR="$SYS" BINDIR=/sbin install
+}
+
+STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm mesa ffmpeg libedit bluez hostapd"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11
