@@ -43,76 +43,14 @@ done
 # Never let a previous incarnation hold the display lock.
 rm -f /tmp/.X0-lock /tmp/.X11-unix/X0
 
-# Map the evdev input devices to /dev/fl-kbd and /dev/fl-pointer for Xorg
-NAME=""
-FOUND_TABLET=""
-FOUND_MOUSE=""
-FOUND_KBD=""
-if [ -r /proc/bus/input/devices ]; then
-    while IFS= read -r line; do
-        case "$line" in
-            I:*)
-                NAME=""
-                ;;
-            N:\ Name=\"*)
-                NAME="${line#N: Name=\"}"
-                NAME="${NAME%\"}"
-                ;;
-            H:\ Handlers=*)
-                for h in ${line#H: Handlers=}; do
-                    case "$h" in
-                        event*)
-                            case "$NAME" in
-                                *[Kk]eyboard*)
-                                    [ -z "$FOUND_KBD" ] && FOUND_KBD="/dev/input/$h"
-                                    ;;
-                                *[Tt]ablet*)
-                                    FOUND_TABLET="/dev/input/$h"
-                                    ;;
-                                *[Mm]ouse*|*[Ee]xplorer*|*[Tt]ouchpad*)
-                                    [ -z "$FOUND_MOUSE" ] && FOUND_MOUSE="/dev/input/$h"
-                                    ;;
-                            esac
-                            ;;
-                    esac
-                done
-                ;;
-        esac
-    done < /proc/bus/input/devices
-fi
-
-if [ -n "$FOUND_KBD" ]; then
-    ln -sf "$FOUND_KBD" /dev/fl-kbd
-fi
-if [ -n "$FOUND_TABLET" ]; then
-    ln -sf "$FOUND_TABLET" /dev/fl-pointer
-elif [ -n "$FOUND_MOUSE" ]; then
-    ln -sf "$FOUND_MOUSE" /dev/fl-pointer
-fi
-
-if [ ! -e /dev/fl-kbd ]; then
-    for ev in /dev/input/event*; do
-        [ -e "$ev" ] || continue
-        ln -sf "$ev" /dev/fl-kbd
-        break
-    done
-fi
-if [ ! -e /dev/fl-pointer ]; then
-    for ev in /dev/input/event*; do
-        [ -e "$ev" ] || continue
-        if [ "$ev" != "$(readlink /dev/fl-kbd 2>/dev/null)" ]; then
-            ln -sf "$ev" /dev/fl-pointer
-            break
-        fi
-    done
-fi
+# Input devices: Xorg finds and hot-plugs them itself (udev backend over
+# libudev-zero, libinput driver).
 if [ ! -e /dev/fb0 ]; then mknod /dev/fb0 c 29 0 2>/dev/null || true; fi
 if [ -e /dev/fb0 ]; then
     chmod 666 /dev/fb0 2>/dev/null || true
     echo "FreeLinX: Framebuffer ready: $(ls /dev/fb* 2>/dev/null)" > "$FLX_LOG"
 fi
 
-echo "FreeLinX Input: kbd=$(readlink /dev/fl-kbd 2>/dev/null) pointer=$(readlink /dev/fl-pointer 2>/dev/null)" > "$FLX_LOG"
 
 # Driver choice:
 #   i915, nouveau            -> modesetting + glamor (hardware Mesa driver)

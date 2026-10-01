@@ -67,6 +67,11 @@ mkdir -p "$R/usr/lib/xorg"
 cp -a "$SYS/usr/lib/xorg/modules" "$R/usr/lib/xorg/modules"
 find "$R/usr/lib/xorg/modules" -name '*.so' -exec "$STRIP" --strip-unneeded {} \;
 [ -f "$SYS/usr/lib/xorg/protocol.txt" ] && cp -f "$SYS/usr/lib/xorg/protocol.txt" "$R/usr/lib/xorg/"
+# input driver matching (libinput catch-alls, quirks) for hot-plugged devices
+if [ -d "$SYS/usr/share/X11/xorg.conf.d" ]; then
+    rm -rf "$R/usr/share/X11/xorg.conf.d"
+    cp -a "$SYS/usr/share/X11/xorg.conf.d" "$R/usr/share/X11/xorg.conf.d"
+fi
 # The old private X tree duplicated the server and modules; point it at the
 # single copy so existing ModulePath/PATH entries keep working.
 if [ -d "$R/usr/share/X11/xtree" ]; then

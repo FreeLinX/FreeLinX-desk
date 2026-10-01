@@ -7,6 +7,8 @@ __pycache__/
 *.o
 *.a
 *.d
+# ... but not configuration directories (pam.d, xorg.conf.d, fonts/conf.d)
+!*.d/
 *.bc
 *.ll
 

@@ -124,6 +124,16 @@ xorg|xorg-server|e:|X Window System: server, input/video drivers, keymap compile
 '
 
 # --- versions ------------------------------------------------------------------
+# Package release: bump a package here when its contents change without a
+# new upstream version, so installed systems see an upgrade.
+pkg_rel() {
+    case "$1" in
+        xorg-server) echo 2 ;;   # 1.0.1: udev hotplug, DRI path inside the target
+        gtk3) echo 2 ;;          # 1.0.1: X11 compose/locale path inside the target
+        *) echo "$REL" ;;
+    esac
+}
+
 src_version() { # source name -> version string
     case "$1" in
         flxnet|flxapps) date -u +%Y.%m.%d ;;   # FreeLinX's own, dated
@@ -219,7 +229,23 @@ scripts_for() { # name -> post-install script path (or empty)
         gdk-pixbuf) printf 'gdk-pixbuf-query-loaders --update-cache 2>/dev/null || :\n' > "$sc" ;;
         gtk3) printf 'gtk-query-immodules-3.0 --update-cache 2>/dev/null || :\n[ -x /usr/bin/gtk-update-icon-cache ] && for d in /usr/share/icons/*/; do gtk-update-icon-cache -q -t "$d" 2>/dev/null || :; done\n' > "$sc" ;;
         fontconfig) printf 'fc-cache -s >/dev/null 2>&1 || :\n' > "$sc" ;;
-        xorg-server) printf 'chmod 4711 /usr/bin/Xorg\n' > "$sc" ;;
+        xorg-server) cat > "$sc" <<'XEOF'
+chmod 4711 /usr/bin/Xorg
+# 1.0.0 configs listed fixed /dev/fl-* input devices; with udev hotplug they
+# would add every keyboard and mouse a second time: drop them.
+for f in /etc/X11/xorg.conf /etc/X11/xorg-kms.conf /etc/X11/xorg-modesetting.conf; do
+    [ -f "$f" ] && grep -q '/dev/fl-' "$f" || continue
+    awk '/^Section "InputDevice"/ { skip = 1 }
+         skip && /^EndSection/ { skip = 0; next }
+         !skip && !/^[ \t]*InputDevice "/' "$f" > "$f.xpkg-new" && mv "$f.xpkg-new" "$f"
+done
+# with GLX working, tint2 draws panels that use a background as a black bar
+t=/etc/xdg/tint2/tint2rc
+if [ -f "$t" ] && grep -q '_background_id = ' "$t"; then
+    sed '/^[a-z_]*_background_id = /d' "$t" > "$t.xpkg-new" && mv "$t.xpkg-new" "$t"
+fi
+XEOF
+            ;;
         firefox) cat > "$sc" <<'FFEOF'
 # the musl loader finds Firefox's private libraries through its search path
 p=/etc/ld-musl-x86_64.path
@@ -293,6 +319,11 @@ echo "$PKGS" | while IFS='|' read -r name src how desc; do
              ln -s ../../lib/ld-musl-x86_64.so.1 "$d/usr/lib/libc.so" ;;
     esac
     if [ $rc -ne 0 ]; then echo "STAGING FAILED"; rm -rf "$d"; continue; fi
+    # Xorg's input defaults (libinput, tapping) travel with the server
+    if [ "$name" = xorg-server ]; then
+        mkdir -p "$d/etc/X11/xorg.conf.d"
+        cp "$TOP/src/rootfs/etc/X11/xorg.conf.d/50-flx-input.conf" "$d/etc/X11/xorg.conf.d/"
+    fi
     # ncurses' programs (clear, tput, tic, ...) are packaged on their own
     [ "$name" = ncurses ] && rm -rf "$d/usr/bin"
     trim "$d"
@@ -322,7 +353,7 @@ echo "$PKGS" | while IFS='|' read -r name src how desc extra; do
         awk -v s="$so" '$2 == s { print $1; exit }' "$soname_map"
     done; for x in $(echo "${extra:-}" | tr ',' ' '); do echo "$x"; done)
     deps=$(echo "$deps" | grep -v -x "$name" | grep . | sort -u | tr '\n' ',' | sed 's/,$//')
-    ver="$(src_version "$src")-$REL"
+    ver="$(src_version "$src")-$(pkg_rel "$name")"
     sc=$(scripts_for "$name")
     rm -f "$OUT/$name"-[0-9]*.xpkg
     set -- --name "$name" --version "$ver" --description "$desc" --stage "$d" \

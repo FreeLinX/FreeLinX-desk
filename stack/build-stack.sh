@@ -206,6 +206,14 @@ mes() { # name [meson args...]
     "$MESON" setup "$b" "$s" --cross-file "$W/cross.ini" --prefix=/usr \
         --sysconfdir=/etc --localstatedir=/var --libdir=lib \
         --buildtype=release --default-library=shared --wrap-mode=nofallback "$@"
+    # pkg-config prefixes every path variable with the sysroot, so runtime
+    # paths taken from .pc files (Xorg's DRI driver dir, GTK's X11 locale
+    # dir) would point into the build machine: strip it from the generated
+    # config headers.
+    find "$b" -maxdepth 2 -name '*config*.h' -type f -exec sed -i "s|$SYS/usr/|/usr/|g" {} +
+    # ... and from -D values on compile lines (GTK's X11_DATA_PREFIX);
+    # -I/-L paths are not quoted values and stay as they are
+    sed -i "s|=\"$SYS/usr|=\"/usr|g" "$b/build.ninja"
     "$MESON" compile -C "$b" -j "$JOBS"
     DESTDIR="$SYS" "$MESON" install -C "$b" --no-rebuild
 }
@@ -353,7 +361,7 @@ step_libudev_zero() {
 step_xorg_server() {
     mes xorg-server -Dxorg=true -Dxvfb=false -Dxnest=false -Dxephyr=false -Dxwin=false \
         -Dxquartz=false -Dglamor=true -Dglx=true -Ddri1=false -Ddri2=true -Ddri3=true \
-        -Dudev=false -Dudev_kms=false -Dsystemd_logind=false -Dsuid_wrapper=false \
+        -Dudev=true -Dudev_kms=false -Dsystemd_logind=false -Dsuid_wrapper=false \
         -Dint10=false -Dvgahw=false -Dxdmcp=false -Dsecure-rpc=false -Dlibunwind=false \
         -Dxselinux=false -Dxcsecurity=false -Ddtrace=false -Ddocs=false -Ddevel-docs=false \
         -Dsha1=libmd -Dhal=false -Dlinux_apm=false -Dlinux_acpi=false \

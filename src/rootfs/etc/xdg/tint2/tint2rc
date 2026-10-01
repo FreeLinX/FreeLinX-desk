@@ -1,10 +1,11 @@
 # FreeLinX panel: launchers, task list, tray, clock (bottom edge)
+# No *_background_id settings: with GLX active, tint2 (17.0.2) painted a
+# panel whose items name a background id as a black bar.
 panel_items = LTSC
 panel_position = bottom center horizontal
 panel_size = 100% 30
 panel_margin = 0 0
 panel_padding = 4 2 4
-panel_background_id = 1
 panel_layer = top
 panel_dock = 0
 wm_menu = 1
@@ -27,7 +28,6 @@ background_color = #95a595 90
 border_color = #000000 0
 
 launcher_padding = 4 2 6
-launcher_background_id = 0
 launcher_icon_size = 22
 launcher_item_app = /usr/share/applications/firefox.desktop
 launcher_item_app = /usr/share/applications/st.desktop
@@ -38,8 +38,6 @@ launcher_item_app = /usr/share/applications/flxinstall.desktop
 
 taskbar_mode = single_desktop
 taskbar_padding = 2 2 4
-taskbar_background_id = 0
-taskbar_active_background_id = 0
 task_icon = 1
 task_text = 1
 task_centered = 0
@@ -47,12 +45,8 @@ task_maximum_size = 200 26
 task_padding = 6 2 4
 task_font = sans 9
 task_font_color = #e8ece8 100
-task_background_id = 2
-task_active_background_id = 3
-task_urgent_background_id = 3
 
 systray_padding = 4 2 4
-systray_background_id = 0
 systray_icon_size = 18
 
 time1_format = %H:%M
@@ -61,4 +55,3 @@ time1_font = sans bold 9
 time2_font = sans 7
 clock_font_color = #e8ece8 100
 clock_padding = 8 0
-clock_background_id = 0

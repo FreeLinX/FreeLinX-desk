@@ -82,7 +82,9 @@ fix_basic_devs() {
 
 # Device Manager (mdevd) & Driver Auto-probe
 if [ -x /sbin/mdevd ]; then
-    /sbin/mdevd -f /etc/mdev.conf >/dev/null 2>&1 &
+    # -O 4: rebroadcast processed uevents on netlink group 4, where
+    # libudev-zero (Xorg input hotplug, libinput) listens.
+    /sbin/mdevd -O 4 -f /etc/mdev.conf >/dev/null 2>&1 &
     if [ -x /sbin/mdevd-coldplug ]; then
         /sbin/mdevd-coldplug >/dev/null 2>&1 || :
         fix_basic_devs
@@ -163,80 +165,8 @@ if [ -f /etc/flx-installed ]; then
     fi
 fi
 
-# Input devices (evdev)
-# # Map keyboards and mouse/tablet evdev nodes to /dev/fl-kbd and /dev/fl-pointer
-# for Xorg evdev driver.
-rm -f /dev/fl-kbd /dev/fl-pointer
-NAME=""
-FOUND_TABLET=""
-FOUND_MOUSE=""
-FOUND_KBD=""
-if [ -r /proc/bus/input/devices ]; then
-    while IFS= read -r line; do
-        case "$line" in
-            I:*)
-                NAME=""
-                ;;
-            N:\ Name=\"*)
-                NAME="${line#N: Name=\"}"
-                NAME="${NAME%\"}"
-                ;;
-            H:\ Handlers=*)
-                for h in ${line#H: Handlers=}; do
-                    case "$h" in
-                        event*)
-                            case "$NAME" in
-                                *[Kk]eyboard*)
-                                    [ -z "$FOUND_KBD" ] && FOUND_KBD="/dev/input/$h"
-                                    ;;
-                                *[Tt]ablet*)
-                                    FOUND_TABLET="/dev/input/$h"
-                                    ;;
-                                *[Mm]ouse*|*[Ee]xplorer*|*[Tt]ouchpad*)
-                                    [ -z "$FOUND_MOUSE" ] && FOUND_MOUSE="/dev/input/$h"
-                                    ;;
-                            esac
-                            ;;
-                    esac
-                done
-                ;;
-        esac
-    done < /proc/bus/input/devices
-fi
-
-if [ -n "$FOUND_KBD" ]; then
-    ln -sf "$FOUND_KBD" /dev/fl-kbd
-fi
-if [ -n "$FOUND_TABLET" ] && [ -n "$FOUND_MOUSE" ]; then
-    ln -sf "$FOUND_TABLET" /dev/fl-pointer
-    ln -sf "$FOUND_MOUSE" /dev/fl-pointer2
-elif [ -n "$FOUND_TABLET" ]; then
-    ln -sf "$FOUND_TABLET" /dev/fl-pointer
-    ln -sf "$FOUND_TABLET" /dev/fl-pointer2
-elif [ -n "$FOUND_MOUSE" ]; then
-    ln -sf "$FOUND_MOUSE" /dev/fl-pointer
-    ln -sf "$FOUND_MOUSE" /dev/fl-pointer2
-fi
-
-if [ ! -e /dev/fl-kbd ]; then
-    for ev in /dev/input/event*; do
-        [ -e "$ev" ] || continue
-        ln -sf "$ev" /dev/fl-kbd
-        break
-    done
-fi
-if [ ! -e /dev/fl-pointer ]; then
-    for ev in /dev/input/event*; do
-        [ -e "$ev" ] || continue
-        if [ "$ev" != "$(readlink /dev/fl-kbd 2>/dev/null)" ]; then
-            ln -sf "$ev" /dev/fl-pointer
-            break
-        fi
-    done
-fi
-if [ ! -e /dev/fl-pointer2 ] && [ -e /dev/fl-pointer ]; then
-    ln -sf "$(readlink /dev/fl-pointer)" /dev/fl-pointer2
-fi
+# Input devices: Xorg hot-plugs them (udev backend over libudev-zero, fed
+# by mdevd -O 4) and drives them with libinput.
 
 # --- XKB defaults (kept for GTK apps / X clients; the X server itself is
 # configured through xorg.conf, so do NOT export these before X starts) ------
