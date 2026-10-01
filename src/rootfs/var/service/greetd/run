@@ -3,12 +3,6 @@
 FLX_DESK="$(cat /etc/flx-desktop 2>/dev/null || echo headless)"
 
 if [ "$FLX_DESK" = "gui" ]; then
-    case " $(cat /proc/cmdline 2>/dev/null) " in
-        *flx.autologin=1*)
-            exec /usr/bin/flx-session
-            ;;
-    esac
-
     # Make sure the greeter user owns its home (cpio packs everything
     # root:root; greetd needs a writable HOME for the greeter).
     if [ -d /var/lib/greetd ]; then
@@ -16,7 +10,25 @@ if [ "$FLX_DESK" = "gui" ]; then
         chmod 750 /var/lib/greetd 2>/dev/null || true
     fi
 
-    exec /usr/bin/greetd >> /tmp/greetd.log 2>&1
+    CONF=/etc/greetd/config.toml
+    case " $(cat /proc/cmdline 2>/dev/null) " in
+        *flx.autologin=1*)
+            # Live ISO: log the unprivileged 'live' user in once (it may use
+            # doas without a password); after logging out the normal login
+            # screen appears.
+            if [ ! -e /etc/flx-installed ] && grep -q '^live:' /etc/passwd; then
+                chown -R 990:990 /home/live 2>/dev/null || true
+                mkdir -p /run/greetd
+                {
+                    sed '/^\[initial_session\]/,$d' "$CONF"
+                    printf '\n[initial_session]\ncommand = "/usr/bin/flx-session"\nuser = "live"\n'
+                } > /run/greetd/live.toml
+                CONF=/run/greetd/live.toml
+            fi
+            ;;
+    esac
+
+    exec /usr/bin/greetd --config "$CONF" >> /tmp/greetd.log 2>&1
 fi
 
 # Headless console: root shell on the live ISO, login prompt once installed.

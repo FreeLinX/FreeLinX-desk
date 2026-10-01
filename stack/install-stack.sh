@@ -54,6 +54,7 @@ for d in gdk-pixbuf-2.0 gio gtk-3.0 imlib2 dri; do
     [ -d "$SYS/usr/lib/$d" ] || continue
     rm -rf "$R/usr/lib/$d"
     cp -a "$SYS/usr/lib/$d" "$R/usr/lib/$d"
+    find "$R/usr/lib/$d" -type f -name '*.so' -exec "$STRIP" --strip-unneeded {} + 2>/dev/null || :
 done
 if [ -d "$SYS/lib/security" ]; then
     for m in "$SYS/lib/security"/*.so; do cp_strip "$m" "$R/lib/security/$(basename "$m")"; done
@@ -98,6 +99,9 @@ done
     cp_strip "$SYS/usr/libexec/dbus-daemon-launch-helper" "$R/usr/libexec/dbus-daemon-launch-helper"
 
 # ALSA tools (alsamixer replaces the old wrapper that had no mixer behind it)
+# VA-API diagnostics
+[ -f "$SYS/usr/bin/vainfo" ] && cp_strip "$SYS/usr/bin/vainfo" "$R/usr/bin/vainfo"
+for b in glxinfo glxgears; do cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"; done
 for b in alsamixer amixer aplay speaker-test; do
     [ -f "$SYS/usr/bin/$b" ] && cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"
 done

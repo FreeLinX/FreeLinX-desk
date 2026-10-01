@@ -111,8 +111,16 @@ imlib2|imlib2|b:imlib2|Image loading and rendering library
 tint2|tint2|b:tint2|Desktop panel and taskbar
 alsa-utils|alsa-utils|b:alsa-utils|ALSA tools: alsamixer, amixer, aplay
 libXxf86vm|libXxf86vm|b:libXxf86vm|XFree86 video mode extension library
-mesa|mesa|b:mesa|OpenGL/EGL drivers: Intel, NVIDIA (nouveau), older AMD, VMs, software
-ffmpeg-libs|ffmpeg|b:ffmpeg|FFmpeg codec libraries (LGPL: H.264, AAC, VP9, AV1 decoding)
+llvm|llvm18|b:llvm18|LLVM 18 runtime library (for Mesa radeonsi and llvmpipe)
+libelf|elftoolchain|f:usr/lib/libelf.so.1,usr/lib/libelf.so|ELF object file access library (elftoolchain)
+libva|libva|b:libva|Video Acceleration API (VA-API) library
+libva-utils|libva-utils|b:libva-utils|VA-API tools: vainfo and tests
+gmmlib|gmmlib|b:gmmlib|Intel graphics memory management library
+intel-media-driver|media-driver|b:media-driver|VA-API driver for Intel GPUs from Broadwell (Gen8) on
+intel-vaapi-driver|intel-vaapi-driver|b:intel-vaapi-driver|VA-API driver for older Intel GPUs (i965)
+mesa|mesa|b:mesa|OpenGL/EGL and VA-API drivers: Intel, AMD (radeonsi), NVIDIA (nouveau), VMs, llvmpipe
+mesa-demos|mesa-demos|f:usr/bin/glxinfo,usr/bin/glxgears|OpenGL tools: glxinfo and glxgears|mesa
+ffmpeg-libs|ffmpeg|b:ffmpeg|FFmpeg codec libraries (LGPL: H.264, AAC, VP9, AV1; VA-API hardware decoding)
 libedit|libedit|b:libedit|Line editing library (BSD)
 bluez|bluez|b:bluez|Bluetooth stack: bluetoothd, bluetoothctl
 hostapd|hostapd|f:sbin/hostapd,sbin/hostapd_cli|WiFi access point daemon
@@ -120,6 +128,8 @@ flxnet|flxnet|f:sbin/flxifconfig,sbin/flxroute|FreeLinX netlink ifconfig and rou
 flx-apps|flxapps|f:usr/bin/flxinstall-gui,usr/bin/flxnetmgr,usr/bin/flxpkg|FreeLinX installer, network manager and package manager (GUI)
 xpkg|xpkg|f:usr/bin/xpkg|FreeLinX package manager
 firefox|firefox|x:|FreeLinX Web: web browser based on Firefox ESR|ffmpeg-libs
+linux|linux|k:|Linux kernel and modules (installed systems: activated on the next boot)
+linux-firmware|linux-firmware|w:|Firmware for WiFi, Bluetooth, GPUs and audio (linux-firmware, Sound Open Firmware)
 xorg|xorg-server|e:|X Window System: server, input/video drivers, keymap compiler, OpenGL|xorg-server,xf86-input-libinput,xf86-input-evdev,xf86-video-fbdev,xkbcomp,mesa
 '
 
@@ -130,6 +140,9 @@ pkg_rel() {
     case "$1" in
         xorg-server) echo 2 ;;   # 1.0.1: udev hotplug, DRI path inside the target
         gtk3) echo 2 ;;          # 1.0.1: X11 compose/locale path inside the target
+        mesa) echo 2 ;;          # radeonsi, llvmpipe, VA-API
+        ffmpeg-libs) echo 2 ;;   # VA-API hwaccel
+        firefox) echo 2 ;;       # hardware video decoding on
         *) echo "$REL" ;;
     esac
 }
@@ -137,10 +150,13 @@ pkg_rel() {
 src_version() { # source name -> version string
     case "$1" in
         flxnet|flxapps) date -u +%Y.%m.%d ;;   # FreeLinX's own, dated
+        linux) basename "$(ls -d "$TOP"/src/rootfs/lib/modules/*/ | head -1)" ;;
+        linux-firmware) sed -n 's/^LFW_VER="${LFW_VER:-\(.*\)}"$/\1/p' "$HERE/build-firmware.sh" ;;
         firefox) sed -n 's/^Version=//p' "$W/firefox-dest/usr/lib/firefox/application.ini" | head -1 ;;
         xpkg) sed -n 's/^#define XPKG_VERSION *"\(.*\)"/\1/p' "$XPKG_SRC/include/xpkg.h" ;;
         *)
-            f=$(awk -v n="$1" '$1 == n { print $2 }' "$HERE/sources.txt" | sed 's|.*/||')
+            # the local file name (4th column) when sources.txt gives one
+            f=$(awk -v n="$1" '$1 == n { print ($4 != "" ? $4 : $2) }' "$HERE/sources.txt" | sed 's|.*/||')
             v=$(printf '%s\n' "$f" | sed -E 's/\.(tar\.(gz|xz|bz2)|tgz|zip)$//')
             v=${v#"$1"-}; v=${v#"$1"}
             case "$1" in
@@ -148,6 +164,7 @@ src_version() { # source name -> version string
                 sqlite) v=$(printf '%s' "$v" | sed -E 's/^-?autoconf-//; s/^([0-9])([0-9]{2})([0-9]{2})[0-9]{2}$/\1.\2.\3/; s/\.0([0-9])/.\1/g') ;;
                 tzdata) v=${v#tzdata} ;;
                 llvm-project) v=${v%.src} ;;
+                llvm18) v=${v#llvm-project-}; v=${v%.src} ;;
                 libedit) v=$(printf '%s' "$v" | sed -E 's/^([0-9]{8})-(.*)$/\2.\1/') ;;
             esac
             v=${v#v}; v=${v#-}
@@ -246,6 +263,33 @@ if [ -f "$t" ] && grep -q '_background_id = ' "$t"; then
 fi
 XEOF
             ;;
+        linux) kv=$(basename "$(ls -d "$TOP"/src/rootfs/lib/modules/*/ | head -1)")
+            cat > "$sc" <<KEOF
+# Activate this kernel on an installed system: its image and a cpio of its
+# modules go to the boot partition (FLX_BOOT), where Limine loads them
+# next to the system image.
+kv=$kv
+[ -e /etc/flx-installed ] || { echo "linux: live system, nothing to activate"; exit 0; }
+dev=\$(blkid 2>/dev/null | grep 'LABEL="FLX_BOOT"' | cut -d: -f1 | head -1)
+[ -n "\$dev" ] || { echo "linux: boot partition (FLX_BOOT) not found; kernel \$kv not activated" >&2; exit 0; }
+mp=/mnt/flx_boot_update
+mkdir -p "\$mp"
+mount -t vfat "\$dev" "\$mp" || { echo "linux: cannot mount \$dev" >&2; exit 1; }
+ok=1
+cp "/usr/lib/linux/bzImage-\$kv" "\$mp/boot/bzImage.new" && mv "\$mp/boot/bzImage.new" "\$mp/boot/bzImage" || ok=0
+( cd / && find "./lib/modules/\$kv" | cpio -o --format=newc 2>/dev/null ) | xz -3 --check=crc32 > "\$mp/boot/kmods.cpio.new" \
+    && mv "\$mp/boot/kmods.cpio.new" "\$mp/boot/kmods.cpio" || ok=0
+# systems installed before 1.0.2 do not load kmods.cpio yet
+for c in "\$mp/limine.conf" "\$mp/boot/limine.conf" "\$mp/EFI/BOOT/limine.conf"; do
+    [ -f "\$c" ] && ! grep -q kmods.cpio "\$c" || continue
+    sed 's|^\\(    module_path: boot():/boot/initramfs.img.gz\\)\$|\\1\\
+    module_path: boot():/boot/kmods.cpio|' "\$c" > "\$c.new" && mv "\$c.new" "\$c"
+done
+sync
+umount "\$mp"
+[ "\$ok" = 1 ] && echo "linux: kernel \$kv will start on the next boot"
+KEOF
+            ;;
         firefox) cat > "$sc" <<'FFEOF'
 # the musl loader finds Firefox's private libraries through its search path
 p=/etc/ld-musl-x86_64.path
@@ -312,6 +356,16 @@ echo "$PKGS" | while IFS='|' read -r name src how desc; do
                      cp "$i" "$d/usr/share/icons/hicolor/${sz}x${sz}/apps/firefox.png"
                  done
              fi ;;
+        k:)  # kernel image + modules exactly as the image ships them
+             kv=$(basename "$(ls -d "$TOP"/src/rootfs/lib/modules/*/ | head -1)")
+             mkdir -p "$d/usr/lib/linux" "$d/lib/modules"
+             cp "$TOP/kernel/bzImage" "$d/usr/lib/linux/bzImage-$kv"
+             cp -a "$TOP/src/rootfs/lib/modules/$kv" "$d/lib/modules/" ;;
+        w:)  # firmware as build-firmware.sh staged it (zstd-compressed)
+             if [ -d "$W/fw-stage/lib/firmware" ]; then
+                 mkdir -p "$d/lib"
+                 cp -a "$W/fw-stage/lib/firmware" "$d/lib/firmware"
+             else rc=1; fi ;;
         e:)  : ;;   # meta package: dependencies only
         m:)  # the loader is the real file (replaced by one atomic rename)
              mkdir -p "$d/lib" "$d/usr/lib"
@@ -319,6 +373,9 @@ echo "$PKGS" | while IFS='|' read -r name src how desc; do
              ln -s ../../lib/ld-musl-x86_64.so.1 "$d/usr/lib/libc.so" ;;
     esac
     if [ $rc -ne 0 ]; then echo "STAGING FAILED"; rm -rf "$d"; continue; fi
+    case "$name" in linux|linux-firmware)
+        echo "$(find "$d" -type f -o -type l | wc -l) files (not trimmed)"; continue ;;
+    esac
     # Xorg's input defaults (libinput, tapping) travel with the server
     if [ "$name" = xorg-server ]; then
         mkdir -p "$d/etc/X11/xorg.conf.d"

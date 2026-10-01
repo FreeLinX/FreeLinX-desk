@@ -21,7 +21,7 @@
     <action name="Execute"><command>uxterm -T "File Manager (nnn)" -e nnn</command></action>
   </item>
   <item label="Browse /root (Terminal)">
-    <action name="Execute"><command>uxterm -e sh -c "cd /root; ls -la; exec /bin/sh -l"</command></action>
+    <action name="Execute"><command>uxterm -e sh -c "cd; ls -la; exec /bin/sh -l"</command></action>
   </item>
 </menu>
 
@@ -51,7 +51,7 @@
     <action name="Execute"><command>uxterm -e flx3dtest</command></action>
   </item>
   <item label="GPU 3D &amp; DRM Diagnostics">
-    <action name="Execute"><command>uxterm -e sh -c "/sbin/flxdriver gpu; echo; printf 'Press Enter to close...'; read l"</command></action>
+    <action name="Execute"><command>uxterm -e sh -c "doas /sbin/flxdriver gpu; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
 </menu>
 
@@ -66,16 +66,16 @@
 
 <menu id="network-menu" label="Network">
   <item label="Bluetooth (bluetoothctl)">
-    <action name="Execute"><command>uxterm -T "Bluetooth" -e bluetoothctl</command></action>
+    <action name="Execute"><command>uxterm -T "Bluetooth" -e doas bluetoothctl</command></action>
   </item>
   <item label="Time Zone...">
-    <action name="Execute"><command>uxterm -T "Time Zone" -e flxtz</command></action>
+    <action name="Execute"><command>uxterm -T "Time Zone" -e doas flxtz</command></action>
   </item>
   <item label="Network Manager">
     <action name="Execute"><command>sh -c 'if [ "$(id -u)" = 0 ]; then exec flxnetmgr; else exec doas -n /usr/bin/flxnetmgr; fi'</command></action>
   </item>
   <item label="Network Manager (CLI)">
-    <action name="Execute"><command>uxterm -e flxnet</command></action>
+    <action name="Execute"><command>uxterm -e doas flxnet</command></action>
   </item>
   <item label="Web Browser (FreeLinX Web)">
     <action name="Execute"><command>firefox</command></action>
@@ -111,7 +111,7 @@
     <action name="Execute"><command>uxterm -T "Audio Player" -e sh -c "mpg123 --help; echo; printf 'Usage: mpg123 &lt;file.mp3&gt;\nPress Enter to close...'; read l"</command></action>
   </item>
   <item label="Audio Cards &amp; Endpoints">
-    <action name="Execute"><command>uxterm -e sh -c "/sbin/flxdriver audio; echo; printf 'Press Enter to close...'; read l"</command></action>
+    <action name="Execute"><command>uxterm -e sh -c "doas /sbin/flxdriver audio; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
 </menu>
 
@@ -126,7 +126,7 @@
     <action name="Execute"><command>uxterm -e sh -c "doas /usr/bin/flxpower governor powersave; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
   <item label="Suspend to RAM (Sleep)">
-    <action name="Execute"><command>zzz</command></action>
+    <action name="Execute"><command>doas -n zzz</command></action>
   </item>
 </menu>
 
@@ -144,13 +144,13 @@
     <action name="Execute"><command>uxterm -e sh -c "doas /sbin/flxinstall; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
   <item label="Drive Health &amp; SMART (smartctl)">
-    <action name="Execute"><command>uxterm -T "Drive Health" -e sh -c "smartctl --scan; echo; printf 'Usage: smartctl -a /dev/sdX\nPress Enter to close...'; read l"</command></action>
+    <action name="Execute"><command>uxterm -T "Drive Health" -e sh -c "doas smartctl --scan; echo; printf 'Usage: smartctl -a /dev/sdX\nPress Enter to close...'; read l"</command></action>
   </item>
   <item label="UEFI Boot Manager (efibootmgr)">
-    <action name="Execute"><command>uxterm -T "UEFI Boot Entries" -e sh -c "efibootmgr; echo; printf 'Press Enter to close...'; read l"</command></action>
+    <action name="Execute"><command>uxterm -T "UEFI Boot Entries" -e sh -c "doas efibootmgr; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
   <item label="Hardware Inventory (flxdriver scan)">
-    <action name="Execute"><command>uxterm -e sh -c "/sbin/flxdriver scan; echo; printf 'Press Enter to close...'; read l"</command></action>
+    <action name="Execute"><command>uxterm -e sh -c "doas /sbin/flxdriver scan; echo; printf 'Press Enter to close...'; read l"</command></action>
   </item>
   <item label="PCI Hardware (lspci)">
     <action name="Execute"><command>uxterm -e sh -c "lspci -nn; echo; printf 'Press Enter to close...'; read l"</command></action>

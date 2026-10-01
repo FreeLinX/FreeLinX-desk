@@ -53,9 +53,11 @@ fi
 
 
 # Driver choice:
-#   i915, nouveau            -> modesetting + glamor (hardware Mesa driver)
-#   other KMS drivers        -> modesetting, CPU shadow (amdgpu/radeon need
-#                               radeonsi = LLVM; virtio-gpu has no virgl here)
+#   i915, nouveau, amdgpu, radeon
+#                            -> modesetting + glamor (hardware Mesa driver:
+#                               iris/crocus/i915, nouveau, radeonsi, r600/r300)
+#   other KMS drivers        -> modesetting, CPU shadow (virtio-gpu has no
+#                               virgl renderer here)
 #   firmware framebuffer     -> fbdev + ShadowFB (simpledrm, "basic graphics")
 # flx.xdriver=fbdev|kms|glamor on the kernel command line overrides it.
 XCONF=xorg.conf
@@ -67,7 +69,7 @@ for _c in /sys/class/drm/card[0-9]; do
 done
 case "$_kms" in
     ""|simple-framebuffer|simpledrm|efi-framebuffer|vesa-framebuffer) ;;
-    i915|nouveau) XCONF=xorg-modesetting.conf ;;
+    i915|nouveau|amdgpu|radeon) XCONF=xorg-modesetting.conf ;;
     *) XCONF=xorg-kms.conf ;;
 esac
 case " $(cat /proc/cmdline 2>/dev/null) " in

@@ -831,6 +831,13 @@ static void key_press(KeySym ks, char printable) {
 
 int main(int argc, char **argv) {
     (void)argc; (void)argv;
+    /* The installer partitions disks: run it as root.  The live session user
+     * may use doas without a password. */
+    if (geteuid() != 0) {
+        execlp("doas", "doas", "-n", "/usr/bin/flxinstall-gui", (char *)NULL);
+        fprintf(stderr, "flxinstall-gui: needs root (doas failed)\n");
+        return 1;
+    }
     Display *dpy = XOpenDisplay(NULL);
     if (!dpy) { fprintf(stderr, "flxinstall-gui: cannot open X display\n"); return 1; }
     int screen = DefaultScreen(dpy);

@@ -70,7 +70,13 @@ cat > "$W/bin/musl-run" <<EOF
 #!/bin/sh
 exec "$SYS/usr/lib/libc.so" --library-path "$SYS/usr/lib" "\$@"
 EOF
-chmod +x "$W/bin/flx-cc" "$W/bin/flx-c++" "$W/bin/pkg-config" "$W/bin/musl-run"
+# The target llvm-config (radeonsi/llvmpipe) answers for the sysroot when run
+# from it.
+cat > "$W/bin/llvm-config" <<LLEOF
+#!/bin/sh
+exec "$W/bin/musl-run" "$SYS/usr/bin/llvm-config" "\$@"
+LLEOF
+chmod +x "$W/bin/flx-cc" "$W/bin/flx-c++" "$W/bin/pkg-config" "$W/bin/musl-run" "$W/bin/llvm-config"
 
 MESON="${MESON:-$TOP/.venv/bin/meson}"
 [ -x "$MESON" ] || MESON=meson
@@ -85,6 +91,7 @@ ranlib = '$TC/bin/llvm-ranlib'
 objcopy = '$TC/bin/llvm-objcopy'
 pkg-config = '$W/bin/pkg-config'
 exe_wrapper = '$W/bin/musl-run'
+llvm-config = '$W/bin/llvm-config'
 
 [built-in options]
 c_args = ['-O2']
@@ -581,13 +588,95 @@ step_toybox() {
 # r300/r600 for older AMD, virgl for VMs, softpipe as the CPU fallback) ------
 step_libXxf86vm() { auto libXxf86vm; }
 step_mesa() {
-    mes mesa -Dplatforms=x11 -Dgallium-drivers=iris,crocus,i915,nouveau,r300,r600,virgl,swrast \
-        -Dvulkan-drivers= -Dllvm=disabled -Dshared-llvm=disabled -Dglx=dri -Degl=enabled \
+    mes mesa -Dplatforms=x11 -Dgallium-drivers=iris,crocus,i915,nouveau,r300,r600,radeonsi,virgl,swrast \
+        -Dvulkan-drivers= -Dllvm=enabled -Dshared-llvm=enabled -Dglx=dri -Degl=enabled \
         -Dgbm=enabled -Dgles1=disabled -Dgles2=enabled -Dopengl=true -Dglvnd=false \
-        -Dvalgrind=disabled -Dlibunwind=disabled -Dbuild-tests=false -Dgallium-va=disabled \
-        -Dgallium-vdpau=disabled -Dvideo-codecs= -Dlmsensors=disabled -Dzstd=disabled \
+        -Dvalgrind=disabled -Dlibunwind=disabled -Dbuild-tests=false -Dgallium-va=enabled -Dva-libs-path=/usr/lib/dri \
+        -Dgallium-vdpau=disabled -Dvideo-codecs=vc1dec,h264dec,h265dec,av1dec,vp9dec -Dlmsensors=disabled -Dzstd=disabled \
         -Dintel-clc=disabled -Dmicrosoft-clc=disabled -Dosmesa=false
 }
+# --- LLVM 18 for Mesa (radeonsi needs the AMDGPU backend; llvmpipe the X86
+# JIT).  Mesa 24.0 does not build against LLVM 19+, hence 18, separate from
+# the 21.x toolchain.  llvm-tblgen is a build-time tool built for the host.
+step_llvm18() {
+    s=$(unpack llvm18)
+    hb="$W/build/llvm18-host"; rm -rf "$hb"
+    cmake -G Ninja -S "$s/llvm" -B "$hb" -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_C_COMPILER=cc -DCMAKE_CXX_COMPILER=c++ -DLLVM_TARGETS_TO_BUILD="X86;AMDGPU" \
+        -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF \
+        -DLLVM_ENABLE_ZLIB=OFF -DLLVM_ENABLE_ZSTD=OFF -DLLVM_ENABLE_LIBXML2=OFF \
+        -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_LIBEDIT=OFF >/dev/null
+    ninja -C "$hb" -j "$JOBS" llvm-tblgen
+    b="$W/build/llvm18"; rm -rf "$b"
+    cmake -G Ninja -S "$s/llvm" -B "$b" -DCMAKE_TOOLCHAIN_FILE="$W/toolchain.cmake" \
+        -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr \
+        -DLLVM_TARGETS_TO_BUILD="X86;AMDGPU" \
+        -DLLVM_HOST_TRIPLE=x86_64-unknown-linux-musl -DLLVM_DEFAULT_TARGET_TRIPLE=x86_64-unknown-linux-musl \
+        -DLLVM_TABLEGEN="$hb/bin/llvm-tblgen" \
+        -DCROSS_TOOLCHAIN_FLAGS_NATIVE="-DCMAKE_C_COMPILER=cc;-DCMAKE_CXX_COMPILER=c++" \
+        -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON -DLLVM_BUILD_TOOLS=OFF \
+        -DLLVM_BUILD_UTILS=OFF -DLLVM_INSTALL_UTILS=OFF -DLLVM_INCLUDE_TESTS=OFF \
+        -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_DOCS=OFF \
+        -DLLVM_ENABLE_ZLIB=ON -DLLVM_ENABLE_ZSTD=OFF -DLLVM_ENABLE_LIBXML2=OFF \
+        -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_LIBEDIT=OFF -DLLVM_ENABLE_LIBPFM=OFF \
+        -DLLVM_ENABLE_BINDINGS=OFF -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_LIBCXX=ON \
+        -DLLVM_ENABLE_PIC=ON -DLLVM_ENABLE_ASSERTIONS=OFF \
+        -DHAVE_UNW_ADD_DYNAMIC_FDE=1
+    # the NATIVE sub-build (host llvm-config/tblgen) must not see the target CC
+    env -u CC -u CXX -u CFLAGS -u CXXFLAGS ninja -C "$b" -j "$JOBS" LLVM llvm-config
+    DESTDIR="$SYS" ninja -C "$b" install
+    install -m755 "$b/bin/llvm-config" "$SYS/usr/bin/llvm-config"
+}
+
+# --- libelf (elftoolchain, BSD): radeonsi's shader loader (ac_rtld) needs it.
+# elfutils would bring GNU argp/obstack/fts; elftoolchain's libelf is plain C.
+# Built directly (its build system is BSD make).
+step_libelf() {
+    s=$(unpack elftoolchain)
+    cd "$s/libelf"
+    printf '#define ELFTC_CLASS ELFCLASS64\n#define ELFTC_ARCH EM_X86_64\n#define ELFTC_BYTEORDER ELFDATA2LSB\n' \
+        > ../common/native-elf-format.h
+    for g in libelf_fsize libelf_msize libelf_convert; do
+        m4 -D SRCDIR=. "$g.m4" > "$g.c"
+    done
+    # sys/queue.h (and sys/cdefs.h) from the FreeLinX NetBSD compat layer
+    "$CC" -O2 -fPIC -shared -I. -I../common -idirafter "$TOP/../ports/base/compat" -Wl,-soname,libelf.so.1 \
+        -o libelf.so.1 ./*.c
+    install -m755 libelf.so.1 "$SYS/usr/lib/libelf.so.1"
+    ln -sf libelf.so.1 "$SYS/usr/lib/libelf.so"
+    install -m644 libelf.h gelf.h ../common/elfdefinitions.h "$SYS/usr/include/"
+    # Mesa's ac_rtld uses STN_UNDEF, which this elfdefinitions.h lacks
+    printf '\n#ifndef STN_UNDEF\n#define STN_UNDEF 0\n#endif\n' >> "$SYS/usr/include/elfdefinitions.h"
+    v=$(basename "$s" | sed 's/elftoolchain-//')
+    printf 'prefix=/usr\nlibdir=${prefix}/lib\nincludedir=${prefix}/include\n\nName: libelf\nDescription: ELF object file access library (elftoolchain)\nVersion: %s\nLibs: -L${libdir} -lelf\nCflags: -I${includedir}\n' "$v" \
+        > "$SYS/usr/lib/pkgconfig/libelf.pc"
+}
+
+# --- VA-API: hardware video decoding (libva; Mesa's VA for AMD/NVIDIA,
+# intel-media-driver for Intel Gen8+, intel-vaapi-driver for older Intel) ---
+step_libva() {
+    mes libva -Ddriverdir=/usr/lib/dri -Dwith_x11=yes -Dwith_glx=no -Dwith_wayland=no
+}
+step_libva_utils() { auto libva-utils --disable-wayland --enable-x11 --enable-drm --disable-tests; }
+step_gmmlib()   { cmk gmmlib -DRUN_TEST_SUITE=OFF; }
+step_media_driver() {
+    cmk media-driver -DINSTALL_DRIVER_SYSCONF=OFF -DMEDIA_BUILD_FATAL_WARNINGS=OFF \
+        -DENABLE_NONFREE_KERNELS=ON -DBUILD_TYPE=release -DLIBVA_DRIVERS_PATH=/usr/lib/dri \
+        -DCMAKE_C_FLAGS="-O2 -Wno-error" -DCMAKE_CXX_FLAGS="-O2 -Wno-error"
+}
+step_intel_vaapi() { mes intel-vaapi-driver -Ddriverdir=/usr/lib/dri -Dwith_x11=yes -Dwith_wayland=no; }
+
+# --- glxinfo/glxgears from mesa-demos: compiled directly (only these two
+# tools are wanted, and they need nothing beyond libGL and libX11) ---
+step_mesa_demos() {
+    s=$(unpack mesa-demos)
+    cd "$s/src/xdemos"
+    "$CC" -O2 -o glxgears glxgears.c -lGL -lX11 -lm
+    "$CC" -O2 -I. -I../util -I../glad/include -o glxinfo glxinfo.c ../util/glinfo_common.c \
+        ../glad/src/glad.c -lGL -lX11
+    install -m755 glxgears glxinfo "$SYS/usr/bin/"
+}
+
 # --- H.264/AAC for FreeLinX Web: shared LGPL FFmpeg (no GPL parts) ----------
 step_ffmpeg() {
     s=$(unpack ffmpeg)
@@ -596,7 +685,7 @@ step_ffmpeg() {
         --enable-cross-compile --target-os=linux --arch=x86_64 --cc="$CC" --cxx="$CXX" \
         --ar="$AR" --nm="$NM" --ranlib="$RANLIB" --strip="$STRIP" --pkg-config="$PKG_CONFIG" \
         --x86asmexe=nasm --enable-pic --disable-programs --disable-doc --disable-debug \
-        --disable-autodetect --disable-network --enable-zlib \
+        --disable-autodetect --disable-network --enable-zlib --enable-vaapi --enable-libdrm \
         && make -j"$JOBS" && make DESTDIR="$SYS" install)
 }
 # --- Bluetooth: bluez with libedit standing in for GNU readline -------------
@@ -644,7 +733,7 @@ step_hostapd() {
     make DESTDIR="$SYS" BINDIR=/sbin install
 }
 
-STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm mesa ffmpeg libedit bluez hostapd"
+STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm llvm18 libelf libva mesa mesa_demos libva_utils gmmlib media_driver intel_vaapi ffmpeg libedit bluez hostapd"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11
