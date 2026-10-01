@@ -598,6 +598,37 @@ else
     fi
 fi
 
+# The live ISO's 'live' user (autologin, doas without a password) must not
+# reach the installed system: drop it from passwd/shadow/group/doas.conf
+# under a root directory.  'cat >' keeps the files' modes (shadow is 0600).
+strip_live_user() {
+    _e="$1/etc"
+    for _f in passwd shadow; do
+        [ -f "$_e/$_f" ] || continue
+        grep -v '^live:' "$_e/$_f" > "$_e/$_f.flxnew"; cat "$_e/$_f.flxnew" > "$_e/$_f"; rm -f "$_e/$_f.flxnew"
+    done
+    if [ -f "$_e/group" ]; then
+        awk -F: 'BEGIN { OFS = ":" } $1 == "live" { next }
+            { n = split($4, m, ","); o = ""
+              for (i = 1; i <= n; i++) if (m[i] != "live" && m[i] != "") o = o (o == "" ? "" : ",") m[i]
+              $4 = o; print }' "$_e/group" > "$_e/group.flxnew"
+        cat "$_e/group.flxnew" > "$_e/group"; rm -f "$_e/group.flxnew"
+    fi
+    if [ -f "$_e/doas.conf" ]; then
+        grep -v 'permit nopass keepenv live$' "$_e/doas.conf" | grep -v '^# live ISO session user' > "$_e/doas.conf.flxnew"
+        cat "$_e/doas.conf.flxnew" > "$_e/doas.conf"; rm -f "$_e/doas.conf.flxnew"
+    fi
+}
+
+# ... and in the boot image: a cpio appended after the image overrides
+# these files when the kernel unpacks it.
+_ov=$(mktemp -d /tmp/flxov.XXXXXX)
+mkdir -p "$_ov/etc"
+for _f in passwd shadow group doas.conf; do [ -f "/etc/$_f" ] && cp -p "/etc/$_f" "$_ov/etc/"; done
+strip_live_user "$_ov"
+(cd "$_ov" && find ./etc -print0 | cpio --null -o --format=newc 2>/dev/null) >> "$BOOT_DIR/boot/initramfs.img.gz"
+rm -rf "$_ov"
+
 echo ">>> Seeding persistent system partition (FLX_SYS)..."
 # Copy the live /usr /etc /var /root trees onto the FLX_SYS partition
 # (ext4, LABEL=FLX_SYS).  On every boot /init bind-mounts these trees from
@@ -607,7 +638,7 @@ mkdir -p "$SYS_MP"
 umount "$PART3" 2>/dev/null || :
 mount -t ext4 "$PART3" "$SYS_MP" 2>/dev/null || mount "$PART3" "$SYS_MP" 2>/dev/null || true
 if grep -qs " $SYS_MP " /proc/mounts 2>/dev/null; then
-    for d in usr etc var root; do
+    for d in usr etc var root bin sbin lib; do
         mkdir -p "$SYS_MP/$d"
         if [ -z "$(ls -A "$SYS_MP/$d" 2>/dev/null)" ]; then
             echo "  seeding /$d -> FLX_SYS ..."
@@ -625,6 +656,7 @@ if grep -qs " $SYS_MP " /proc/mounts 2>/dev/null; then
             echo "  /$d already populated on FLX_SYS (kept)."
         fi
     done
+    strip_live_user "$SYS_MP"
 else
     echo "  Warning: could not mount FLX_SYS ($PART3) to seed persistent trees."
 fi
@@ -649,6 +681,9 @@ if command -v limine >/dev/null 2>&1; then
     limine bios-install "$TARGET_DISK" 2 || echo "Warning: limine bios-install failed; UEFI still works."
 fi
 
+# kmods.cpio: kernel modules of a kernel updated with xpkg (package
+# "linux" replaces it); an empty archive until then.
+(cd /var/empty 2>/dev/null || cd /tmp; printf '' | cpio -o --format=newc 2>/dev/null) > "$BOOT_DIR/boot/kmods.cpio"
 cat > "$BOOT_DIR/limine.conf" << EOF
 timeout: 3
 serial: yes
@@ -661,18 +696,21 @@ term_foreground: e8ece8
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
+    module_path: boot():/boot/kmods.cpio
     cmdline: rdinit=/init rootfstype=ramfs console=tty0 console=ttyS0,115200 quiet loglevel=2
 
 /FreeLinX 1.0 (basic graphics)
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
+    module_path: boot():/boot/kmods.cpio
     cmdline: rdinit=/init rootfstype=ramfs console=tty0 console=ttyS0,115200 quiet loglevel=2 initcall_blacklist=i915_init modprobe.blacklist=amdgpu,radeon,nouveau flx.xdriver=fbdev
 
 /Rescue Shell
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
+    module_path: boot():/boot/kmods.cpio
     cmdline: rdinit=/init rootfstype=ramfs flx.rescue=1 console=tty0 console=ttyS0,115200 quiet loglevel=2
 EOF
 cp "$BOOT_DIR/limine.conf" "$BOOT_DIR/boot/limine.conf"

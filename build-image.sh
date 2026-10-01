@@ -120,6 +120,8 @@ chmod 1777 "$STAGE/tmp"
 [ -d "$STAGE/var/tmp" ] && chmod 1777 "$STAGE/var/tmp"
 [ -f "$STAGE/usr/bin/doas" ] && chmod 4755 "$STAGE/usr/bin/doas"
 [ -f "$STAGE/usr/sbin/unix_chkpwd" ] && chmod 4755 "$STAGE/usr/sbin/unix_chkpwd"
+# su and newgrp switch identity, so they run setuid root as on NetBSD
+for b in bin/su bin/newgrp; do [ -f "$STAGE/$b" ] && chmod 4755 "$STAGE/$b"; done
 # Xorg is setuid root (the classic Xorg.wrap model): a user session started by
 # greetd has no seat manager to hand it the console and framebuffer.
 [ -f "$STAGE/usr/bin/Xorg" ] && chmod 4711 "$STAGE/usr/bin/Xorg"

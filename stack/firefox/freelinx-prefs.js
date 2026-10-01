@@ -1,10 +1,12 @@
 // FreeLinX defaults for Firefox ESR.
-// Rendering: Mesa (iris/crocus/nouveau/r600/virgl) provides GL where the GPU
-// has a driver; Firefox's own glxtest picks WebRender on the GPU there and
-// falls back to software WebRender everywhere else, so nothing is forced.
-// There is no VA-API stack, so video decoding stays on the CPU.
-pref("media.hardware-video-decoding.enabled", false);
-pref("media.ffmpeg.vaapi.enabled", false);
+// Rendering: Mesa (iris/crocus/radeonsi/nouveau/r600/virgl, llvmpipe as the
+// CPU fallback) provides GL; Firefox's own glxtest picks WebRender on the GPU
+// and software WebRender elsewhere, so nothing is forced.
+// Video: VA-API through libva (Intel: intel-media-driver / i965, AMD and
+// NVIDIA: Mesa).  Firefox probes it per GPU and decodes on the CPU when the
+// driver cannot do a codec.
+pref("media.hardware-video-decoding.enabled", true);
+pref("media.ffmpeg.vaapi.enabled", true);
 pref("webgl.disabled", false);
 // No system integration FreeLinX does not ship.
 pref("browser.shell.checkDefaultBrowser", false);

@@ -84,3 +84,11 @@ ffmpeg https://ffmpeg.org/releases/ffmpeg-7.1.5.tar.xz -
 libedit https://thrysoee.dk/editline/libedit-20260512-3.1.tar.gz -
 bluez https://www.kernel.org/pub/linux/bluetooth/bluez-5.87.tar.xz -
 hostapd https://w1.fi/releases/hostapd-2.11.tar.gz -
+llvm18 https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.8/llvm-project-18.1.8.src.tar.xz -
+libva https://github.com/intel/libva/releases/download/2.22.0/libva-2.22.0.tar.bz2 -
+libva-utils https://github.com/intel/libva-utils/releases/download/2.22.0/libva-utils-2.22.0.tar.bz2 -
+gmmlib https://github.com/intel/gmmlib/archive/refs/tags/intel-gmmlib-22.5.2.tar.gz - gmmlib-22.5.2.tar.gz
+media-driver https://github.com/intel/media-driver/archive/refs/tags/intel-media-24.3.4.tar.gz - media-driver-24.3.4.tar.gz
+intel-vaapi-driver https://github.com/intel/intel-vaapi-driver/releases/download/2.4.1/intel-vaapi-driver-2.4.1.tar.bz2 -
+elftoolchain https://sourceforge.net/projects/elftoolchain/files/Sources/elftoolchain-0.7.1/elftoolchain-0.7.1.tgz/download 92bfe36f886024bbc433846483b026c7ce44d553b9b941a0fd13e451911ae297 elftoolchain-0.7.1.tgz
+mesa-demos https://archive.mesa3d.org/demos/mesa-demos-9.0.0.tar.xz -

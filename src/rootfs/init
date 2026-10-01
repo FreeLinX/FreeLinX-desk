@@ -151,12 +151,29 @@ if [ -f /etc/flx-installed ]; then
         mount -t ext4 -o defaults,noatime "$FLX_SYS_DEV" /mnt/flx_sys 2>/dev/null || :
         if grep -qs ' /mnt/flx_sys ' /proc/mounts; then
             if [ -x /sbin/flxbind ]; then
-                for d in usr etc var root; do
+                # /bin /sbin /lib persist too: xpkg installs NetBSD tools to
+                # /bin and kernel modules/firmware to /lib.  Systems installed
+                # before 1.0.2 had only usr etc var root on FLX_SYS: seed the
+                # others once from this image.
+                for d in bin sbin lib; do
+                    if [ ! -d "/mnt/flx_sys/$d" ] || [ -z "$(ls -A "/mnt/flx_sys/$d" 2>/dev/null)" ]; then
+                        mkdir -p "/mnt/flx_sys/$d"
+                        (cd / && tar cf - "$d" 2>/dev/null) | (cd /mnt/flx_sys && tar xf - 2>/dev/null) || :
+                    fi
+                done
+                _kmods_before=0
+                [ -d "/lib/modules/$(uname -r)" ] && _kmods_before=1
+                for d in usr etc var root bin sbin lib; do
                     if [ -d "/mnt/flx_sys/$d" ] && [ -n "$(ls -A "/mnt/flx_sys/$d" 2>/dev/null)" ]; then
                         /sbin/flxbind "/mnt/flx_sys/$d" "/$d" 2>/dev/null || :
                     fi
                 done
-                _nbound=$(mount 2>/dev/null | grep -c ' on /usr \| on /etc \| on /var \| on /root ' || echo 0)
+                # a kernel updated with xpkg finds its modules only now: probe
+                # the hardware again
+                if [ "$_kmods_before" = 0 ] && [ -d "/lib/modules/$(uname -r)" ] && [ -x /sbin/mdevd-coldplug ]; then
+                    /sbin/mdevd-coldplug >/dev/null 2>&1 || :
+                fi
+                _nbound=$(grep -c -E ' /(usr|etc|var|root|bin|sbin|lib) ' /proc/mounts 2>/dev/null || echo 0)
                 echo "FLX_SYS persistent system engaged: $_nbound trees bound" >/dev/ttyS0 2>/dev/null || :
             else
                 echo "FLX_SYS partition found but flxbind missing - persistence disabled" >/dev/ttyS0 2>/dev/null || :
