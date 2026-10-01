@@ -64,7 +64,7 @@ sqlite https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz b2809ca53124c1
 libnl https://github.com/thom311/libnl/releases/download/libnl3_11_0/libnl-3.11.0.tar.gz -
 dbus https://dbus.freedesktop.org/releases/dbus/dbus-1.16.2.tar.xz 0ba2a1a4b16afe7bceb2c07e9ce99a8c2c3508e5dec290dbb643384bd6beb7e2
 wpa_supplicant https://w1.fi/releases/wpa_supplicant-2.11.tar.gz 912ea06f74e30a8e36fbb68064d6cdff218d8d591db0fc5d75dee6c81ac7fc0a
-ncurses https://invisible-mirror.net/archives/ncurses/ncurses-6.5.tar.gz -
+netbsd-curses http://ftp.barfooze.de/pub/sabotage/tarballs/netbsd-curses-0.3.2.tar.xz d28358b833e6cabcf229fecef98c649e2e90c29858aa34220476faf0e5ce10a1
 nnn https://github.com/jarun/nnn/releases/download/v5.0/nnn-v5.0.tar.gz -
 libXaw https://www.x.org/releases/individual/lib/libXaw-1.0.16.tar.xz -
 xcalc https://www.x.org/releases/individual/app/xcalc-1.1.2.tar.xz -
@@ -92,3 +92,4 @@ media-driver https://github.com/intel/media-driver/archive/refs/tags/intel-media
 intel-vaapi-driver https://github.com/intel/intel-vaapi-driver/releases/download/2.4.1/intel-vaapi-driver-2.4.1.tar.bz2 -
 elftoolchain https://sourceforge.net/projects/elftoolchain/files/Sources/elftoolchain-0.7.1/elftoolchain-0.7.1.tgz/download 92bfe36f886024bbc433846483b026c7ce44d553b9b941a0fd13e451911ae297 elftoolchain-0.7.1.tgz
 mesa-demos https://archive.mesa3d.org/demos/mesa-demos-9.0.0.tar.xz -
+netbsd-terminfo https://raw.githubusercontent.com/NetBSD/src/932969a79d03c0f5081d9efcd40559429d6506aa/share/terminfo/terminfo b9856a972cc2aea750fbbc0fe2d87df6dc06daea1e1ed01c37d54cdc872a4c82 netbsd-terminfo-10.src

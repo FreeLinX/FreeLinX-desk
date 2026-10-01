@@ -103,7 +103,8 @@ openssl|openssl|s:openssl:install_sw install_ssldirs|TLS/SSL and crypto library
 sqlite|sqlite|b:sqlite|SQLite database engine
 libnl|libnl|b:libnl|Netlink library
 wpa_supplicant|wpa_supplicant|f:sbin/wpa_supplicant,sbin/wpa_cli,sbin/wpa_passphrase|WiFi client (WPA2/WPA3, 802.1X)
-ncurses|ncurses|b:ncurses|Terminal handling library
+netbsd-curses|netbsd-curses|f:usr/lib/libcurses.so,usr/lib/libterminfo.so,usr/lib/libform.so,usr/lib/libmenu.so,usr/lib/libpanel.so,usr/share/terminfo.cdb,usr/share/misc/terminfo.cdb|Curses and terminfo libraries (NetBSD curses) and the terminfo database
+ncurses|ncurses|e:|Transitional package: replaced by netbsd-curses (upgrading removes GNU ncurses)|netbsd-curses
 nnn|nnn|s:nnn:PREFIX=/usr install|Fast terminal file manager
 libXaw|libXaw|b:libXaw|X Athena widgets
 xcalc|xcalc|b:xcalc|Scientific calculator for X
@@ -143,6 +144,8 @@ pkg_rel() {
         mesa) echo 2 ;;          # radeonsi, llvmpipe, VA-API
         ffmpeg-libs) echo 2 ;;   # VA-API hwaccel
         firefox) echo 2 ;;       # hardware video decoding on
+        ncurses) echo 2 ;;       # 1.0.2: empty, GNU ncurses replaced by netbsd-curses
+        nnn|alsa-utils|libedit) echo 2 ;;   # 1.0.2: linked to netbsd-curses
         *) echo "$REL" ;;
     esac
 }
@@ -153,6 +156,7 @@ src_version() { # source name -> version string
         linux) basename "$(ls -d "$TOP"/src/rootfs/lib/modules/*/ | head -1)" ;;
         linux-firmware) sed -n 's/^LFW_VER="${LFW_VER:-\(.*\)}"$/\1/p' "$HERE/build-firmware.sh" ;;
         firefox) sed -n 's/^Version=//p' "$W/firefox-dest/usr/lib/firefox/application.ini" | head -1 ;;
+        ncurses) echo 6.5 ;;   # transitional package only
         xpkg) sed -n 's/^#define XPKG_VERSION *"\(.*\)"/\1/p' "$XPKG_SRC/include/xpkg.h" ;;
         *)
             # the local file name (4th column) when sources.txt gives one
@@ -381,8 +385,6 @@ echo "$PKGS" | while IFS='|' read -r name src how desc; do
         mkdir -p "$d/etc/X11/xorg.conf.d"
         cp "$TOP/src/rootfs/etc/X11/xorg.conf.d/50-flx-input.conf" "$d/etc/X11/xorg.conf.d/"
     fi
-    # ncurses' programs (clear, tput, tic, ...) are packaged on their own
-    [ "$name" = ncurses ] && rm -rf "$d/usr/bin"
     trim "$d"
     echo "$(find "$d" -type f -o -type l | wc -l) files"
 done

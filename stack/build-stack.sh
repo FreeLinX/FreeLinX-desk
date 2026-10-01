@@ -502,16 +502,47 @@ step_xpkg() {
     mkdir -p "$SYS/usr/bin"
     "$CC" -o "$SYS/usr/bin/xpkg" "$b"/*.o -lsqlite3 -lz -lssl -lcrypto
 }
-step_ncurses() {
-    auto ncurses --with-shared --without-normal --without-debug --without-ada \
-        --enable-widec --without-cxx-binding --without-manpages --without-tests \
-        --with-pkg-config-libdir=/usr/lib/pkgconfig --enable-pc-files \
-        --with-termlib --with-default-terminfo-dir=/usr/share/terminfo \
-        --disable-stripping
-    # software that asks for the narrow names gets the wide-char libraries
-    for n in ncurses tinfo; do
-        ln -sf "lib${n}w.so" "$SYS/usr/lib/lib${n}.so"
-        [ -e "$SYS/usr/lib/pkgconfig/${n}w.pc" ] && ln -sf "${n}w.pc" "$SYS/usr/lib/pkgconfig/${n}.pc"
+# --- curses: NetBSD curses (BSD), not GNU ncurses ----------------------------
+# libcurses/libterminfo/libform/libmenu/libpanel, wide-char.  The install adds
+# the ncurses names (libncursesw.so, ncursesw.pc, ...) so nnn, alsamixer and
+# libedit find it unchanged.  The terminfo database is one CDB file,
+# /usr/share/terminfo.cdb, read by these libraries and by the base system's
+# libterminfo alike; xterm, linux, screen, tmux, st and rxvt-unicode are also
+# compiled into libterminfo.  (The descriptions themselves are the terminfo
+# data every BSD ships, maintained upstream by Thomas E. Dickey.)
+step_netbsd_curses() {
+    # a sysroot that had GNU ncurses: remove all of it first
+    rm -rf "$SYS/usr/lib/terminfo" "$SYS/usr/share/terminfo" "$SYS/usr/share/tabset" \
+        "$SYS/usr/bin/ncursesw6-config" "$SYS"/usr/lib/lib*w.so.6* \
+        "$SYS"/usr/lib/libtinfo* "$SYS"/usr/lib/libncurses* \
+        "$SYS"/usr/lib/pkgconfig/ncurses*.pc "$SYS"/usr/lib/pkgconfig/tinfo*.pc \
+        "$SYS"/usr/include/ncurses_dll.h "$SYS"/usr/include/term_entry.h
+    for t in captoinfo infotocap toe reset tic tput tset infocmp clear tabs; do
+        rm -f "$SYS/usr/bin/$t"
+    done
+    s=$(unpack netbsd-curses)
+    cd "$s"
+    m() {
+        make -f GNUmakefile HOSTCC=cc CC="$CC" AR="$AR" RANLIB="${RANLIB:-$AR s}" \
+            CFLAGS="-O2 -fPIC -DTERMINFO_COMPAT" \
+            CFLAGS_HOST="-O2 -DTERMINFO_COMPAT" PREFIX=/usr "$@"
+    }
+    m -j"$JOBS" all
+    m DESTDIR="$SYS" install-headers install-libs install-progs install-pcs
+    # the database: NetBSD 10's terminfo source, compiled by the image's own
+    # NetBSD 10 tic (netbsd-curses' older tic misreads e.g. colors#0x100)
+    "$TOP/src/rootfs/bin/tic" -x -o "$SYS/usr/share/terminfo.cdb" "$(fetch netbsd-terminfo)"
+    chmod 644 "$SYS/usr/share/terminfo.cdb"
+    mkdir -p "$SYS/usr/share/misc"
+    ln -sf ../terminfo.cdb "$SYS/usr/share/misc/terminfo.cdb"
+    # names asked for by software written for ncurses' split libraries
+    ln -sf libterminfo.so "$SYS/usr/lib/libtinfo.so"
+    ln -sf libterminfo.so "$SYS/usr/lib/libtinfow.so"
+    ln -sf terminfo.pc "$SYS/usr/lib/pkgconfig/tinfo.pc"
+    ln -sf ncursesw.pc "$SYS/usr/lib/pkgconfig/ncursesw6.pc"
+    mkdir -p "$SYS/usr/include/ncursesw"
+    for h in curses.h ncurses.h term.h termcap.h unctrl.h panel.h menu.h eti.h form.h; do
+        ln -sf "../$h" "$SYS/usr/include/ncursesw/$h"
     done
 }
 step_musl_fts() {
@@ -720,7 +751,7 @@ RLEOF
         --disable-mesh --disable-midi --disable-udev --disable-hid2hci --disable-datafiles \
         --enable-client --enable-tools --enable-library --disable-test \
         --with-dbusconfdir=/etc --with-dbussystembusdir=/usr/share/dbus-1/system-services \
-        READLINE_CFLAGS="-I$SYS/usr/include" READLINE_LIBS="-ledit -lncursesw"
+        READLINE_CFLAGS="-I$SYS/usr/include" READLINE_LIBS="-ledit -lcurses -lterminfo"
 }
 # --- hostapd (access point; lets flxnetmgr's WiFi path be tested with hwsim)
 step_hostapd() {
@@ -733,7 +764,7 @@ step_hostapd() {
     make DESTDIR="$SYS" BINDIR=/sbin install
 }
 
-STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg ncurses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm llvm18 libelf libva mesa mesa_demos libva_utils gmmlib media_driver intel_vaapi ffmpeg libedit bluez hostapd"
+STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg netbsd_curses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm llvm18 libelf libva mesa mesa_demos libva_utils gmmlib media_driver intel_vaapi ffmpeg libedit bluez hostapd"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11

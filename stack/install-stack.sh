@@ -49,6 +49,20 @@ if [ -x "$SYS/usr/bin/greetd" ]; then
     rm -f "$R/lib/libgcc_s.so.1" "$R/usr/lib/libgcc_s.so.1"
 fi
 
+# NetBSD curses: unversioned sonames (libcurses.so, ...) that the *.so.*
+# copy above does not match.  GNU ncurses, which earlier trees carried, goes.
+rm -f "$R"/usr/lib/libncurses* "$R"/usr/lib/libtinfo* "$R"/usr/lib/libformw.so* \
+    "$R"/usr/lib/libmenuw.so* "$R"/usr/lib/libpanelw.so*
+rm -rf "$R/usr/share/terminfo" "$R/usr/share/tabset"
+for l in curses terminfo form menu panel; do
+    cp_strip "$SYS/usr/lib/lib$l.so" "$R/usr/lib/lib$l.so"
+done
+# one terminfo database for both libterminfo builds: netbsd-curses reads
+# /usr/share/terminfo.cdb, the base system's (tput, tset, vi) /usr/share/misc
+mkdir -p "$R/usr/share/misc"
+cp "$SYS/usr/share/terminfo.cdb" "$R/usr/share/terminfo.cdb"
+ln -sf ../terminfo.cdb "$R/usr/share/misc/terminfo.cdb"
+
 # gdk-pixbuf / gio / gtk module trees and PAM modules
 for d in gdk-pixbuf-2.0 gio gtk-3.0 imlib2 dri; do
     [ -d "$SYS/usr/lib/$d" ] || continue
@@ -170,7 +184,7 @@ fi
 for d in libinput alsa; do
     [ -d "$SYS/usr/share/$d" ] && rm -rf "$R/usr/share/$d" && cp -a "$SYS/usr/share/$d" "$R/usr/share/$d"
 done
-for d in terminfo X11/locale; do
+for d in X11/locale; do
     [ -d "$SYS/usr/share/$d" ] && [ ! -d "$R/usr/share/$d" ] && \
         mkdir -p "$R/usr/share/$d" && cp -a "$SYS/usr/share/$d/." "$R/usr/share/$d/"
 done
