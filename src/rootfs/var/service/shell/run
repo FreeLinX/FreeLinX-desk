@@ -7,4 +7,8 @@ if [ -e /etc/flx-installed ]; then
     # getty sets up the controlling terminal; toybox login checks /etc/shadow.
     exec /usr/bin/getty -l /usr/libexec/toybox/login 115200 ttyS1 vt100
 fi
-exec /bin/sh -l < /dev/ttyS1 > /dev/ttyS1 2>&1
+# setsid -c makes the tty this shell's controlling terminal: without it
+# there is no job control and Ctrl-C reaches nothing.  runsv starts us in
+# the service directory, so go home first.
+cd /root 2>/dev/null || cd /
+exec /usr/bin/setsid -c /bin/sh -l <>/dev/ttyS1 >&0 2>&1
