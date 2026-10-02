@@ -11,4 +11,4 @@ fi
 exec dbus-daemon \
     --config-file=/etc/dbus-1/session.conf \
     --address=unix:path=/run/dbus/system_bus_socket \
-    --nofork --print-address=1
+    --nofork

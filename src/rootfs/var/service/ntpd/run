@@ -1,2 +1,4 @@
 #!/bin/sh
-exec /sbin/ntpd -d
+# -d keeps it in the foreground for runit and logs to stderr: to a file,
+# not to the console the services share
+exec /sbin/ntpd -d >>/var/log/ntpd.log 2>&1
