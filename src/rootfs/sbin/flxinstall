@@ -371,7 +371,12 @@ echo " Step 8/9 - Desktop environment"
 echo "----------------------------------------------------------"
 echo "   1) Console only (text login)"
 echo "   2) Desktop (Openbox with a graphical login)"
-printf "Install type (1=console, 2=desktop) [2]: "
+# The base image carries no desktop: there is nothing to choose.
+if [ ! -x /usr/bin/flx-session ]; then
+    DI=1
+    echo "   (this image has no desktop: console only)"
+fi
+[ -n "${DI:-}" ] || printf "Install type (1=console, 2=desktop) [2]: "
 if [ -z "${DI:-}" ]; then
     read -r DI || DI="2"
     [ -z "$DI" ] && DI="2"
