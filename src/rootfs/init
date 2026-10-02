@@ -151,6 +151,48 @@ if [ -f /etc/flx-installed ]; then
         mount -t ext4 -o defaults,noatime "$FLX_SYS_DEV" /mnt/flx_sys 2>/dev/null || :
         if grep -qs ' /mnt/flx_sys ' /proc/mounts; then
             if [ -x /sbin/flxbind ]; then
+                # A newer FreeLinX image on the boot partition (flxupgrade,
+                # or a 1.0.x system booting its first 1.0.5 image): refresh
+                # the system files on FLX_SYS from this image.  The user's
+                # configuration in /etc stays; only files it lacks are added,
+                # and a few FreeLinX settings that older releases wrote are
+                # migrated.  Packages installed with xpkg stay in place.
+                _img=$(sed -n 's/^VERSION_ID="\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' /etc/os-release 2>/dev/null)
+                _sys=$(cat /mnt/flx_sys/.flx-image-version 2>/dev/null)
+                if [ -n "$_img" ] && [ "$_img" != "$_sys" ] && [ -d /mnt/flx_sys/usr ]; then
+                    echo "FreeLinX ${_sys:-1.0.x} -> $_img: updating the system files, this takes a minute..." > /dev/console 2>/dev/null || :
+                    for _p in usr/share/X11/xtree usr/share/netsurf usr/bin/netsurf usr/bin/netsurf-bin \
+                              usr/bin/netsurf-fb usr/bin/netsurf-gtk3 usr/share/applications/netsurf.desktop \
+                              bin/dwm bin/dmenu bin/st bin/slstatus bin/nsxiv bin/xclip bin/xinit bin/doom \
+                              bin/xfe bin/xfw bin/xfp bin/xfi usr/bin/xdemo; do
+                        rm -rf "/mnt/flx_sys/$_p"
+                    done
+                    for d in usr bin sbin lib; do
+                        mkdir -p "/mnt/flx_sys/$d"
+                        (cd / && tar cf - "$d" 2>/dev/null) | (cd /mnt/flx_sys && tar xpf - 2>/dev/null) || :
+                    done
+                    (cd /etc && find . \( -type f -o -type l \) -print) | while IFS= read -r _f; do
+                        [ -e "/mnt/flx_sys/etc/$_f" ] || [ -L "/mnt/flx_sys/etc/$_f" ] && continue
+                        mkdir -p "/mnt/flx_sys/etc/$(dirname "$_f")"
+                        cp -a "/etc/$_f" "/mnt/flx_sys/etc/$_f" 2>/dev/null || :
+                    done
+                    _e=/mnt/flx_sys/etc
+                    for _x in "$_e"/X11/xorg*.conf; do
+                        [ -f "$_x" ] && sed -i 's#/usr/share/X11/xtree/lib/xorg/modules#/usr/lib/xorg/modules#' "$_x"
+                    done
+                    for _x in "$_e/profile" "$_e/X11/xinit/xinitrc"; do
+                        [ -f "$_x" ] && sed -i 's#/usr/share/X11/xtree/bin:##g; s#/bin/dwm#/usr/bin/dwm#g; s#/bin/slstatus#/usr/bin/slstatus#g' "$_x"
+                    done
+                    # the release's identity is FreeLinX's, not the user's
+                    cp -a /etc/os-release "$_e/os-release" 2>/dev/null || :
+                    for _x in "$_e/issue" "$_e/motd"; do
+                        [ -f "$_x" ] && sed -i "s/^ FreeLinX 1\.0[0-9.]*\$/ FreeLinX $_img/" "$_x"
+                    done
+                    [ -f "$_e/xdg/openbox/menu.xml" ] && \
+                        sed -i '/<item label="NetSurf/,/<\/item>/d' "$_e/xdg/openbox/menu.xml"
+                    echo "$_img" > /mnt/flx_sys/.flx-image-version
+                    sync
+                fi
                 # /bin /sbin /lib persist too: xpkg installs NetBSD tools to
                 # /bin and kernel modules/firmware to /lib.  Systems installed
                 # before 1.0.2 had only usr etc var root on FLX_SYS: seed the
@@ -211,7 +253,7 @@ if [ -r /sys/class/dmi/id/sys_vendor ] && grep -qi qemu /sys/class/dmi/id/sys_ve
     /sbin/flxifconfig "$_iface" inet 10.0.2.15/24 2>/dev/null || /sbin/ifconfig "$_iface" 10.0.2.15 netmask 255.255.255.0 up 2>/dev/null || :
     /sbin/flxifconfig "$_iface" up 2>/dev/null || :
     /sbin/flxroute add default 10.0.2.2 2>/dev/null || /sbin/route add default gw 10.0.2.2 2>/dev/null || :
-    printf "nameserver 10.0.2.3\nnameserver 1.1.1.1\nnameserver 8.8.8.8\n" > /etc/resolv.conf
+    printf "nameserver 10.0.2.3\n" > /etc/resolv.conf
 fi
 /sbin/dhcpcd -q -b "${_iface:-eth0}" 2>/dev/null || :
 

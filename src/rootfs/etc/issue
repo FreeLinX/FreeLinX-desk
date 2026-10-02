@@ -5,7 +5,7 @@
  | |  | | |  __/  __/| |____| | | | | | . \\ 
  |_|  |_|  \\___|\\___||______|_|_| |_| |_|\\_\\
 
- FreeLinX 1.0.5
+ FreeLinX 1.0.6
 
  Right-click the desktop for the menu. Install to disk: flxinstall (as root).
  Packages: xpkg install <name>, xpkg list.
