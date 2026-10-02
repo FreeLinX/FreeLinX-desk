@@ -334,9 +334,12 @@ static void connect_selected_wifi(void) {
     WifiAP *ap = &ap_list[selected_ap];
     snprintf(status_message, sizeof(status_message), "Connecting to '%s'...", ap->ssid);
     
-    char *argv_pw[] = { "/sbin/flxwifi", "connect", ap->ssid, wifi_pass, NULL };
-    char *argv_open[] = { "/sbin/flxwifi", "connect", ap->ssid, NULL };
-    run_argv(strlen(wifi_pass) > 0 ? argv_pw : argv_open, conn_path, 0);
+    /* the password travels in the environment (only root can read a root
+     * process's environment), never on a command line that ps shows */
+    char *argv[] = { "/sbin/flxwifi", "connect", ap->ssid, NULL };
+    if (wifi_pass[0]) setenv("FLXWIFI_PASS", wifi_pass, 1);
+    run_argv(argv, conn_path, 0);
+    unsetenv("FLXWIFI_PASS");
 }
 
 static void disconnect_wifi(void) {

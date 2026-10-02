@@ -355,7 +355,7 @@ case "$MAKEWIFI" in
             # Best effort: try to connect right away (ignored in QEMU tests)
             if command -v flxwifi >/dev/null 2>&1; then
                 echo "  Trying to connect now (best effort)..."
-                flxwifi connect "$WIFISSID" "$WIFIPASS" 2>/dev/null || true
+                FLXWIFI_PASS="$WIFIPASS" flxwifi connect "$WIFISSID" 2>/dev/null || true
             fi
         else
             echo "  Skipping WiFi (no SSID entered)."
