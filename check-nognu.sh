@@ -39,7 +39,7 @@ allowed() {
 
 # Fingerprints of GNU project code (checked against every FreeLinX image and
 # package: none of these strings occurs in the non-GNU software we ship).
-GNU_SIGS='NCURSES_NO_PADDING|ncurses 6\.[0-9]|GNU Readline|readline-[0-9]\.[0-9]|GNU gettext|GNU libiconv|Libgcrypt [0-9]|libgpg-error [0-9]|GNU Wget|GNU bash, version|GNU coreutils|GNU Make [0-9]|GNU MP |GNU MPFR|GnuTLS [0-9]|GNU libunistring|GNU nano [0-9]|GNU tar [0-9]|GNU findutils|GNU diffutils|GNU Awk|gnu\.org/software/'
+GNU_SIGS='NCURSES_NO_PADDING|ncurses 6\.[0-9]|GNU Readline|readline-[0-9]\.[0-9]|GNU gettext|GNU libiconv|Libgcrypt [0-9]|libgpg-error [0-9]|GNU Wget|GNU bash, version|GNU coreutils|GNU Make [0-9]|GNU MP |GNU MPFR|GnuTLS [0-9]|GNU libunistring|GNU nano [0-9]|GNU tar [0-9]|GNU findutils|GNU diffutils|GNU Awk|gnu\.org/gethelp|home page: <https?://www\.gnu\.org/software/'
 bad=0
 waived=0
 report() { # path reason

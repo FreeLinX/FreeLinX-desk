@@ -687,19 +687,19 @@ fi
 cat > "$BOOT_DIR/limine.conf" << EOF
 timeout: 3
 serial: yes
-interface_branding: FreeLinX 1.0
+interface_branding: FreeLinX 1.0.5
 interface_branding_colour: 2
 term_background: 1a1f1a
 term_foreground: e8ece8
 
-/FreeLinX 1.0
+/FreeLinX 1.0.5
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
     module_path: boot():/boot/kmods.cpio
     cmdline: rdinit=/init rootfstype=ramfs console=tty0 console=ttyS0,115200 quiet loglevel=2
 
-/FreeLinX 1.0 (basic graphics)
+/FreeLinX 1.0.5 (basic graphics)
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
@@ -728,7 +728,7 @@ if [ -n "$USERNAME" ] && [ -b "$PART4" ]; then
         # minimal skeleton
         cat > "$HOME_MP/$USERNAME/.profile" << EOF
 # FreeLinX user profile (created by flxinstall)
-export PATH=/usr/share/X11/xtree/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
 [ -r /etc/flx-locale ] && export LANG="\$(cat /etc/flx-locale)"
 [ -r /etc/flx-locale ] && export LC_ALL="\$(cat /etc/flx-locale)"
 [ -r /etc/TZ ] && export TZ="\$(cat /etc/TZ)"

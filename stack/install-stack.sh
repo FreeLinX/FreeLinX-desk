@@ -207,5 +207,43 @@ if [ -d "$FF" ]; then
     done
 fi
 
+# --- X11 desktop programs, linked to the stack's shared libraries -----------
+# They replace 1.0.x's static copies, some of which lived in /bin.
+for b in dwm dmenu dmenu_path dmenu_run stest st slstatus nsxiv xclip xsetroot \
+         xrandr setxkbmap xinit startx xeyes xclock xmag urxvt urxvtc urxvtd \
+         dillo dpid dpidc mpv mupdf-x11 mutool xfe xfi xfp xfw \
+         openbox openbox-session obxprop; do
+    [ -e "$SYS/usr/bin/$b" ] || continue
+    rm -f "$R/bin/$b" "$R/usr/bin/$b"
+    cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"
+done
+rm -f "$R/bin/doom" "$R/usr/bin/xdemo" "$R/bin/xdemo"
+mkdir -p "$R/usr/lib/doom"
+cp_strip "$SYS/usr/lib/doom/doomgeneric" "$R/usr/lib/doom/doomgeneric"
+install -m755 "$SYS/usr/bin/doom" "$R/usr/bin/doom"
+for f in openbox-autostart openbox-xdg-autostart; do
+    install -m755 "$SYS/usr/libexec/$f" "$R/usr/libexec/$f"
+done
+for d in usr/lib/dillo etc/dillo usr/share/xfe; do
+    rm -rf "$R/$d"; mkdir -p "$(dirname "$R/$d")"; cp -a "$SYS/$d" "$R/$d"
+done
+find "$R/usr/lib/dillo" -type f -perm -u+x -exec "$STRIP" --strip-unneeded {} + 2>/dev/null || :
+for t in "$SYS"/usr/share/themes/*; do
+    [ -d "$t/openbox-3" ] || continue
+    rm -rf "$R/usr/share/themes/$(basename "$t")/openbox-3"
+    mkdir -p "$R/usr/share/themes/$(basename "$t")"
+    cp -a "$t/openbox-3" "$R/usr/share/themes/$(basename "$t")/openbox-3"
+done
+
+# CA certificates: one bundle, /etc/ssl/certs/ca-certificates.crt pointing at
+# the packaged copy so xpkg can update it
+mkdir -p "$R/usr/share/ca-certificates" "$R/etc/ssl/certs"
+install -m644 "$SYS/usr/share/ca-certificates/cacert.pem" "$R/usr/share/ca-certificates/cacert.pem"
+rm -f "$R/etc/ssl/certs/ca-certificates.crt"
+ln -s /usr/share/ca-certificates/cacert.pem "$R/etc/ssl/certs/ca-certificates.crt"
+
+# license texts of everything above (usr/share/licenses)
+"$HERE/collect-licenses.sh" "$R"
+
 echo "install-stack: done; checking the tree"
 "$TOP/check-nognu.sh" "$R"

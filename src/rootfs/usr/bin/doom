@@ -1,0 +1,5 @@
+#!/bin/sh
+# Doom (doomgeneric) with the shareware or a user-supplied IWAD
+wad="${DOOMWAD:-/usr/share/games/doom/doom1.wad}"
+case " $* " in *" -iwad "*) exec /usr/lib/doom/doomgeneric "$@" ;; esac
+exec /usr/lib/doom/doomgeneric -iwad "$wad" "$@"

@@ -197,7 +197,7 @@ claims a build happened.
   `staging/`, and `FreeLinX/src` later consumes them into `rootfs/bin/` (e.g.
   `sh -> rootfs/bin/sh`). `install -r` can also copy a staged binary directly
   into `FreeLinX/src/rootfs/bin/`.
-- **`FreeLinX/kernel`** — Linux 6.6.21; untouched here.
+- **`FreeLinX/kernel`** — Linux 6.6.157; untouched here.
 - **`FreeLinX/iso`** — consumes `FreeLinX/src`'s output; untouched here.
 
 ---
@@ -437,7 +437,7 @@ make build PORT=base/openssl
 FreeLinX is a GNU-free, BSD-flavoured system. Networking is provided by a mix
 of upstream (dhcpcd, wpa_supplicant, libnl) and NetBSD-derived tools, all
 built as static musl binaries with clang + LLD (no GNU tool in the system or
-in the build). Kernel side is upstream Linux 6.6.21 with `CONFIG_CFG80211` and
+in the build). Kernel side is upstream Linux 6.6.157 with `CONFIG_CFG80211` and
 `CONFIG_MAC80211` built-in plus each chip driver built as a module.
 
 | Port                 | Role                                 | Category | Status        |

@@ -1,5 +1,5 @@
 # FreeLinX System Profile
-export PATH=/usr/share/X11/xtree/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
 export TERM=xterm-256color
 export SHELL=/bin/sh
 export SVDIR=/var/service

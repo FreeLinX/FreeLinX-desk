@@ -1,7 +1,7 @@
 #!/bin/sh
 # FreeLinX Browser Launcher (non-GNU)
-# Firefox (full JavaScript) under X11; NetSurf/Dillo as light fallbacks;
-# Links in console mode.
+# Firefox (full JavaScript) under X11; Dillo as the light fallback; Links,
+# w3m or lynx in a console.  TLS certificates are always verified.
 
 # No local welcome page ships with the release rootfs (removed by design);
 # default to a lightweight search page when no URL is given.
@@ -14,17 +14,13 @@ if [ -n "${DISPLAY:-}" ]; then
     if [ -x /usr/lib/firefox/firefox ]; then
         if [ $# -gt 0 ]; then exec /usr/lib/firefox/firefox "$@"; fi
         exec /usr/lib/firefox/firefox
-    elif [ -x /usr/bin/netsurf ]; then
-        exec /usr/bin/netsurf "$URL"
     elif [ -x /usr/bin/dillo ]; then
         exec /usr/bin/dillo "$URL"
-    elif [ -x /usr/bin/links ]; then
-        exec /usr/bin/links -g -ssl.certificates 0 "$URL"
     fi
 fi
 
 if [ -x /usr/bin/links ]; then
-    exec /usr/bin/links -ssl.certificates 0 "$URL"
+    exec /usr/bin/links "$URL"
 elif [ -x /usr/bin/lynx ]; then
     exec /usr/bin/lynx "$URL"
 elif [ -x /usr/bin/w3m ]; then

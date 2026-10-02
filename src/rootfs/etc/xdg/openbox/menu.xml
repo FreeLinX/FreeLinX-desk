@@ -80,9 +80,6 @@
   <item label="Web Browser (FreeLinX Web)">
     <action name="Execute"><command>firefox</command></action>
   </item>
-  <item label="NetSurf Lightweight Browser">
-    <action name="Execute"><command>netsurf</command></action>
-  </item>
   <item label="Dillo Web Browser">
     <action name="Execute"><command>dillo</command></action>
   </item>

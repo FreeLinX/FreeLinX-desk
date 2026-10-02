@@ -85,9 +85,9 @@ Independent of `ports`/`src` — only needs the toolchain from step 2.
 ```bash
 export PATH=~/freelinix/toolchain/bin:$PATH
 cd ~/freelinix/kernel
-wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.21.tar.xz
-tar xf linux-6.6.21.tar.xz
-cd linux-6.6.21
+wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.157.tar.xz
+tar xf linux-6.6.157.tar.xz
+cd linux-6.6.157
 cp ../kernel.config .config
 
 make LLVM=1 LLVM_IAS=1 ARCH=x86_64 CC=clang olddefconfig
@@ -161,7 +161,7 @@ find . | cpio -o -H newc | gzip -9 > ~/freelinix/initramfs.cpio.gz
 cd ~/freelinix
 
 qemu-system-x86_64 \
-    -kernel ~/freelinix/kernel/linux-6.6.21/arch/x86/boot/bzImage \
+    -kernel ~/freelinix/kernel/linux-6.6.157/arch/x86/boot/bzImage \
     -initrd ~/freelinix/initramfs.cpio.gz \
     -append "console=ttyS0 rdinit=/init" \
     -nographic -m 512M

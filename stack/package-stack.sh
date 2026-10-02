@@ -99,12 +99,12 @@ gtk3|gtk|b:gtk|GTK 3 graphical toolkit
 alsa-lib|alsa-lib|b:alsa-lib|ALSA sound library
 tzdata|tzdata|f:usr/share/zoneinfo|IANA time zone database
 toybox|toybox|f:usr/bin/toybox,usr/bin/ps,usr/bin/top,usr/bin/free,usr/bin/uptime,usr/bin/pgrep,usr/bin/pkill,usr/bin/pidof,usr/bin/w,usr/bin/getty,usr/bin/login,usr/bin/setsid|Process and system tools (ps, top, free, pgrep, getty, login)
-openssl|openssl|s:openssl:install_sw install_ssldirs|TLS/SSL and crypto library
+openssl|openssl|s:openssl:install_sw install_ssldirs|TLS/SSL and crypto library|ca-certificates
 sqlite|sqlite|b:sqlite|SQLite database engine
 libnl|libnl|b:libnl|Netlink library
 wpa_supplicant|wpa_supplicant|f:sbin/wpa_supplicant,sbin/wpa_cli,sbin/wpa_passphrase|WiFi client (WPA2/WPA3, 802.1X)
 netbsd-curses|netbsd-curses|f:usr/lib/libcurses.so,usr/lib/libterminfo.so,usr/lib/libform.so,usr/lib/libmenu.so,usr/lib/libpanel.so,usr/share/terminfo.cdb,usr/share/misc/terminfo.cdb|Curses and terminfo libraries (NetBSD curses) and the terminfo database
-ncurses|ncurses|e:|Transitional package: replaced by netbsd-curses (upgrading removes GNU ncurses)|netbsd-curses
+ncurses|ncurses|t:|Transitional package: GNU ncurses replaced by netbsd-curses (upgrading removes its libraries)|netbsd-curses,vim,tmux,htop,ncdu,pstree,tetris
 nnn|nnn|s:nnn:PREFIX=/usr install|Fast terminal file manager
 libXaw|libXaw|b:libXaw|X Athena widgets
 xcalc|xcalc|b:xcalc|Scientific calculator for X
@@ -129,9 +129,37 @@ flxnet|flxnet|f:sbin/flxifconfig,sbin/flxroute|FreeLinX netlink ifconfig and rou
 flx-apps|flxapps|f:usr/bin/flxinstall-gui,usr/bin/flxnetmgr,usr/bin/flxpkg|FreeLinX installer, network manager and package manager (GUI)
 xpkg|xpkg|f:usr/bin/xpkg|FreeLinX package manager
 firefox|firefox|x:|FreeLinX Web: web browser based on Firefox ESR|ffmpeg-libs
+openbox|openbox|b:openbox|Openbox window manager|imlib2
+dwm|dwm|f:usr/bin/dwm|dwm tiling window manager (suckless)
+dmenu|dmenu|f:usr/bin/dmenu,usr/bin/dmenu_path,usr/bin/dmenu_run,usr/bin/stest|dmenu application launcher (suckless)
+st|st|f:usr/bin/st|st terminal (suckless)
+slstatus|slstatus|f:usr/bin/slstatus|slstatus status bar for dwm (suckless)
+nsxiv|nsxiv|f:usr/bin/nsxiv|nsxiv image viewer
+xclip|xclip|f:usr/bin/xclip|xclip: X selection from the command line
+x11-apps|x11-apps|f:usr/bin/xeyes,usr/bin/xmag,usr/bin/xsetroot|X11 programs: xeyes, xmag, xsetroot
+xclock|xclock|b:xclock|X clock
+xrandr|xrandr|f:usr/bin/xrandr|xrandr: screen size, rotation and outputs
+setxkbmap|setxkbmap|f:usr/bin/setxkbmap|setxkbmap: keyboard layout for X
+xinit|xinit|f:usr/bin/xinit,usr/bin/startx|xinit and startx
+libptytty|libptytty|b:libptytty|Pseudo-terminal library (for urxvt)
+urxvt|rxvt-unicode|b:rxvt-unicode|rxvt-unicode terminal
+fltk|fltk|b:fltk|FLTK 1.3 GUI toolkit
+dillo|dillo|b:dillo|Dillo lightweight web browser
+mupdf|mupdf|f:usr/bin/mupdf-x11,usr/bin/mutool,usr/lib/libmupdf.so.28.5|MuPDF document viewer and mutool
+libXScrnSaver|libXScrnSaver|b:libXScrnSaver|X screen saver extension library
+libXpresent|libXpresent|b:libXpresent|X Present extension library
+libass|libass|b:libass|Subtitle rendering library
+libplacebo|libplacebo|b:libplacebo|GPU video rendering library (for mpv)
+mpv|mpv|b:mpv|mpv media player
+fox|fox|b:fox|FOX 1.6 GUI toolkit
+xcb-util|xcb-util|b:xcb-util|XCB utility library
+xfe|xfe|f:usr/bin/xfe,usr/bin/xfi,usr/bin/xfp,usr/bin/xfw,usr/share/xfe|Xfe file manager, editor, image and package viewers
+doom|doomgeneric|f:usr/bin/doom,usr/lib/doom/doomgeneric|Doom (doomgeneric, X11); needs a WAD file
+netsurf|netsurf|e:|Transitional package: NetSurf is no longer shipped; Dillo replaces it (upgrading removes NetSurf)|dillo
+ca-certificates|ca-certificates|f:usr/share/ca-certificates/cacert.pem|Mozilla CA certificates (as published by curl.se)
 linux|linux|k:|Linux kernel and modules (installed systems: activated on the next boot)
 linux-firmware|linux-firmware|w:|Firmware for WiFi, Bluetooth, GPUs and audio (linux-firmware, Sound Open Firmware)
-xorg|xorg-server|e:|X Window System: server, input/video drivers, keymap compiler, OpenGL|xorg-server,xf86-input-libinput,xf86-input-evdev,xf86-video-fbdev,xkbcomp,mesa
+xorg|xorg-server|e:|X Window System: server, input/video drivers, keymap compiler, OpenGL, video decoding|xorg-server,xf86-input-libinput,xf86-input-evdev,xf86-video-fbdev,xkbcomp,mesa,intel-media-driver,intel-vaapi-driver,libva-utils
 '
 
 # --- versions ------------------------------------------------------------------
@@ -143,9 +171,11 @@ pkg_rel() {
         gtk3) echo 2 ;;          # 1.0.1: X11 compose/locale path inside the target
         mesa) echo 2 ;;          # radeonsi, llvmpipe, VA-API
         ffmpeg-libs) echo 2 ;;   # VA-API hwaccel
-        firefox) echo 2 ;;       # hardware video decoding on
-        ncurses) echo 2 ;;       # 1.0.2: empty, GNU ncurses replaced by netbsd-curses
+        wpa_supplicant|hostapd) echo 2 ;;   # 1.0.5: OpenSSL 3.5
+        toybox) echo 2 ;;        # 1.0.5: host helpers built without the host compiler
+        ncurses) echo 3 ;;       # 1.0.2: transitional, GNU ncurses replaced by netbsd-curses
         nnn|alsa-utils|libedit) echo 2 ;;   # 1.0.2: linked to netbsd-curses
+        xorg) echo 2 ;;          # 1.0.2: pulls the VA-API drivers in
         *) echo "$REL" ;;
     esac
 }
@@ -157,6 +187,10 @@ src_version() { # source name -> version string
         linux-firmware) sed -n 's/^LFW_VER="${LFW_VER:-\(.*\)}"$/\1/p' "$HERE/build-firmware.sh" ;;
         firefox) sed -n 's/^Version=//p' "$W/firefox-dest/usr/lib/firefox/application.ini" | head -1 ;;
         ncurses) echo 6.5 ;;   # transitional package only
+        doomgeneric) echo 2026.10.02 ;;   # git snapshot (sources.txt pins the commit)
+        x11-apps) echo 1.1 ;;
+        ca-certificates) sed -n 's/^ca-certificates .* cacert-\([0-9-]*\)\.pem$/\1/p' "$HERE/sources.txt" | tr - . ;;
+        netsurf) echo 3.11 ;;   # transitional package only
         xpkg) sed -n 's/^#define XPKG_VERSION *"\(.*\)"/\1/p' "$XPKG_SRC/include/xpkg.h" ;;
         *)
             # the local file name (4th column) when sources.txt gives one
@@ -170,6 +204,7 @@ src_version() { # source name -> version string
                 llvm-project) v=${v%.src} ;;
                 llvm18) v=${v#llvm-project-}; v=${v%.src} ;;
                 libedit) v=$(printf '%s' "$v" | sed -E 's/^([0-9]{8})-(.*)$/\2.\1/') ;;
+                mupdf|fltk) v=${v%-source} ;;
             esac
             v=${v#v}; v=${v#-}
             printf '%s\n' "$v" ;;
@@ -215,7 +250,7 @@ trim() { # dest: keep what the target runs
         "$d/usr/share/gdb" "$d/usr/lib/python"* "$d/usr/share/xcb" \
         "$d/usr/share/installed-tests" "$d/usr/libexec/installed-tests" \
         "$d/usr/share/bash-completion" "$d/usr/share/zsh" "$d/usr/share/fish"
-    find "$d" \( -name '*.a' -o -name '*.la' \) -type f -delete 2>/dev/null || :
+    find "$d" \( -name '*.a' -o -name '*.la' \) \( -type f -o -type l \) -delete 2>/dev/null || :
     # GTK Inspector's property translations and the emoji picker data: large
     # and unused on this desktop
     find "$d/usr/share/locale" -name '*-properties.mo' -type f -delete 2>/dev/null || :
@@ -266,6 +301,18 @@ if [ -f "$t" ] && grep -q '_background_id = ' "$t"; then
     sed '/^[a-z_]*_background_id = /d' "$t" > "$t.xpkg-new" && mv "$t.xpkg-new" "$t"
 fi
 XEOF
+            ;;
+        ca-certificates) cat > "$sc" <<'CAEOF'
+# Systems from 1.0.x have the bundle as a plain file in /etc: keep it as
+# .xpkgold and point the path every program reads at the packaged copy.
+c=/etc/ssl/certs/ca-certificates.crt
+if [ -f "$c" ] && [ ! -L "$c" ]; then
+    mv "$c" "$c.xpkgold"
+fi
+mkdir -p /etc/ssl/certs
+ln -sfn /usr/share/ca-certificates/cacert.pem "$c"
+[ -e /etc/ssl/cert.pem ] || ln -s certs/ca-certificates.crt /etc/ssl/cert.pem
+CAEOF
             ;;
         linux) kv=$(basename "$(ls -d "$TOP"/src/rootfs/lib/modules/*/ | head -1)")
             cat > "$sc" <<KEOF
@@ -370,6 +417,17 @@ echo "$PKGS" | while IFS='|' read -r name src how desc; do
                  mkdir -p "$d/lib"
                  cp -a "$W/fw-stage/lib/firmware" "$d/lib/firmware"
              else rc=1; fi ;;
+        t:)  # ncurses' successor on systems upgraded from 1.0.x.  Its dependencies
+             # bring vim, tmux, htop, ncdu, pstree and tetris rebuilt on NetBSD
+             # curses (1.0.x shipped them linked to GNU ncurses, outside any
+             # package).  It keeps the 1.0.1 terminal descriptions (data, no
+             # code): on 1.0.x installs /bin is not on the disk, so the old /bin/vim
+             # comes back at every boot and still reads /usr/share/terminfo.
+             # Never part of an image (build-image.sh skips it).
+             if [ -d "$W/compat-terminfo-1.0.1/terminfo" ]; then
+                 mkdir -p "$d/usr/share"
+                 cp -a "$W/compat-terminfo-1.0.1/terminfo" "$d/usr/share/terminfo"
+             else echo "  missing $W/compat-terminfo-1.0.1 (the 1.0.1 ncurses package's usr/share/terminfo)" >&2; rc=1; fi ;;
         e:)  : ;;   # meta package: dependencies only
         m:)  # the loader is the real file (replaced by one atomic rename)
              mkdir -p "$d/lib" "$d/usr/lib"
@@ -381,11 +439,21 @@ echo "$PKGS" | while IFS='|' read -r name src how desc; do
         echo "$(find "$d" -type f -o -type l | wc -l) files (not trimmed)"; continue ;;
     esac
     # Xorg's input defaults (libinput, tapping) travel with the server
+    # upstream defaults must not replace FreeLinX's configuration (1.0.x
+    # systems have it unowned in /etc)
+    [ "$name" = openbox ] && rm -rf "$d/etc"
     if [ "$name" = xorg-server ]; then
         mkdir -p "$d/etc/X11/xorg.conf.d"
         cp "$TOP/src/rootfs/etc/X11/xorg.conf.d/50-flx-input.conf" "$d/etc/X11/xorg.conf.d/"
     fi
     trim "$d"
+    # the component's license text travels with it (collect-licenses.sh)
+    # (not for meta/transitional packages: the real one carries it)
+    lic="$TOP/src/rootfs/usr/share/licenses/$src"
+    if [ -d "$lic" ] && [ "${how%%:*}" != e ] && [ "${how%%:*}" != t ]; then
+        mkdir -p "$d/usr/share/licenses"
+        cp -r "$lic" "$d/usr/share/licenses/$src"
+    fi
     echo "$(find "$d" -type f -o -type l | wc -l) files"
 done
 

@@ -249,8 +249,13 @@ step_musl() {
 }
 
 step_kheaders() {
-    ksrc="${KERNEL_SRC:-$TOP/../kernel/linux-6.6.21}"
-    [ -d "$ksrc" ] || { echo "kernel source not found: $ksrc" >&2; exit 1; }
+    # the same kernel release build-kernel.sh builds
+    kver="${KVER:-6.6.157}"
+    ksrc="${KERNEL_SRC:-$W/src/linux/linux-$kver}"
+    if [ ! -d "$ksrc" ] && [ -f "$TOP/../kernel/linux-$kver.tar.xz" ]; then
+        mkdir -p "$W/src/linux" && tar -xf "$TOP/../kernel/linux-$kver.tar.xz" -C "$W/src/linux"
+    fi
+    [ -d "$ksrc" ] || { echo "kernel source not found: $ksrc (run stack/build-kernel.sh)" >&2; exit 1; }
     make -C "$ksrc" ARCH=x86_64 HOSTCC="${CC_FOR_BUILD}" O="$W/build/khdr" \
         INSTALL_HDR_PATH="$W/build/khdr/out" headers_install
     cp -a "$W/build/khdr/out/include/." "$SYS/usr/include/"
@@ -460,7 +465,16 @@ step_openssl() {
         shared no-tests no-docs CC="$CC" AR="$AR" RANLIB="$RANLIB" \
         && make -j"$JOBS" && make DESTDIR="$SYS" install_sw install_ssldirs)
 }
-step_sqlite()  { auto sqlite --disable-readline --disable-editline; }
+# sqlite's configure is autosetup since 3.48 (no autoconf-style options);
+# its bootstrap jimsh is built for the host as a static musl binary
+step_sqlite() {
+    s=$(unpack sqlite)
+    b="$W/build/sqlite"; rm -rf "$b"; mkdir -p "$b"
+    (cd "$b" && CC_FOR_BUILD="$CC -static" BUILD_CC="$CC -static" "$s/configure" \
+        --host=$TARGET --build=$BUILD_TRIPLE --prefix=/usr --disable-static \
+        --disable-readline --disable-static-shell --soname=legacy \
+        && make -j"$JOBS" && make DESTDIR="$SYS" install)
+}
 step_libnl()   { auto libnl --disable-cli --disable-debug; }
 step_dbus() {
     mes dbus -Dsystemd=disabled -Dx11_autolaunch=disabled -Dmodular_tests=disabled \
@@ -523,7 +537,7 @@ step_netbsd_curses() {
     s=$(unpack netbsd-curses)
     cd "$s"
     m() {
-        make -f GNUmakefile HOSTCC=cc CC="$CC" AR="$AR" RANLIB="${RANLIB:-$AR s}" \
+        make -f GNUmakefile HOSTCC="$CC -static" CC="$CC" AR="$AR" RANLIB="${RANLIB:-$AR s}" \
             CFLAGS="-O2 -fPIC -DTERMINFO_COMPAT" \
             CFLAGS_HOST="-O2 -DTERMINFO_COMPAT" PREFIX=/usr "$@"
     }
@@ -608,7 +622,8 @@ step_toybox() {
         echo "CONFIG_$(echo "$t" | tr a-z A-Z)=y" >> flx-mini.config
     done
     make allnoconfig KCONFIG_ALLCONFIG=flx-mini.config >/dev/null
-    make toybox CC="$CC" CFLAGS="-O2" LDFLAGS="" HOSTCC=cc
+    # host helpers (kconfig, mkflags) are static musl binaries: no host compiler
+    make toybox CC="$CC" CFLAGS="-O2" LDFLAGS="" HOSTCC="$CC -static"
     mkdir -p "$SYS/usr/bin"
     install -m755 toybox "$SYS/usr/bin/toybox"
     for t in $TOYBOX_APPLETS; do ln -sf toybox "$SYS/usr/bin/$t"; done
@@ -708,6 +723,170 @@ step_mesa_demos() {
     install -m755 glxgears glxinfo "$SYS/usr/bin/"
 }
 
+# --- X11 desktop programs, linked to the stack's shared libraries -----------
+# (1.0.x shipped these as static binaries from an older build tree: their own
+# copies of libX11/expat/freetype, and X11 locale paths of that build host.)
+# Mozilla's CA certificates, as curl.se publishes them (dated, checksummed)
+step_ca_certificates() {
+    mkdir -p "$SYS/usr/share/ca-certificates"
+    install -m644 "$(fetch ca-certificates)" "$SYS/usr/share/ca-certificates/cacert.pem"
+}
+# FreeLinX's own small X11 tools (FreeLinX/src/apps): screenshot, panel, flxfs
+step_flx_x11_tools() {
+    a="$TOP/../src/apps"
+    "$CC" -O2 -o "$SYS/usr/bin/flxshot" "$a/flxshot.c" $("$PKG_CONFIG" --cflags --libs x11 cairo)
+    "$CC" -O2 -o "$SYS/usr/bin/flxpanel" "$a/flxpanel.c" $("$PKG_CONFIG" --cflags --libs x11 cairo)
+    "$CC" -O2 -o "$SYS/usr/bin/flxfs" "$a/flxfs.c"
+}
+step_xbitmaps()  { auto xbitmaps; }
+step_openbox() {
+    auto openbox --disable-nls --disable-startup-notification --disable-librsvg \
+        --enable-imlib2 --enable-xinerama --enable-xrandr --enable-xcursor
+}
+step_xsetroot()  { auto xsetroot; }
+step_xrandr()    { auto xrandr; }
+step_setxkbmap() { auto setxkbmap; }
+step_xinit()     { auto xinit --with-xinitdir=/etc/X11/xinit; }
+step_xeyes()     { auto xeyes; }
+step_xclock()    { auto xclock; }
+step_xmag()      { auto xmag; }
+step_xclip() {
+    s=$(unpack xclip)
+    cd "$s"
+    "$CC" -O2 -DPACKAGE_NAME=\"xclip\" -DPACKAGE_VERSION=\"0.13\" -o xclip xclip.c xclib.c xcprint.c -lXmu -lX11
+    install -m755 xclip xclip-copyfile xclip-pastefile xclip-cutfile "$SYS/usr/bin/" 2>/dev/null \
+        || install -m755 xclip "$SYS/usr/bin/xclip"
+}
+suckless() { # name [make vars...]
+    s=$(unpack "$1"); shift
+    cd "$s"
+    make -j"$JOBS" CC="$CC" PKG_CONFIG="$PKG_CONFIG" PREFIX=/usr \
+        X11INC="$SYS/usr/include" X11LIB="$SYS/usr/lib" \
+        FREETYPEINC="$SYS/usr/include/freetype2" "$@"
+    make PREFIX=/usr DESTDIR="$SYS" "$@" install
+}
+step_dwm()      { suckless dwm; }
+step_dmenu()    { suckless dmenu; }
+step_st()       { suckless st TERMINFO=/nonexistent; }
+step_slstatus() { suckless slstatus; }
+step_nsxiv() {
+    s=$(unpack nsxiv)
+    cd "$s"
+    make -j"$JOBS" CC="$CC" PKG_CONFIG="$PKG_CONFIG" PREFIX=/usr \
+        HAVE_LIBEXIF=0 HAVE_LIBGIF=0 HAVE_LIBWEBP=0 HAVE_INOTIFY=1 HAVE_LIBFONTS=1
+    make PREFIX=/usr DESTDIR="$SYS" install-all
+}
+step_libptytty() { cmk libptytty -DBUILD_SHARED_LIBS=ON -DUTMP_SUPPORT=OFF -DWTMP_SUPPORT=OFF -DLASTLOG_SUPPORT=OFF; }
+step_rxvt_unicode() {
+    auto rxvt-unicode --disable-perl --enable-xft --enable-font-styles --enable-256-color \
+        --enable-unicode3 --enable-combining --enable-fading --enable-transparency \
+        --enable-pixbuf=no --disable-startup-notification --disable-utmp --disable-wtmp \
+        --disable-lastlog
+}
+step_doomgeneric() {
+    s=$(unpack doomgeneric)
+    cd "$s/doomgeneric"
+    make -f Makefile -j"$JOBS" CC="$CC" CFLAGS="-O2 -DNORMALUNIX -DLINUX -DSNDSERV -D_DEFAULT_SOURCE" \
+        LIBS="-lX11 -lm" OUTPUT=doom
+    mkdir -p "$SYS/usr/lib/doom"
+    install -m755 doom "$SYS/usr/lib/doom/doomgeneric"
+    # doomgeneric only looks for its IWAD in the current directory
+    printf '#!/bin/sh\n# Doom (doomgeneric) with the shareware or a user-supplied IWAD\nwad="${DOOMWAD:-/usr/share/games/doom/doom1.wad}"\ncase " $* " in *" -iwad "*) exec /usr/lib/doom/doomgeneric "$@" ;; esac\nexec /usr/lib/doom/doomgeneric -iwad "$wad" "$@"\n' > "$SYS/usr/bin/doom"
+    chmod 755 "$SYS/usr/bin/doom"
+}
+
+# FLTK 1.3: dillo 3.2 does not support 1.4 yet
+step_fltk() {
+    rm -f "$SYS"/usr/lib/libfltk*
+    cmk fltk -DOPTION_BUILD_SHARED_LIBS=ON -DFLTK_BUILD_TEST=OFF -DOPTION_BUILD_EXAMPLES=OFF \
+        -DOPTION_USE_GL=OFF -DOPTION_USE_XFT=ON -DOPTION_USE_PANGO=OFF \
+        -DOPTION_USE_SYSTEM_LIBPNG=ON -DOPTION_USE_SYSTEM_LIBJPEG=ON -DOPTION_USE_SYSTEM_ZLIB=ON
+    # fltk-config prints /usr paths: a wrapper that points them into the sysroot
+    cat > "$W/bin/fltk-config" <<FCEOF
+#!/bin/sh
+"$SYS/usr/bin/fltk-config" "\$@" | sed "s#-I/usr#-I$SYS/usr#g; s#-L/usr#-L$SYS/usr#g"
+FCEOF
+    chmod 755 "$W/bin/fltk-config"
+}
+step_dillo() {
+    PATH="$W/bin:$PATH" auto dillo --enable-tls --enable-openssl --disable-mbedtls \
+        --disable-gif --enable-ipv6 --disable-html-tests
+}
+step_mupdf() {
+    s=$(unpack mupdf)
+    cd "$s"
+    mk() {
+        make -j"$JOBS" build=release OS=Linux CC="$CC" CXX="$CXX" AR="$AR" \
+            LD="$TC/bin/ld.lld -m elf_x86_64" \
+            PKG_CONFIG="$PKG_CONFIG" prefix=/usr HAVE_X11=yes HAVE_GLUT=no HAVE_CURL=no \
+            HAVE_WAYLAND=no USE_SYSTEM_FREETYPE=yes USE_SYSTEM_HARFBUZZ=yes \
+            USE_SYSTEM_LIBJPEG=yes USE_SYSTEM_ZLIB=yes shared=yes tesseract=no barcode=no \
+            "$@"
+    }
+    # shared: the library (fonts included) once, not in every program
+    mk apps
+    o=build/shared-release
+    install -m755 "$o/mupdf-x11" "$SYS/usr/bin/mupdf-x11"
+    install -m755 "$o/mutool" "$SYS/usr/bin/mutool"
+    rm -f "$SYS"/usr/lib/libmupdf.so*
+    cp -P "$o/libmupdf.so" "$o"/libmupdf.so.[0-9]*[0-9] "$SYS/usr/lib/"
+}
+step_libXScrnSaver() { auto libXScrnSaver; }
+step_libXpresent()   { auto libXpresent; }
+step_libass()     { auto libass --disable-require-system-font-provider --disable-libunibreak; }
+# headers only: libplacebo's API declares its Vulkan types even when built
+# without Vulkan
+step_vulkan_headers() { cmk vulkan-headers -DVULKAN_HEADERS_ENABLE_MODULE=OFF -DVULKAN_HEADERS_ENABLE_TESTS=OFF; }
+step_libplacebo() {
+    # its shader templates need Python's jinja2 at build time (a venv in work/)
+    [ -x "$W/pyenv/bin/python" ] || { python3 -m venv "$W/pyenv" && "$W/pyenv/bin/pip" install -q jinja2; }
+    PYTHONPATH="$(echo "$W"/pyenv/lib/python3*/site-packages)" mes libplacebo -Dvulkan=disabled -Dopengl=disabled -Dd3d11=disabled -Dglslang=disabled \
+        -Dshaderc=disabled -Dlcms=disabled -Dlibdovi=disabled -Ddemos=false -Dtests=false \
+        -Dxxhash=disabled -Dunwind=disabled
+}
+step_mpv() {
+    mes mpv -Dlua=disabled -Djavascript=disabled -Dlibmpv=false -Dcplayer=true \
+        -Dx11=enabled -Dgl=enabled -Dgl-x11=enabled -Degl=enabled -Degl-x11=enabled \
+        -Dvulkan=disabled -Dwayland=disabled -Dalsa=enabled -Dpulse=disabled \
+        -Dpipewire=disabled -Djack=disabled -Dvaapi=enabled -Dvaapi-x11=enabled \
+        -Dmanpage-build=disabled -Dhtml-build=disabled -Dpdf-build=disabled \
+        -Dlibarchive=disabled -Dlibbluray=disabled -Ddvdnav=disabled -Dcdda=disabled \
+        -Duchardet=disabled -Drubberband=disabled -Dzimg=disabled -Dlcms2=disabled \
+        -Dvapoursynth=disabled -Dsdl2-audio=disabled -Dsdl2-video=disabled
+}
+step_fox() {
+    s=$(unpack fox)
+    # reswrap runs during the build: make it a static binary the host can run
+    (cd "$s/utils" && "$CXX" -O2 -static -o reswrap reswrap.cpp)
+    b="$W/build/fox"; rm -rf "$b"; mkdir -p "$b"
+    cp "$s/utils/reswrap" "$W/bin/reswrap"
+    # FOX 1.6 predates C++17 (it uses 'register')
+    (cd "$b" && CXX="$CXX -std=c++14" "$s/configure" --host=$TARGET --build=$BUILD_TRIPLE --prefix=/usr \
+        --disable-static --enable-shared --enable-release --with-xft --with-opengl=no \
+        --disable-jpeg --disable-tiff --enable-png --enable-zlib --disable-bz2lib \
+        && make -j"$JOBS" RESWRAP="$W/bin/reswrap" \
+        && make DESTDIR="$SYS" install)
+    cleanup_la
+    cat > "$W/bin/fox-config" <<FCEOF
+#!/bin/sh
+"$SYS/usr/bin/fox-config" "\$@" | sed "s#-I/usr#-I$SYS/usr#g; s#-L/usr#-L$SYS/usr#g"
+FCEOF
+    chmod 755 "$W/bin/fox-config"
+}
+step_xcb_util() { auto xcb-util; }
+step_xfe() {
+    # configure asks the BUILD machine for pkexec and then wants polkit;
+    # FreeLinX elevates with doas, so hide the host's pkexec
+    mkdir -p "$W/nopkexec"
+    printf '#!/bin/sh\nexit 1\n' > "$W/nopkexec/pkexec"; chmod 755 "$W/nopkexec/pkexec"
+    # built inside its source tree: its icon Makefiles glob *.png in place
+    s=$(unpack xfe)
+    (cd "$s" && PATH="$W/nopkexec:$W/bin:$PATH" ./configure --host=$TARGET --build=$BUILD_TRIPLE \
+        --prefix=/usr --sysconfdir=/etc --disable-nls --enable-release \
+        ac_cv_func_malloc_0_nonnull=yes ac_cv_func_realloc_0_nonnull=yes \
+        && PATH="$W/bin:$PATH" make -j"$JOBS" && make DESTDIR="$SYS" install)
+}
+
 # --- H.264/AAC for FreeLinX Web: shared LGPL FFmpeg (no GPL parts) ----------
 step_ffmpeg() {
     s=$(unpack ffmpeg)
@@ -764,7 +943,7 @@ step_hostapd() {
     make DESTDIR="$SYS" BINDIR=/sbin install
 }
 
-STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg netbsd_curses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm llvm18 libelf libva mesa mesa_demos libva_utils gmmlib media_driver intel_vaapi ffmpeg libedit bluez hostapd"
+STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg netbsd_curses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm llvm18 libelf libva mesa mesa_demos libva_utils gmmlib media_driver intel_vaapi ffmpeg libedit bluez hostapd ca_certificates flx_x11_tools openbox xbitmaps xsetroot xrandr setxkbmap xinit xeyes xclock xmag xclip dwm dmenu st slstatus nsxiv libptytty rxvt_unicode doomgeneric fltk dillo mupdf libXScrnSaver libXpresent libass vulkan_headers libplacebo mpv fox xcb_util xfe"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11
