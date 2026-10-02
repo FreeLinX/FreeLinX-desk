@@ -180,6 +180,7 @@ pkg_rel() {
         ncurses) echo 3 ;;       # 1.0.2: transitional, GNU ncurses replaced by netbsd-curses
         nnn|alsa-utils|libedit) echo 2 ;;   # 1.0.2: linked to netbsd-curses
         xorg) echo 2 ;;          # 1.0.2: pulls the VA-API drivers in
+        linux) echo 2 ;;         # simpledrm takes the firmware framebuffer (SYSFB_SIMPLEFB), bochs built in
         linux-firmware) echo 2 ;;   # 1.0.7: Wi-Fi 7 (iwlmld, MT7925), Intel Xe, newest iwlwifi API
         xcalc|xclock|xf86-input-libinput|x11-apps) echo 2 ;;   # app-defaults / SDK header under /usr, not the build path
         flx-apps) echo 2 ;;      # 2026.10.02: rebuilt the same day (private temp files)

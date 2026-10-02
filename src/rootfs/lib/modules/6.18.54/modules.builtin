@@ -182,6 +182,7 @@ kernel/drivers/gpu/drm/i915/i915.ko
 kernel/drivers/gpu/drm/virtio/virtio-gpu.ko
 kernel/drivers/gpu/drm/sysfb/drm_sysfb_helper.ko
 kernel/drivers/gpu/drm/sysfb/simpledrm.ko
+kernel/drivers/gpu/drm/tiny/bochs.ko
 kernel/drivers/connector/cn.ko
 kernel/drivers/base/firmware_loader/firmware_class.ko
 kernel/drivers/base/regmap/regmap-i2c.ko
