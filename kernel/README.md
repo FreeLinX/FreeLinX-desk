@@ -6,12 +6,12 @@ using the LLVM toolchain and musl libc.
 
 ## Overview
 
-FreeLinX tracks unmodified upstream Linux 6.6.157 (LTS). No kernel patches
+FreeLinX tracks unmodified upstream Linux 6.18.54 (LTS). No kernel patches
 or distro-specific source changes are applied. This repository holds the
 FreeLinX build configuration and documentation, not the kernel source
 itself.
 
-- Upstream source: https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.157.tar.xz
+- Upstream source: https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.18.54.tar.xz
 - Working configuration: kernel.config
 - Build notes: SOURCE.md
 
@@ -27,9 +27,9 @@ on a booted system, which reports the Clang version used for the build.
 
     export PATH=~/freelinix/toolchain/bin:$PATH
 
-    wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.6.157.tar.xz
-    tar xf linux-6.6.157.tar.xz
-    cd linux-6.6.157
+    wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.18.54.tar.xz
+    tar xf linux-6.18.54.tar.xz
+    cd linux-6.18.54
     cp ../kernel.config .config
 
     make LLVM=1 LLVM_IAS=1 ARCH=x86_64 CC=clang olddefconfig

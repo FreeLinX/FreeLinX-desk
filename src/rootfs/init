@@ -73,6 +73,15 @@ mkdir -p /run/user && chmod 1777 /run/user
 
 # Enable sysrq for reboot/poweroff via /proc/sysrq-trigger
 echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || :
+# /tmp is shared by every user: no following another user's symlink or
+# hardlink there, no opening their files or FIFOs with O_CREAT (the kernel
+# defaults leave all of this off)
+for _p in protected_symlinks:1 protected_hardlinks:1 protected_regular:2 protected_fifos:1; do
+    echo "${_p#*:}" > "/proc/sys/fs/${_p%%:*}" 2>/dev/null || :
+done
+# kernel pointers and the kernel log are for root
+echo 1 > /proc/sys/kernel/kptr_restrict 2>/dev/null || :
+echo 1 > /proc/sys/kernel/dmesg_restrict 2>/dev/null || :
 
 # The basic character devices must be usable by non-root sessions even if a
 # hotplug rule re-applies a stricter mode.
@@ -101,7 +110,17 @@ fix_basic_devs   # again: coldplug events are applied asynchronously
 # below is a cold-boot fallback so /home is ready before services start.
 # The bundled mount(1) needs an explicit -t (no auto-detect), so the
 # partition type is resolved via blkid by label.
-if [ -x /bin/mount ] || [ -x /sbin/mount ]; then
+# The installed system's own partitions, pinned by UUID (flxinstall and
+# flxupgrade write /etc/flx-disk into the boot image).  Without the pin any
+# disk carrying the right label - a USB stick - would become /home or the
+# whole system.
+flx_pin() { sed -n "s/^$1=\\([0-9A-Fa-f-]*\\)\$/\\1/p" /etc/flx-disk 2>/dev/null | head -1; }
+FLX_SYS_UUID=$(flx_pin FLX_SYS_UUID)
+FLX_HOME_UUID=$(flx_pin FLX_HOME_UUID)
+flx_uuid() { echo "$1" | grep -o ' UUID="[^"]*"' | cut -d'"' -f2; }
+
+# The live system never takes a /home from an attached disk.
+if [ -f /etc/flx-installed ] && { [ -x /bin/mount ] || [ -x /sbin/mount ]; }; then
     if ! grep -qs ' /home ' /proc/mounts; then
         for pt in /sys/class/block/*; do
             [ -d "$pt" ] || continue
@@ -113,9 +132,10 @@ if [ -x /bin/mount ] || [ -x /sbin/mount ]; then
             FLX_LABEL=$(echo "$BLKOUT" | grep -o 'LABEL="[^"]*"' | cut -d'"' -f2 || true)
             FLX_TYPE=$(echo "$BLKOUT" | grep -o 'TYPE="[^"]*"' | cut -d'"' -f2 || true)
             if [ "$FLX_LABEL" = "FLX_HOME" ] && [ -n "$FLX_TYPE" ]; then
+                [ -n "$FLX_HOME_UUID" ] && [ "$(flx_uuid "$BLKOUT")" != "$FLX_HOME_UUID" ] && continue
                 mkdir -p /home
                 grep -qs " /home " /proc/mounts \
-                    || mount -t "$FLX_TYPE" -o "defaults,noatime" "/dev/$(basename "$pt")" /home 2>/dev/null
+                    || mount -t "$FLX_TYPE" -o "defaults,noatime,nodev,nosuid" "/dev/$(basename "$pt")" /home 2>/dev/null
                 break
             fi
         done
@@ -142,6 +162,7 @@ if [ -f /etc/flx-installed ]; then
         BLKOUT="$(blkid "/dev/$(basename "$pt")" 2>/dev/null || true)"
         FLX_LABEL=$(echo "$BLKOUT" | grep -o 'LABEL="[^"]*"' | cut -d'"' -f2 || true)
         if [ "$FLX_LABEL" = "FLX_SYS" ]; then
+            [ -n "$FLX_SYS_UUID" ] && [ "$(flx_uuid "$BLKOUT")" != "$FLX_SYS_UUID" ] && continue
             FLX_SYS_DEV="/dev/$(basename "$pt")"
             break
         fi
@@ -190,6 +211,13 @@ if [ -f /etc/flx-installed ]; then
                     done
                     [ -f "$_e/xdg/openbox/menu.xml" ] && \
                         sed -i '/<item label="NetSurf/,/<\/item>/d' "$_e/xdg/openbox/menu.xml"
+                    # 1.0.7: the update check service and its panel item
+                    [ -d /mnt/flx_sys/var/service/flxupdates ] || {
+                        mkdir -p /mnt/flx_sys/var/service
+                        cp -a /var/service/flxupdates /mnt/flx_sys/var/service/ 2>/dev/null || :
+                    }
+                    [ -f "$_e/xdg/tint2/tint2rc" ] && ! grep -q '^execp' "$_e/xdg/tint2/tint2rc" && \
+                        cp -a /etc/xdg/tint2/tint2rc "$_e/xdg/tint2/tint2rc" 2>/dev/null
                     echo "$_img" > /mnt/flx_sys/.flx-image-version
                     sync
                 fi
@@ -215,6 +243,9 @@ if [ -f /etc/flx-installed ]; then
                 if [ "$_kmods_before" = 0 ] && [ -d "/lib/modules/$(uname -r)" ] && [ -x /sbin/mdevd-coldplug ]; then
                     /sbin/mdevd-coldplug >/dev/null 2>&1 || :
                 fi
+                # xpkg before 1.0.1 created a missing /var/cache as 0700, which
+                # hid the package indexes from everyone but root
+                [ -d /var/cache ] && chmod 755 /var/cache 2>/dev/null
                 _nbound=$(grep -c -E ' /(usr|etc|var|root|bin|sbin|lib) ' /proc/mounts 2>/dev/null || echo 0)
                 echo "FLX_SYS persistent system engaged: $_nbound trees bound" >/dev/ttyS0 2>/dev/null || :
             else

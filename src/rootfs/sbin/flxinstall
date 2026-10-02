@@ -201,19 +201,14 @@ if [ -z "${ROOTPW:-}" ] && [ -z "${ROOT_HASH:-}" ]; then
         echo "  A root password is required (the live image has none)."
     done
 fi
+# SHA-512 crypt hash of $1.  The password goes to flxhash on stdin (printf is
+# a shell builtin), never on a command line where ps would show it.  No
+# fallback to pwhash: its DES hashes are refused by the PAM stack.
+pw_hash() { printf '%s\n' "$1" | /sbin/flxhash - 2>/dev/null; }
+
 if [ -n "${ROOTPW:-}" ] || [ -n "${ROOT_HASH:-}" ]; then
     ROOTHASH="${ROOT_HASH:-}"
-    if [ -z "$ROOTHASH" ] && [ -x /sbin/flxhash ]; then
-        ROOTHASH=$(flxhash "$ROOTPW" 2>/dev/null)
-    fi
-    if [ -z "$ROOTHASH" ] && [ -x /bin/python3.12 ]; then
-        ROOTHASH=$(/bin/python3.12 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$ROOTPW" 2>/dev/null)
-    fi
-    # pwhash fallback produces legacy DES hashes that the PAM stack
-    # refuses to verify; only use it if nothing stronger is available.
-    if [ -z "$ROOTHASH" ] && command -v pwhash >/dev/null 2>&1; then
-        ROOTHASH=$(pwhash "$ROOTPW" 2>/dev/null)
-    fi
+    [ -n "$ROOTHASH" ] || ROOTHASH=$(pw_hash "$ROOTPW")
     if [ -n "$ROOTHASH" ]; then
         sed -i "s|^root:.*|root:$ROOTHASH:$SHA_DAYS:0:99999:7:::|" /etc/shadow
         echo "  Root password updated."
@@ -247,10 +242,18 @@ case "$MAKUSER" in
             # sanitize (keep the trailing newline in the tr set -- a bare
             # `tr -c 'a-z0-9' '_'` would also turn echo's terminating \n
             # into '_' and append a stray underscore to every username)
-            USERNAME=$(printf '%s\n' "$USERNAME" | tr -c 'a-z0-9\n' '_')
+            USERNAME=$(printf '%s\n' "$USERNAME" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9\n' '_' | cut -c1-32)
+            # a name may not start with a digit, nor take over a system
+            # account or group (root, wheel, live, ...)
+            case "$USERNAME" in [0-9]*) USERNAME="u$USERNAME" ;; esac
+            while grep -qs "^$USERNAME:" /etc/passwd /etc/group || [ "$USERNAME" = live ]; do
+                USERNAME="${USERNAME}1"
+            done
             if [ -z "${REALNAME:-}" ]; then
                 REALNAME=$(ask_default "Enter full name" "$USERNAME")
             fi
+            # the GECOS field may not hold the passwd separators
+            REALNAME=$(printf '%s' "$REALNAME" | tr -d ':\n\r')
             : "${REALNAME:=$USERNAME}"
             if [ -z "${USERPW:-}" ]; then
                 printf 'Enter password for %s (blank = disabled): ' "$USERNAME"
@@ -258,23 +261,7 @@ case "$MAKUSER" in
             fi
             USERHASH="!"
             if [ -n "$USERPW" ]; then
-                if [ -x /sbin/flxhash ]; then
-                    USERHASH=$(flxhash "$USERPW" 2>/dev/null)
-                fi
-                if [ -z "$USERHASH" ] || [ "$USERHASH" = "!" ]; then
-                    if [ -x /bin/python3.12 ]; then
-                        USERHASH=$(/bin/python3.12 -c "import crypt,sys; print(crypt.crypt(sys.argv[1], crypt.mksalt(crypt.METHOD_SHA512)))" "$USERPW" 2>/dev/null)
-                    fi
-                fi
-                # pwhash fallback (python3 is gone from the offline image!)
-                # emits legacy DES hashes that the PAM stack rejects; keep
-                # "!" (locked account) rather than an unusable hash when no
-                # stronger generator is available.
-                if [ -z "$USERHASH" ] || [ "$USERHASH" = "!" ]; then
-                    if command -v pwhash >/dev/null 2>&1; then
-                        USERHASH=$(pwhash "$USERPW" 2>/dev/null)
-                    fi
-                fi
+                USERHASH=$(pw_hash "$USERPW")
                 [ -z "$USERHASH" ] && USERHASH="!"
             fi
             # pick a free UID/GID at/above 1000
@@ -341,15 +328,30 @@ case "$MAKEWIFI" in
                 read -r WIFIPASS || WIFIPASS=""
             fi
             mkdir -p /etc/wpa_supplicant
-            if [ -n "$WIFIPASS" ] && command -v wpa_passphrase >/dev/null 2>&1; then
-                wpa_passphrase "$WIFISSID" "$WIFIPASS" > /etc/wpa_supplicant/flxwifi.conf 2>/dev/null || {
-                    printf 'network={\n ssid="%s"\n psk="%s"\n key_mgmt=WPA-PSK\n}\n' "$WIFISSID" "$WIFIPASS" > /etc/wpa_supplicant/flxwifi.conf
-                }
-            else
-                printf 'network={\n ssid="%s"\n key_mgmt=NONE\n}\n' "$WIFISSID" > /etc/wpa_supplicant/flxwifi.conf
+            # the SSID goes in as hex (quotes, backslashes, UTF-8), the
+            # password only as wpa_passphrase's derived key or a plain
+            # quoted passphrase wpa_supplicant can parse back
+            ssid_hex=$(printf '%s' "$WIFISSID" | od -An -tx1 | tr -d ' \n')
+            psk_line=""
+            if [ -n "$WIFIPASS" ]; then
+                command -v wpa_passphrase >/dev/null 2>&1 &&
+                    psk_line=$(wpa_passphrase "$WIFISSID" "$WIFIPASS" 2>/dev/null | grep '^[[:space:]]*psk=[0-9a-f]\{64\}$' | tr -d ' \t')
+                if [ -z "$psk_line" ]; then
+                    case "$WIFIPASS" in *'"'*|*'\'*) ;; *) [ ${#WIFIPASS} -ge 8 ] && [ ${#WIFIPASS} -le 63 ] && psk_line="psk=\"$WIFIPASS\"" ;; esac
+                fi
             fi
-            chmod 600 /etc/wpa_supplicant/flxwifi.conf
-            echo "  WiFi config saved for '$WIFISSID'."
+            if [ -n "$WIFIPASS" ] && [ -z "$psk_line" ]; then
+                echo "  WiFi password not usable (WPA needs 8-63 characters); no WiFi config saved." >&2
+            else
+                ( umask 077
+                  if [ -n "$psk_line" ]; then
+                      printf 'network={\n ssid=%s\n %s\n key_mgmt=WPA-PSK\n}\n' "$ssid_hex" "$psk_line"
+                  else
+                      printf 'network={\n ssid=%s\n key_mgmt=NONE\n}\n' "$ssid_hex"
+                  fi > /etc/wpa_supplicant/flxwifi.conf )
+                chmod 600 /etc/wpa_supplicant/flxwifi.conf
+                echo "  WiFi config saved for '$WIFISSID'."
+            fi
             # Best effort: try to connect right away (ignored in QEMU tests)
             if command -v flxwifi >/dev/null 2>&1; then
                 echo "  Trying to connect now (best effort)..."
@@ -626,6 +628,11 @@ _ov=$(mktemp -d /tmp/flxov.XXXXXX)
 mkdir -p "$_ov/etc"
 for _f in passwd shadow group doas.conf; do [ -f "/etc/$_f" ] && cp -p "/etc/$_f" "$_ov/etc/"; done
 strip_live_user "$_ov"
+# this system's own partitions: /init and flxautomount accept FLX_SYS and
+# FLX_HOME only with these UUIDs (not any disk with the label)
+part_uuid() { blkid "$1" 2>/dev/null | grep -o ' UUID="[^"]*"' | cut -d'"' -f2; }
+printf 'FLX_SYS_UUID=%s\nFLX_HOME_UUID=%s\n' "$(part_uuid "$PART3")" "$(part_uuid "$PART4")" > "$_ov/etc/flx-disk"
+cp "$_ov/etc/flx-disk" /tmp/flx-disk.$$
 (cd "$_ov" && find ./etc -print0 | cpio --null -o --format=newc 2>/dev/null) >> "$BOOT_DIR/boot/initramfs.img.gz"
 rm -rf "$_ov"
 
@@ -657,6 +664,7 @@ if grep -qs " $SYS_MP " /proc/mounts 2>/dev/null; then
         fi
     done
     strip_live_user "$SYS_MP"
+    cp /tmp/flx-disk.$$ "$SYS_MP/etc/flx-disk" 2>/dev/null || :
     # the image these trees came from (/init refreshes them from a newer one)
     sed -n 's/^VERSION_ID="\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' /etc/os-release > "$SYS_MP/.flx-image-version"
 else
@@ -689,19 +697,19 @@ fi
 cat > "$BOOT_DIR/limine.conf" << EOF
 timeout: 3
 serial: yes
-interface_branding: FreeLinX 1.0.6
+interface_branding: FreeLinX 1.0.7
 interface_branding_colour: 2
 term_background: 1a1f1a
 term_foreground: e8ece8
 
-/FreeLinX 1.0.6
+/FreeLinX 1.0.7
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
     module_path: boot():/boot/kmods.cpio
     cmdline: rdinit=/init rootfstype=ramfs console=tty0 console=ttyS0,115200 quiet loglevel=2
 
-/FreeLinX 1.0.6 (basic graphics)
+/FreeLinX 1.0.7 (basic graphics)
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz

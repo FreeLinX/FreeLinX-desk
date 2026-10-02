@@ -1,0 +1,15 @@
+#!/bin/sh
+# FreeLinX panel item: how many packages have a newer version in the
+# repository indexes the update check (var/service/flxupdates) refreshed.
+# Prints nothing when the system is up to date or nothing was checked yet.
+#   flxupdates          one line for the panel
+#   flxupdates -l       the list (name old -> new)
+[ -e /run/flx-updates-checked ] || exit 0
+list=$(xpkg outdated 2>/dev/null) || exit 0
+[ "${1:-}" = "-l" ] && { printf '%s\n' "$list"; exit 0; }
+n=$(printf '%s\n' "$list" | grep -c ' -> ')
+if [ "$n" -eq 1 ]; then
+    echo "1 update"
+elif [ "$n" -gt 1 ]; then
+    echo "$n updates"
+fi

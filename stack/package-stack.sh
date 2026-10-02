@@ -136,7 +136,7 @@ st|st|f:usr/bin/st|st terminal (suckless)
 slstatus|slstatus|f:usr/bin/slstatus|slstatus status bar for dwm (suckless)
 nsxiv|nsxiv|f:usr/bin/nsxiv|nsxiv image viewer
 xclip|xclip|f:usr/bin/xclip|xclip: X selection from the command line
-x11-apps|x11-apps|f:usr/bin/xeyes,usr/bin/xmag,usr/bin/xsetroot|X11 programs: xeyes, xmag, xsetroot
+x11-apps|x11-apps|f:usr/bin/xeyes,usr/bin/xmag,usr/bin/xsetroot,usr/share/X11/app-defaults/Xmag|X11 programs: xeyes, xmag, xsetroot
 xclock|xclock|b:xclock|X clock
 xrandr|xrandr|f:usr/bin/xrandr|xrandr: screen size, rotation and outputs
 setxkbmap|setxkbmap|f:usr/bin/setxkbmap|setxkbmap: keyboard layout for X
@@ -180,6 +180,9 @@ pkg_rel() {
         ncurses) echo 3 ;;       # 1.0.2: transitional, GNU ncurses replaced by netbsd-curses
         nnn|alsa-utils|libedit) echo 2 ;;   # 1.0.2: linked to netbsd-curses
         xorg) echo 2 ;;          # 1.0.2: pulls the VA-API drivers in
+        linux-firmware) echo 2 ;;   # 1.0.7: Wi-Fi 7 (iwlmld, MT7925), Intel Xe, newest iwlwifi API
+        xcalc|xclock|xf86-input-libinput|x11-apps) echo 2 ;;   # app-defaults / SDK header under /usr, not the build path
+        flx-apps) echo 2 ;;      # 2026.10.02: rebuilt the same day (private temp files)
         *) echo "$REL" ;;
     esac
 }
@@ -479,6 +482,13 @@ echo "$PKGS" | while IFS='|' read -r name src how desc extra; do
     fi
     d="$ST/$name"
     [ -d "$d" ] || continue
+    # a package only ships system paths: anything else is a build-machine
+    # path that leaked in (an install dir taken from pkg-config, say)
+    stray=$(cd "$d" && ls -A | grep -v -x -E 'usr|etc|var|opt|lib|bin|sbin|boot' || :)
+    if [ -n "$stray" ]; then
+        echo "$name has files outside the system tree ($stray) - not packaged" >&2
+        continue
+    fi
     if ! "$TOP/check-nognu.sh" "$d" >"$ST/.nognu.log" 2>&1; then
         echo "GNU contamination in $name - not packaged:" >&2
         tail -5 "$ST/.nognu.log" >&2

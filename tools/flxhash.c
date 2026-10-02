@@ -7,6 +7,7 @@
  * no python3 or libxcrypt on the target required.
  *
  * Usage: flxhash <password>
+ *        flxhash -        (password on stdin: not visible in ps)
  *
  * SPDX-License-Identifier: BSD-2-Clause
  * Copyright (c) 2026 FreeLinX OS Project.
@@ -31,11 +32,25 @@ int main(int argc, char **argv) {
     char salt[8 + 16 + 1]; /* "$6$" + 16 salt chars + NUL */
     char *out;
 
+    static char line[1024];
     if (argc < 2 || argv[1][0] == '\0') {
-        fprintf(stderr, "usage: flxhash <password>\n");
+        fprintf(stderr, "usage: flxhash <password> | flxhash -\n");
         return 1;
     }
-    pw = argv[1];
+    if (strcmp(argv[1], "-") == 0) {
+        if (!fgets(line, sizeof(line), stdin)) {
+            fprintf(stderr, "flxhash: no password on stdin\n");
+            return 1;
+        }
+        line[strcspn(line, "\n")] = '\0';
+        if (line[0] == '\0') {
+            fprintf(stderr, "flxhash: empty password\n");
+            return 1;
+        }
+        pw = line;
+    } else {
+        pw = argv[1];
+    }
 
     int fd = open("/dev/urandom", O_RDONLY);
     if (fd < 0) {

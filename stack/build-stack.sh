@@ -204,6 +204,13 @@ auto() { # name [configure args...]
         --disable-malloc0returnsnull "$@" \
         && make -j"$JOBS" && make DESTDIR="$SYS" install)
     cleanup_la
+    # install dirs taken from .pc variables carry the sysroot prefix
+    # (appdefaultdir, sdkdir): such a file lands under $SYS$SYS - stop here
+    # rather than ship a tree named after the build machine
+    if [ -e "$SYS$SYS" ]; then
+        echo "auto: $n installed into $SYS$SYS (a sysroot-prefixed path from pkg-config)" >&2
+        return 1
+    fi
 }
 
 mes() { # name [meson args...]
@@ -389,7 +396,7 @@ step_libinput() {
     mes libinput -Dlibwacom=false -Ddebug-gui=false -Dtests=false -Ddocumentation=false \
         -Dudev-dir=/lib/udev
 }
-step_xf86_input_libinput() { auto xf86-input-libinput; }
+step_xf86_input_libinput() { auto xf86-input-libinput --with-sdkdir=/usr/include/xorg; }
 
 # GTK
 step_glib() {
@@ -589,7 +596,7 @@ step_alsa_utils() {
         --with-udev-rules-dir=/lib/udev/rules.d --with-systemdsystemunitdir=no
 }
 step_libXaw()  { auto libXaw --disable-specs --disable-xaw6; }
-step_xcalc()   { auto xcalc; }
+step_xcalc()   { auto xcalc --with-appdefaultdir=/usr/share/X11/app-defaults; }
 
 # IANA time zone database, compiled with the build host's zic (data only).
 step_tzdata() {
@@ -753,8 +760,8 @@ step_xrandr()    { auto xrandr; }
 step_setxkbmap() { auto setxkbmap; }
 step_xinit()     { auto xinit --with-xinitdir=/etc/X11/xinit; }
 step_xeyes()     { auto xeyes; }
-step_xclock()    { auto xclock; }
-step_xmag()      { auto xmag; }
+step_xclock()    { auto xclock --with-appdefaultdir=/usr/share/X11/app-defaults; }
+step_xmag()      { auto xmag --with-appdefaultdir=/usr/share/X11/app-defaults; }
 step_xclip() {
     s=$(unpack xclip)
     cd "$s"
