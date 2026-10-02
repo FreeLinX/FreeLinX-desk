@@ -157,6 +157,10 @@ xfe|xfe|f:usr/bin/xfe,usr/bin/xfi,usr/bin/xfp,usr/bin/xfw,usr/share/xfe|Xfe file
 doom|doomgeneric|f:usr/bin/doom,usr/lib/doom/doomgeneric|Doom (doomgeneric, X11); needs a WAD file
 netsurf|netsurf|e:|Transitional package: NetSurf is no longer shipped; Dillo replaces it (upgrading removes NetSurf)|dillo
 ca-certificates|ca-certificates|f:usr/share/ca-certificates/cacert.pem|Mozilla CA certificates (as published by curl.se)
+ffmpeg|ffmpeg|f:usr/bin/ffmpeg,usr/bin/ffprobe|FFmpeg and ffprobe: convert and inspect audio and video (LGPL build, VA-API)
+libconfuse|libconfuse|b:libconfuse|Configuration file parser library
+yajl|yajl|b:yajl|JSON parser library
+i3status|i3status|f:usr/bin/i3status,etc/i3status.conf|i3status status line generator
 linux|linux|k:|Linux kernel and modules (installed systems: activated on the next boot)
 linux-firmware|linux-firmware|w:|Firmware for WiFi, Bluetooth, GPUs and audio (linux-firmware, Sound Open Firmware)
 xorg|xorg-server|e:|X Window System: server, input/video drivers, keymap compiler, OpenGL, video decoding|xorg-server,xf86-input-libinput,xf86-input-evdev,xf86-video-fbdev,xkbcomp,mesa,intel-media-driver,intel-vaapi-driver,libva-utils
@@ -205,6 +209,7 @@ src_version() { # source name -> version string
                 llvm18) v=${v#llvm-project-}; v=${v%.src} ;;
                 libedit) v=$(printf '%s' "$v" | sed -E 's/^([0-9]{8})-(.*)$/\2.\1/') ;;
                 mupdf|fltk) v=${v%-source} ;;
+                libconfuse) v=${v#confuse-} ;;
             esac
             v=${v#v}; v=${v#-}
             printf '%s\n' "$v" ;;
@@ -442,6 +447,8 @@ echo "$PKGS" | while IFS='|' read -r name src how desc; do
     # upstream defaults must not replace FreeLinX's configuration (1.0.x
     # systems have it unowned in /etc)
     [ "$name" = openbox ] && rm -rf "$d/etc"
+    # the ffmpeg/ffprobe programs are their own package
+    [ "$name" = ffmpeg-libs ] && rm -rf "$d/usr/bin"
     if [ "$name" = xorg-server ]; then
         mkdir -p "$d/etc/X11/xorg.conf.d"
         cp "$TOP/src/rootfs/etc/X11/xorg.conf.d/50-flx-input.conf" "$d/etc/X11/xorg.conf.d/"
@@ -451,8 +458,9 @@ echo "$PKGS" | while IFS='|' read -r name src how desc; do
     # (not for meta/transitional packages: the real one carries it)
     lic="$TOP/src/rootfs/usr/share/licenses/$src"
     if [ -d "$lic" ] && [ "${how%%:*}" != e ] && [ "${how%%:*}" != t ]; then
+        # under the package's name: one source can make several packages
         mkdir -p "$d/usr/share/licenses"
-        cp -r "$lic" "$d/usr/share/licenses/$src"
+        cp -r "$lic" "$d/usr/share/licenses/$name"
     fi
     echo "$(find "$d" -type f -o -type l | wc -l) files"
 done

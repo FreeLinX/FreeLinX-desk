@@ -7,7 +7,8 @@ Every upstream source is listed with its download URL and SHA-256 checksum
 in FreeLinX-desk/stack/sources.txt and in the ports' distinfo files; the
 FreeLinX changes to them are the patches next to those lists.
 
-For the GPL and LGPL components (the Linux kernel, FFmpeg, GTK, GLib,
-alsa-lib, Firefox's LGPL parts, ...) the same applies: the exact sources and
-build scripts are published there.  If you cannot obtain them, open an issue
+Every upstream source archive, byte for byte as the build used it, is
+mirrored with its SHA-256 at https://huggingface.co/datasets/FreeLinX/sources
+- this covers the corresponding source of the GPL and LGPL components (the
+Linux kernel, FFmpeg, GTK, GLib, alsa-lib, mpv, Dillo, Xfe, MuPDF, ...).  If you cannot obtain them, open an issue
 at https://github.com/FreeLinX/FreeLinX/issues and they will be provided.

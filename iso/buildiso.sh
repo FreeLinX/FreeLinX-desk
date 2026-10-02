@@ -43,24 +43,24 @@ SERIAL_ARGS=""; SERIAL_CONF=""
 cat > "$WORK/boot/limine/limine.conf" <<CONF
 timeout: 5
 ${SERIAL_CONF}
-interface_branding: FreeLinX 1.0.5
+interface_branding: FreeLinX 1.0.6
 interface_branding_colour: 2
 term_background: 1a1f1a
 term_foreground: e8ece8
 
-/FreeLinX 1.0.5 Live Desktop
+/FreeLinX 1.0.6 Live Desktop
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
     cmdline: rdinit=/init rootfstype=ramfs console=tty0 ${SERIAL_ARGS} quiet loglevel=2 flx.desktop=gui flx.autologin=1 ${EXTRA}
 
-/FreeLinX 1.0.5 Live Desktop (basic graphics)
+/FreeLinX 1.0.6 Live Desktop (basic graphics)
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
     cmdline: rdinit=/init rootfstype=ramfs console=tty0 ${SERIAL_ARGS} quiet loglevel=2 initcall_blacklist=i915_init modprobe.blacklist=amdgpu,radeon,nouveau flx.xdriver=fbdev flx.desktop=gui flx.autologin=1 ${EXTRA}
 
-/FreeLinX 1.0.5 Text Console (installer: flxinstall)
+/FreeLinX 1.0.6 Text Console (installer: flxinstall)
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz

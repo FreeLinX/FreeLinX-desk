@@ -738,6 +738,11 @@ step_flx_x11_tools() {
     "$CC" -O2 -o "$SYS/usr/bin/flxpanel" "$a/flxpanel.c" $("$PKG_CONFIG" --cflags --libs x11 cairo)
     "$CC" -O2 -o "$SYS/usr/bin/flxfs" "$a/flxfs.c"
 }
+step_libconfuse() { auto libconfuse --disable-examples --disable-nls; }
+step_yajl()       { cmk yajl; }
+step_i3status() {
+    mes i3status -Dpulseaudio=false -Dmans=false
+}
 step_xbitmaps()  { auto xbitmaps; }
 step_openbox() {
     auto openbox --disable-nls --disable-startup-notification --disable-librsvg \
@@ -818,6 +823,7 @@ step_mupdf() {
     mk() {
         make -j"$JOBS" build=release OS=Linux CC="$CC" CXX="$CXX" AR="$AR" \
             LD="$TC/bin/ld.lld -m elf_x86_64" \
+            XCFLAGS="-DTOFU_CJK_EXT -DTOFU_HISTORIC -DTOFU_EMOJI -DTOFU_SIL" \
             PKG_CONFIG="$PKG_CONFIG" prefix=/usr HAVE_X11=yes HAVE_GLUT=no HAVE_CURL=no \
             HAVE_WAYLAND=no USE_SYSTEM_FREETYPE=yes USE_SYSTEM_HARFBUZZ=yes \
             USE_SYSTEM_LIBJPEG=yes USE_SYSTEM_ZLIB=yes shared=yes tesseract=no barcode=no \
@@ -894,7 +900,7 @@ step_ffmpeg() {
     (cd "$b" && "$s/configure" --prefix=/usr --enable-shared --disable-static \
         --enable-cross-compile --target-os=linux --arch=x86_64 --cc="$CC" --cxx="$CXX" \
         --ar="$AR" --nm="$NM" --ranlib="$RANLIB" --strip="$STRIP" --pkg-config="$PKG_CONFIG" \
-        --x86asmexe=nasm --enable-pic --disable-programs --disable-doc --disable-debug \
+        --x86asmexe=nasm --enable-pic --disable-ffplay --disable-doc --disable-debug \
         --disable-autodetect --disable-network --enable-zlib --enable-vaapi --enable-libdrm \
         && make -j"$JOBS" && make DESTDIR="$SYS" install)
 }
@@ -943,7 +949,7 @@ step_hostapd() {
     make DESTDIR="$SYS" BINDIR=/sbin install
 }
 
-STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg netbsd_curses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm llvm18 libelf libva mesa mesa_demos libva_utils gmmlib media_driver intel_vaapi ffmpeg libedit bluez hostapd ca_certificates flx_x11_tools openbox xbitmaps xsetroot xrandr setxkbmap xinit xeyes xclock xmag xclip dwm dmenu st slstatus nsxiv libptytty rxvt_unicode doomgeneric fltk dillo mupdf libXScrnSaver libXpresent libass vulkan_headers libplacebo mpv fox xcb_util xfe"
+STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg netbsd_curses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm llvm18 libelf libva mesa mesa_demos libva_utils gmmlib media_driver intel_vaapi ffmpeg libedit bluez hostapd ca_certificates flx_x11_tools openbox xbitmaps xsetroot xrandr setxkbmap xinit xeyes xclock xmag xclip dwm dmenu st slstatus nsxiv libptytty rxvt_unicode doomgeneric libconfuse yajl i3status fltk dillo mupdf libXScrnSaver libXpresent libass vulkan_headers libplacebo mpv fox xcb_util xfe"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11

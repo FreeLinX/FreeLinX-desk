@@ -8,8 +8,6 @@
 HOMEPAGE="https://duckduckgo.com/lite/"
 URL="${1:-$HOMEPAGE}"
 
-[ -s /etc/resolv.conf ] || printf "nameserver 10.0.2.3\nnameserver 1.1.1.1\nnameserver 8.8.8.8\n" > /etc/resolv.conf
-
 if [ -n "${DISPLAY:-}" ]; then
     if [ -x /usr/lib/firefox/firefox ]; then
         if [ $# -gt 0 ]; then exec /usr/lib/firefox/firefox "$@"; fi

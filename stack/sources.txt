@@ -126,3 +126,6 @@ libXpresent https://www.x.org/releases/individual/lib/libXpresent-1.0.2.tar.xz 4
 xcb-util https://xorg.freedesktop.org/archive/individual/lib/xcb-util-0.4.1.tar.xz 5abe3bbbd8e54f0fa3ec945291b7e8fa8cfd3cccc43718f8758430f94126e512
 openbox http://openbox.org/dist/openbox/openbox-3.6.1.tar.xz abe75855cc5616554ffd47134ad15291fe37ebbebf1a80b69cbde9d670f0e26d
 ca-certificates https://curl.se/ca/cacert-2026-09-25.pem a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505 cacert-2026-09-25.pem
+libconfuse https://github.com/libconfuse/libconfuse/releases/download/v3.4/confuse-3.4.tar.xz 36bfa3928f9c323914c7c8317e8722cb22f41db69d7c9d4c24b4689fa955445d
+yajl https://github.com/lloyd/yajl/archive/refs/tags/2.1.0.tar.gz 3fb73364a5a30efe615046d07e6db9d09fd2b41c763c5f7d3bfb121cd5c5ac5a yajl-2.1.0.tar.gz
+i3status https://i3wm.org/i3status/i3status-2.15.tar.xz 6c67f52cae4f139df764ad1cc736562be0f97750791bc212b53f34c06eaf2205

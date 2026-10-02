@@ -34,7 +34,7 @@ if [ -z "$FW_TARBALL" ]; then
     done
 fi
 
-for t in cpio zstd find tar; do
+for t in cpio xz find tar; do
     command -v "$t" >/dev/null 2>&1 || { echo "Error: '$t' is required but not installed." >&2; exit 1; }
 done
 [ -d "$ROOTFS" ] || { echo "Error: rootfs not found: $ROOTFS" >&2; exit 1; }
@@ -150,6 +150,9 @@ if [ "${FLX_ALLOW_GNU:-0}" != "1" ]; then
 fi
 
 echo "Packing FreeLinX Desktop initramfs ..."
-(cd "$STAGE" && find . -print0 | cpio --null -o --quiet --format=newc --owner=0:0 | zstd -q -T0 -12 > "$OUT_IMG")
+# xz with CRC32 (what the kernel's decoder checks): cpio archives appended
+# after it - flxinstall's and flxupgrade's /etc overlay, the kernel
+# package's kmods.cpio - are still unpacked; after a zstd image they are not
+(cd "$STAGE" && find . -print0 | cpio --null -o --quiet --format=newc --owner=0:0 | xz -T0 -6 --check=crc32 > "$OUT_IMG")
 ln -sf "src/build/x86_64/freelinx-desktop.img.gz" "${SCRIPT_DIR}/initrd.img"
 echo "Build complete: $OUT_IMG ($(du -h "$OUT_IMG" | cut -f1))"

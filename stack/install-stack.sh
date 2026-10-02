@@ -212,7 +212,7 @@ fi
 for b in dwm dmenu dmenu_path dmenu_run stest st slstatus nsxiv xclip xsetroot \
          xrandr setxkbmap xinit startx xeyes xclock xmag urxvt urxvtc urxvtd \
          dillo dpid dpidc mpv mupdf-x11 mutool xfe xfi xfp xfw \
-         openbox openbox-session obxprop; do
+         openbox openbox-session obxprop i3status; do
     [ -e "$SYS/usr/bin/$b" ] || continue
     rm -f "$R/bin/$b" "$R/usr/bin/$b"
     cp_strip "$SYS/usr/bin/$b" "$R/usr/bin/$b"
