@@ -305,7 +305,10 @@ case "$MAKUSER" in
                 fi
             done
 
-            echo "$USERNAME:x:$UID_CAND:$GID_CAND:$REALNAME:/home/$USERNAME:/bin/sh" >> /etc/passwd
+            # the image's login shell (/etc/flx-shell: base ships mksh, which
+            # has line editing), /bin/sh otherwise
+            _ushell=$(cat /etc/flx-shell 2>/dev/null); [ -x "${_ushell:-/nonexistent}" ] || _ushell=/bin/sh
+            echo "$USERNAME:x:$UID_CAND:$GID_CAND:$REALNAME:/home/$USERNAME:$_ushell" >> /etc/passwd
             echo "$USERNAME:$USERHASH:$SHA_DAYS:0:99999:7:::" >> /etc/shadow
             echo "  User '$USERNAME' (uid $UID_CAND) added. Home will be /home/$USERNAME"
             echo "  (persistent, on the FLX_HOME partition)."

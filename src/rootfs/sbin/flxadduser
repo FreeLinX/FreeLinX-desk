@@ -53,7 +53,8 @@ HOME_DIR="/home/$NEW_USER"
 
 # Add entry to /etc/passwd, and a locked one to /etc/shadow (passwd below
 # sets the password; without a shadow line it has nothing to update)
-echo "$NEW_USER:x:$NEXT_UID:$USER_GID:$NEW_USER:$HOME_DIR:/bin/sh" >> /etc/passwd
+_ushell=$(cat /etc/flx-shell 2>/dev/null); [ -x "${_ushell:-/nonexistent}" ] || _ushell=/bin/sh
+echo "$NEW_USER:x:$NEXT_UID:$USER_GID:$NEW_USER:$HOME_DIR:$_ushell" >> /etc/passwd
 if [ -f /etc/shadow ] && ! grep -q "^$NEW_USER:" /etc/shadow; then
     echo "$NEW_USER:!:$(( $(date +%s) / 86400 )):0:99999:7:::" >> /etc/shadow
 fi

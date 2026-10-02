@@ -2,6 +2,8 @@
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
 export TERM=xterm-256color
 export SHELL=/bin/sh
+# the image's interactive shell, if it names one (base: mksh)
+[ -r /etc/flx-shell ] && [ -x "$(cat /etc/flx-shell)" ] && SHELL=$(cat /etc/flx-shell)
 export SVDIR=/var/service
 
 HOSTNAME=$(cat /etc/hostname 2>/dev/null || echo freelinx)
@@ -44,3 +46,9 @@ export LC_ALL=en_US.UTF-8
 [ -r /etc/flx-lang ] && export LC_ALL="$(cat /etc/flx-lang)"
 [ -r /etc/flx-kbd ] && export FLX_KBD="$(cat /etc/flx-kbd)"
 [ -r /etc/TZ ] && export TZ="$(cat /etc/TZ)"
+
+# Line editing for interactive shells: arrow keys, history, Ctrl-R.  The shell
+# has it built in (libedit) but starts with it off, so arrows printed ^[[A.
+case $- in
+    *i*) set -o emacs 2>/dev/null || : ;;
+esac
