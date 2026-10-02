@@ -91,7 +91,7 @@ cat > "$HOME_DIR/.profile" << EOF
 export SHELL=/bin/sh
 export USER=$NEW_USER
 export HOME=$HOME_DIR
-export PATH=/usr/share/X11/xtree/bin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin
 export DISPLAY=:0
 export ENV=\$HOME/.profile
 EOF

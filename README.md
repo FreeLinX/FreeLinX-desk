@@ -113,7 +113,7 @@ stack/install-stack.sh   # copy into src/rootfs and run check-nognu.sh
 sh iso/buildiso.sh       # hybrid BIOS/UEFI ISO -> iso/freelinx-desktop.iso
 ```
 
-`kernel/bzImage` is Linux 6.6.21 built from `kernel/kernel.config` with the
+`kernel/bzImage` is Linux 6.6.157 built from `kernel/kernel.config` with the
 FreeLinX clang/LLD.
 
 ---

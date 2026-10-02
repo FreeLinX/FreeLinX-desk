@@ -19,11 +19,11 @@ TOP="$(cd "$HERE/.." && pwd)"
 TC="${FREELINX_TOOLCHAIN_DIR:-$(cd "$TOP/../toolchain" && pwd)}"
 W="${STACK_WORK:-$HERE/work}"
 SYS="$W/sysroot"
-VER="${FIREFOX_VERSION:-153.3.0esr}"
+VER="${FIREFOX_VERSION:-153.4.0esr}"
 SRCNAME="firefox-${VER%esr}"
 DIST="${STACK_DIST:-$TOP/ports/dist}"
 TARBALL="$DIST/firefox-$VER.source.tar.xz"
-SHA256="69f1335e78d2a340fc13fcf265c0a72bdce2df8774c9d4d49ee77d1726236df5"
+SHA256="3082dec68030b4fbb46041c282e362e524c9d6d75e7c45e944d8d0e11c8ea2df"
 SRC="$W/src/firefox/$SRCNAME"
 OBJ="$W/build/firefox"
 DEST="$W/firefox-dest"
@@ -52,6 +52,11 @@ if [ ! -f "$TARBALL" ]; then
     mv "$TARBALL.part" "$TARBALL"
 fi
 echo "$SHA256  $TARBALL" | sha256sum -c -
+# an objdir from another Firefox version points at a source tree that is gone
+if [ -d "$OBJ" ] && [ "$(cat "$OBJ/.flx-version" 2>/dev/null)" != "$VER" ]; then
+    rm -rf "$OBJ"
+fi
+mkdir -p "$OBJ" && echo "$VER" > "$OBJ/.flx-version"
 
 if [ ! -f "$SRC/.flx-prepared" ]; then
     rm -rf "$W/src/firefox"; mkdir -p "$W/src/firefox"

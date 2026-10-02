@@ -1,0 +1,13 @@
+--- a/build/moz.configure/flags.configure	2026-10-02 04:20:22.356808234 +0400
++++ b/build/moz.configure/flags.configure	2026-10-02 04:20:22.388808700 +0400
+@@ -76,7 +76,9 @@
+ 
+ @depends(when=link_libstdcxx_statically)
+ def check_libstdcxx_linkage():
+-    die("Firefox does not support linking statically with libstdc++")
++    # FreeLinX: the C++ runtime is LLVM's libc++, linked statically on purpose
++    # (build-firefox.sh); the test above cannot tell it from libstdc++.
++    pass
+ 
+ 
+ check_and_add_flag(

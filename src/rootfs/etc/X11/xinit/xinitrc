@@ -14,11 +14,11 @@ xsetroot -solid "#242424" 2>/dev/null
 # is ever missing so the desktop never comes up dead.
 if [ -x /usr/bin/openbox-session ]; then
     exec /usr/bin/openbox-session
-elif [ -x /bin/dwm ]; then
-    if [ -x /bin/slstatus ]; then
+elif [ -x /usr/bin/dwm ]; then
+    if [ -x /usr/bin/slstatus ]; then
         slstatus &
     fi
-    exec /bin/dwm
+    exec /usr/bin/dwm
 else
     exec uxterm
 fi

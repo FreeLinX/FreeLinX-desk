@@ -51,7 +51,7 @@ if [ -z "$KVER" ] && [ -f "$SCRIPT_DIR/kernel/bzImage" ]; then
 fi
 if [ -z "$KVER" ]; then
     echo "error: cannot determine the FreeLinX kernel release." >&2
-    echo "       Set FLX_KERNEL_VERSION=<kver> (e.g. 6.6.21)." >&2
+    echo "       Set FLX_KERNEL_VERSION=<kver> (e.g. 6.6.157)." >&2
     exit 1
 fi
 OUT="$OUT_DIR/firmware-$KVER.tar.xz"

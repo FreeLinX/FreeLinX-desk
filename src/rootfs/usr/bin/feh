@@ -26,8 +26,8 @@ for arg in "$@"; do
 done
 
 # Image viewing mode
-if [ -x /bin/nsxiv ]; then
-    exec /bin/nsxiv "$@"
+if [ -x /usr/bin/nsxiv ]; then
+    exec /usr/bin/nsxiv "$@"
 elif [ -x /usr/bin/xfi ]; then
     exec /usr/bin/xfi "$@"
 fi

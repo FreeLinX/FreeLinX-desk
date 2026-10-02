@@ -15,7 +15,7 @@ DIST="${STACK_DIST:-$TOP/ports/dist}"
 LFW_VER="${LFW_VER:-20260916}"
 LFW_SHA="f80dcb757a623deda62200c08e0e1a88c76fb6b54964f31b35fa74da1c90ccc5"
 SOF_VER="${SOF_VER:-2026.09.1}"
-KVER="${KVER:-6.6.21}"
+KVER="${KVER:-6.6.157}"
 OUT="$TOP/firmware-$KVER.tar.xz"
 
 lfw="$DIST/linux-firmware-$LFW_VER.tar.xz"

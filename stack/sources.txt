@@ -4,10 +4,10 @@ llvm-project https://github.com/llvm/llvm-project/releases/download/llvmorg-21.1
 zlib https://github.com/madler/zlib/releases/download/v1.3.1/zlib-1.3.1.tar.gz 9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23 
 libffi https://github.com/libffi/libffi/releases/download/v3.4.6/libffi-3.4.6.tar.gz b0dea9df23c863a7a50e825440f3ebffabd65df1497108e5d437747843895a4e 
 pcre2 https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.gz 86b9cb0aa3bcb7994faa88018292bc704cdbb708e785f7c74352ff6ea7d3175b 
-expat https://github.com/libexpat/libexpat/releases/download/R_2_7_1/expat-2.7.1.tar.xz -
-libpng https://downloads.sourceforge.net/project/libpng/libpng16/1.6.43/libpng-1.6.43.tar.xz 6a5ca0652392a2d7c9db2ae5b40210843c0bbc081cbd410825ab00cc59f14a6c 
-libjpeg-turbo https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.0.3/libjpeg-turbo-3.0.3.tar.gz 343e789069fc7afbcdfe44dbba7dbbf45afa98a15150e079a38e60e44578865d 
-freetype https://github.com/freetype/freetype/archive/refs/tags/VER-2-13-3.tar.gz bc5c898e4756d373e0d991bab053036c5eb2aa7c0d5c67e8662ddc6da40c4103 freetype-2.13.3.tar.gz
+expat https://github.com/libexpat/libexpat/releases/download/R_2_8_5/expat-2.8.5.tar.xz 1e727b8933ec51a77a9a9d9afcf8e688bce45d907c13e36ab7393fe36e703182
+libpng https://downloads.sourceforge.net/project/libpng/libpng16/1.6.59/libpng-1.6.59.tar.xz d80dd2a38a37f803cb9b6ac7b14bd6e74ddc3b654780a8380bdf93523fdb4389
+libjpeg-turbo https://github.com/libjpeg-turbo/libjpeg-turbo/releases/download/3.2.0/libjpeg-turbo-3.2.0.tar.gz 6f30092cef9fb839779646608f4ee14ae3cbac989c47fa05e841b0841f09878e
+freetype https://github.com/freetype/freetype/archive/refs/tags/VER-2-14-3.tar.gz dc49de6b01a266eef4876a4dd34d9842c475d3e28ff2eff63bd2fb760ab56261
 fontconfig https://github.com/fontconfig/fontconfig/archive/refs/tags/2.15.0.tar.gz cdebb4b805d33e9bdefcc0ef9743db638d2acb21139bbe1a6a85878d4c3e8c9e fontconfig-2.15.0.tar.gz
 pixman https://www.cairographics.org/releases/pixman-0.44.2.tar.xz 50baf820dde0c5ff9714d03d2df4970f606a3d3b1024f5404c0398a9821cc4b0 
 libmd https://libbsd.freedesktop.org/releases/libmd-1.1.0.tar.xz -
@@ -18,9 +18,9 @@ libXau https://www.x.org/releases/individual/lib/libXau-1.0.11.tar.gz 3a321aaceb
 libXdmcp https://www.x.org/releases/individual/lib/libXdmcp-1.1.4.tar.gz 55041a8ff8992ab02777478c4b19c249c0f8399f05a752cb4a1a868a9a0ccb9a 
 xtrans https://www.x.org/releases/individual/lib/xtrans-1.6.0.tar.gz 936b74c60b19c317c3f3cb1b114575032528dbdaf428740483200ea874c2ca0a 
 libxcb https://www.x.org/releases/individual/lib/libxcb-1.17.0.tar.gz 2c69287424c9e2128cb47ffe92171e10417041ec2963bceafb65cb3fcf8f0b85 
-libX11 https://www.x.org/releases/individual/lib/libX11-1.8.10.tar.gz b7a1a90d881bb7b94df5cf31509e6b03f15c0972d3ac25ab0441f5fbc789650f 
+libX11 https://www.x.org/releases/individual/lib/libX11-1.8.13.tar.xz 69606f485c2c07c14ef64f75b7bb326d48587af33795d9ab3e607c0b5f94f11c
 libXext https://www.x.org/releases/individual/lib/libXext-1.3.6.tar.gz 1a0ac5cd792a55d5d465ced8dbf403ed016c8e6d14380c0ea3646c4415496e3d 
-libXrender https://www.x.org/releases/individual/lib/libXrender-0.9.11.tar.gz 6aec3ca02e4273a8cbabf811ff22106f641438eb194a12c0ae93c7e08474b667 
+libXrender https://www.x.org/releases/individual/lib/libXrender-0.9.12.tar.xz b832128da48b39c8d608224481743403ad1691bf4e554e4be9c174df171d1b97
 libXfixes https://www.x.org/releases/individual/lib/libXfixes-6.0.1.tar.gz e69eaa321173c748ba6e2f15c7cf8da87f911d3ea1b6af4b547974aef6366bec 
 libXi https://www.x.org/releases/individual/lib/libXi-1.8.2.tar.xz -
 libXrandr https://www.x.org/releases/individual/lib/libXrandr-1.5.4.tar.gz c72c94dc3373512ceb67f578952c5d10915b38cc9ebb0fd176a49857b8048e22 
@@ -59,8 +59,8 @@ atk https://download.gnome.org/sources/atk/2.38/atk-2.38.0.tar.xz ac4de2a4ef4bd5
 libepoxy https://github.com/anholt/libepoxy/archive/refs/tags/1.5.10.tar.gz - libepoxy-1.5.10.tar.gz
 gtk https://download.gnome.org/sources/gtk/3.24/gtk-3.24.52.tar.xz 80931fa472a77b9a164f6740e3c0b444fac6770054632d35a7ff9d679e5e7b9f 
 alsa-lib https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.13.tar.bz2 8c4ff37553cbe89618e187e4c779f71a9bb2a8b27b91f87ed40987cc9233d8f6 
-openssl https://www.openssl.org/source/openssl-3.3.2.tar.gz 2e8a40b01979afe8be0bbfb3de5dc1c6709fedb46d6c89c10da114ab5fc3d281
-sqlite https://www.sqlite.org/2024/sqlite-autoconf-3450300.tar.gz b2809ca53124c19c60f42bf627736eae011afdcc205bb48270a5ee9a38191531
+openssl https://github.com/openssl/openssl/releases/download/openssl-3.5.9/openssl-3.5.9.tar.gz 603f5602e2eef00d77fbd429d34dcd5822bb301757a1bc9cdb24c670f1eb859a
+sqlite https://www.sqlite.org/2026/sqlite-autoconf-3530400.tar.gz 0e9483900e92cd5de8fd48d16bf9200145a61f7fd5be542a5ac81d8a9516eb9c
 libnl https://github.com/thom311/libnl/releases/download/libnl3_11_0/libnl-3.11.0.tar.gz -
 dbus https://dbus.freedesktop.org/releases/dbus/dbus-1.16.2.tar.xz 0ba2a1a4b16afe7bceb2c07e9ce99a8c2c3508e5dec290dbb643384bd6beb7e2
 wpa_supplicant https://w1.fi/releases/wpa_supplicant-2.11.tar.gz 912ea06f74e30a8e36fbb68064d6cdff218d8d591db0fc5d75dee6c81ac7fc0a
@@ -68,7 +68,7 @@ netbsd-curses http://ftp.barfooze.de/pub/sabotage/tarballs/netbsd-curses-0.3.2.t
 nnn https://github.com/jarun/nnn/releases/download/v5.0/nnn-v5.0.tar.gz -
 libXaw https://www.x.org/releases/individual/lib/libXaw-1.0.16.tar.xz -
 xcalc https://www.x.org/releases/individual/app/xcalc-1.1.2.tar.xz -
-libxml2 https://download.gnome.org/sources/libxml2/2.13/libxml2-2.13.5.tar.xz 74fc163217a3964257d3be39af943e08861263c4231f9ef5b496b6f6d4c7b2b6
+libxml2 https://download.gnome.org/sources/libxml2/2.13/libxml2-2.13.9.tar.xz a2c9ae7b770da34860050c309f903221c67830c86e4a7e760692b803df95143a
 at-spi2-core https://download.gnome.org/sources/at-spi2-core/2.54/at-spi2-core-2.54.1.tar.xz -
 musl-fts https://github.com/void-linux/musl-fts/archive/refs/tags/v1.2.7.tar.gz - musl-fts-1.2.7.tar.gz
 libinput https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.27.1/libinput-1.27.1.tar.gz -
@@ -93,3 +93,36 @@ intel-vaapi-driver https://github.com/intel/intel-vaapi-driver/releases/download
 elftoolchain https://sourceforge.net/projects/elftoolchain/files/Sources/elftoolchain-0.7.1/elftoolchain-0.7.1.tgz/download 92bfe36f886024bbc433846483b026c7ce44d553b9b941a0fd13e451911ae297 elftoolchain-0.7.1.tgz
 mesa-demos https://archive.mesa3d.org/demos/mesa-demos-9.0.0.tar.xz -
 netbsd-terminfo https://raw.githubusercontent.com/NetBSD/src/932969a79d03c0f5081d9efcd40559429d6506aa/share/terminfo/terminfo b9856a972cc2aea750fbbc0fe2d87df6dc06daea1e1ed01c37d54cdc872a4c82 netbsd-terminfo-10.src
+curl https://curl.se/download/curl-8.22.0.tar.xz f7ef3ae8a22e521f289803fe93543eb64c329b58aa73a9e224dfd915a2a5f4f7
+openssh https://cdn.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-10.5p1.tar.gz d44d28a839ea9daf969cc69150fde59910b2b39361dad81a3bd6cbd19218db11
+xsetroot https://www.x.org/releases/individual/app/xsetroot-1.1.4.tar.xz 1315a3f7e9abe06357363b93461e272601f67225ce0bc075c430cce35073362b
+xrandr https://www.x.org/releases/individual/app/xrandr-1.5.4.tar.xz 2cafccb2aaf2491a4068676117a0d4f90ab307724b96fffc54cd1da953779400
+setxkbmap https://www.x.org/releases/individual/app/setxkbmap-1.3.5.tar.xz 360193cecc93f906d8383a8fb5c1f3a7eed35e6ced0e118a64ee56ae13c88cac
+xinit https://www.x.org/releases/individual/app/xinit-1.4.4.tar.xz 40a47c7a164c7f981ce3787b4b37f7e411fb43231dcde543d70094075dacfef9
+xeyes https://www.x.org/releases/individual/app/xeyes-1.3.1.tar.xz 5608d76b7b1aac5ed7f22f1b6b5ad74ef98c8693220f32b4b87dccee4a956eaa
+xclock https://www.x.org/releases/individual/app/xclock-1.2.1.tar.xz e326cac20f7ad2af5412b9c4b70b1c3d392e08cd3cc6246e0a77b7c3935a4851
+xmag https://www.x.org/releases/individual/app/xmag-1.0.8.tar.xz 326d3c583d795bb53ac609d144e7f7fb1499baba7eaec14b8e6cd232ea069532
+xclip https://github.com/astrand/xclip/archive/refs/tags/0.13.tar.gz ca5b8804e3c910a66423a882d79bf3c9450b875ac8528791fb60ec9de667f758 xclip-0.13.tar.gz
+dwm https://dl.suckless.org/dwm/dwm-6.8.tar.gz bcf540589ad174d4073f4efa658828411e2f5ba63196cfaf6b71363700f590b7
+dmenu https://dl.suckless.org/tools/dmenu-5.4.tar.gz 8fbace2a0847aa80fe861066b118252dcc7b4ca0a0a8f3a93af02da8fb6cd453
+slstatus https://dl.suckless.org/tools/slstatus-1.1.tar.gz 7dc7140de5de61fc551c4e0feb6410afd44d78e0cdcaee45d06e5701f34eac14
+st https://dl.suckless.org/st/st-0.9.3.tar.gz 9ed9feabcded713d4ded38c8cebf36a3b08f0042ef7934a0e2b2409da56e649b
+nsxiv https://codeberg.org/nsxiv/nsxiv/archive/v34.tar.gz eee8e947a0a4103d41d892c8b0c5ef1e5364a29a62821aab47feeb9c71a96474 nsxiv-34.tar.gz
+libptytty http://dist.schmorp.de/libptytty/libptytty-2.0.tar.gz 8033ed3aadf28759660d4f11f2d7b030acf2a6890cb0f7926fb0cfa6739d31f7
+rxvt-unicode http://dist.schmorp.de/rxvt-unicode/rxvt-unicode-9.31.tar.bz2 aaa13fcbc149fe0f3f391f933279580f74a96fd312d6ed06b8ff03c2d46672e8
+doomgeneric https://github.com/ozkl/doomgeneric/archive/dcb7a8dbc7a16ce3dda29382ac9aae9d77d21284.tar.gz 1bd3f7f26220494159a38d71f2847ec81b58d6bbd7c7c8d81b08993018001148 doomgeneric-dcb7a8dbc7a1.tar.gz
+xbitmaps https://www.x.org/releases/individual/data/xbitmaps-1.1.3.tar.xz ad6cad54887832a17d86c2ccfc5e52a1dfab090f8307b152c78b0e1529cd0f7a
+fltk https://github.com/fltk/fltk/releases/download/release-1.3.11/fltk-1.3.11-source.tar.gz 92805abc84505e3e7e27aec775ab0754ecb4182fe2d8ff2a9d568ccdcb2811ac
+dillo https://github.com/dillo-browser/dillo/releases/download/v3.2.0/dillo-3.2.0.tar.gz ed685168397c7b333d25c21208fcf1313ffede59b44f526b7c9b6ee41ebccabd
+mupdf https://mupdf.com/downloads/archive/mupdf-1.28.5-source.tar.gz 98a5c10cda20c3992cdf76ff6b2a1149c32bd79cc796d3f703230b1185b7e934
+libass https://github.com/libass/libass/releases/download/0.17.5/libass-0.17.5.tar.xz 2dca25c0e0c837ddf00b52011b3f82cac1e4ddd3ad018227806b0c2288864acc
+libplacebo https://code.videolan.org/videolan/libplacebo/-/archive/v7.360.1/libplacebo-v7.360.1.tar.gz 14c0a99f4b01557ec9826ce6b1d52f6de21be274ba03fd5aab7307f18766dc39
+mpv https://github.com/mpv-player/mpv/archive/refs/tags/v0.41.0.tar.gz ee21092a5ee427353392360929dc64645c54479aefdb5babc5cfbb5fad626209 mpv-0.41.0.tar.gz
+fox http://fox-toolkit.org/ftp/fox-1.6.59.tar.gz 48f33d2dd5371c2d48f6518297f0ef5bbf3fcd37719e99f815dc6fc6e0f928ae
+xfe https://downloads.sourceforge.net/project/xfe/xfe/2.1/xfe-2.1.tar.xz 38699262d1c37dbcffb64ae0192caf62f0fc20a4941f8a0d48b9631e4c38fbc1
+vulkan-headers https://github.com/KhronosGroup/Vulkan-Headers/archive/refs/tags/vulkan-sdk-1.4.363.0.tar.gz 4a078be12bef21cfebc09d878b77a63cff9d68f899254a0b00d0e37ef73e7f7e vulkan-headers-1.4.363.0.tar.gz
+libXScrnSaver https://www.x.org/releases/individual/lib/libXScrnSaver-1.2.5.tar.xz 5057365f847253e0e275871441e10ff7846c8322a5d88e1e187d326de1cd8d00
+libXpresent https://www.x.org/releases/individual/lib/libXpresent-1.0.2.tar.xz 4e5b21b4812206a4b223013606ae31170502c1043038777a1ef8f70c09d37602
+xcb-util https://xorg.freedesktop.org/archive/individual/lib/xcb-util-0.4.1.tar.xz 5abe3bbbd8e54f0fa3ec945291b7e8fa8cfd3cccc43718f8758430f94126e512
+openbox http://openbox.org/dist/openbox/openbox-3.6.1.tar.xz abe75855cc5616554ffd47134ad15291fe37ebbebf1a80b69cbde9d670f0e26d
+ca-certificates https://curl.se/ca/cacert-2026-09-25.pem a41b5d356aea97a529fe27e0f7316d2f9d946d75927476cf9cf1b90637d00505 cacert-2026-09-25.pem
