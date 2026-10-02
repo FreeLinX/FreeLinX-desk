@@ -23,9 +23,11 @@ die() { echo "Error: $*" >&2; exit 1; }
 
 ask_default() {
     # ask_default "prompt" "default" ; echoes entered value (default on empty)
+    # Called as $(ask_default ...): the prompt goes to stderr, or it would be
+    # captured into the answer and never shown.
     _p="$1"
     _d="$2"
-    printf '%s [%s]: ' "$_p" "$_d"
+    printf '%s [%s]: ' "$_p" "$_d" >&2
     read -r _ans || _ans="$_d"
     [ -z "$_ans" ] && _ans="$_d"
     printf '%s\n' "$_ans"
@@ -34,8 +36,11 @@ ask_default() {
 menu_select() {
     # menu_select "title" "item1|item2|..."  ; echoes chosen index (1-based)
     # or the entered numeric value after showing the numbered menu.
+    # Called as $(menu_select ...): the menu goes to stderr, only the
+    # number to stdout (a captured menu was invisible and became the "index").
     _title="$1"
     _menu="$2"
+    {
     echo ""
     echo "----------------------------------------------------------"
     echo "  $_title"
@@ -56,6 +61,7 @@ menu_select() {
     [ $(((_i - 1) % 2)) -eq 1 ] && echo ""
     echo "----------------------------------------------------------"
     printf 'Select a number [1-%d] (Enter = 1): ' "$((_i - 1))"
+    } >&2
     read -r _sel || _sel=1
     [ -z "$_sel" ] && _sel=1
     case "$_sel" in
@@ -78,6 +84,10 @@ fi
 # -y skips the final wipe-confirmation prompt.
 FLX_CFG=""
 FLX_YES=0
+# The answers come from a presets file or from the questions, never from the
+# environment: /etc/profile exports HOSTNAME, and the hostname question was
+# skipped with the live system's name on every interactive install.
+unset HOSTNAME
 while [ "$#" -gt 0 ]; do
     case "$1" in
         -p|--presets) FLX_CFG="$2"; shift 2 ;;
@@ -699,28 +709,36 @@ fi
 # kmods.cpio: kernel modules of a kernel updated with xpkg (package
 # "linux" replaces it); an empty archive until then.
 (cd /var/empty 2>/dev/null || cd /tmp; printf '' | cpio -o --format=newc 2>/dev/null) > "$BOOT_DIR/boot/kmods.cpio"
-cat > "$BOOT_DIR/limine.conf" << EOF
-timeout: 3
-serial: yes
-interface_branding: FreeLinX 1.0.7
-interface_branding_colour: 2
-term_background: 1a1f1a
-term_foreground: e8ece8
-
-/FreeLinX 1.0.7
-    protocol: linux
-    kernel_path: boot():/boot/bzImage
-    module_path: boot():/boot/initramfs.img.gz
-    module_path: boot():/boot/kmods.cpio
-    cmdline: rdinit=/init rootfstype=ramfs console=tty0 console=ttyS0,115200 quiet loglevel=2
-
-/FreeLinX 1.0.7 (basic graphics)
+# the version of the image being installed, not of whoever edited this file last
+FLX_VER=$(sed -n 's/^VERSION_ID="\{0,1\}\([^"]*\)"\{0,1\}$/\1/p' /etc/os-release 2>/dev/null)
+FLX_VER=${FLX_VER:-1.0}
+# the fbdev fallback entry only means something where there is an X server
+BASIC_GFX=""
+if [ -x /usr/bin/flx-session ]; then
+    BASIC_GFX="
+/FreeLinX $FLX_VER (basic graphics)
     protocol: linux
     kernel_path: boot():/boot/bzImage
     module_path: boot():/boot/initramfs.img.gz
     module_path: boot():/boot/kmods.cpio
     cmdline: rdinit=/init rootfstype=ramfs console=tty0 console=ttyS0,115200 quiet loglevel=2 initcall_blacklist=i915_init modprobe.blacklist=amdgpu,radeon,nouveau flx.xdriver=fbdev
+"
+fi
+cat > "$BOOT_DIR/limine.conf" << EOF
+timeout: 3
+serial: yes
+interface_branding: FreeLinX $FLX_VER
+interface_branding_colour: 2
+term_background: 1a1f1a
+term_foreground: e8ece8
 
+/FreeLinX $FLX_VER
+    protocol: linux
+    kernel_path: boot():/boot/bzImage
+    module_path: boot():/boot/initramfs.img.gz
+    module_path: boot():/boot/kmods.cpio
+    cmdline: rdinit=/init rootfstype=ramfs console=tty0 console=ttyS0,115200 quiet loglevel=2
+$BASIC_GFX
 /Rescue Shell
     protocol: linux
     kernel_path: boot():/boot/bzImage
