@@ -100,6 +100,11 @@ if [ -f "$ov/etc/group" ]; then
     rm -f "$ov/etc/group.n"
 fi
 [ -f "$ov/etc/doas.conf" ] && { grep -v 'permit nopass keepenv live$' "$ov/etc/doas.conf" > "$ov/etc/doas.conf.n"; cat "$ov/etc/doas.conf.n" > "$ov/etc/doas.conf"; rm -f "$ov/etc/doas.conf.n"; }
+# pin this system's partitions by UUID (older releases accepted any disk
+# with the FLX_SYS / FLX_HOME label)
+uuid_of() { blkid "$1" 2>/dev/null | grep -o ' UUID="[^"]*"' | cut -d'"' -f2; }
+HOME_DEV=$(find_label FLX_HOME)
+printf 'FLX_SYS_UUID=%s\nFLX_HOME_UUID=%s\n' "$(uuid_of "$SYS_DEV")" "$([ -n "$HOME_DEV" ] && uuid_of "$HOME_DEV")" > "$ov/etc/flx-disk"
 (cd "$ov" && find ./etc -print0 | cpio --null -o --format=newc 2>/dev/null) >> "$MP/boot/initramfs.img.gz.new"
 rm -rf "$ov"
 mv "$MP/boot/bzImage.new" "$MP/boot/bzImage"

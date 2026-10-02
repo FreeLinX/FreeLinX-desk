@@ -266,15 +266,35 @@ static int valid_ifname(const char *s) {
 }
 
 
+/* Scan results and the connect log live in a directory only this process
+ * can use: it runs as root, and a fixed /tmp name would let any user point
+ * it at another file with a symlink. */
+static char work_dir[] = "/tmp/flxnetmgr.XXXXXX";
+static char scan_path[sizeof(work_dir) + 16], conn_path[sizeof(work_dir) + 16];
+
+static void work_dir_cleanup(void) {
+    unlink(scan_path);
+    unlink(conn_path);
+    rmdir(work_dir);
+}
+
+static int work_dir_init(void) {
+    if (!mkdtemp(work_dir)) return -1;
+    snprintf(scan_path, sizeof(scan_path), "%s/scan", work_dir);
+    snprintf(conn_path, sizeof(conn_path), "%s/connect", work_dir);
+    atexit(work_dir_cleanup);
+    return 0;
+}
+
 static void trigger_wifi_scan(void) {
     snprintf(status_message, sizeof(status_message), "Scanning WiFi networks via flxwifi...");
     char *argv[] = { "/sbin/flxwifi", "scan", NULL };
-    run_argv(argv, "/tmp/flx_wifi_scan.txt", 0);
+    run_argv(argv, scan_path, 0);
 }
 
 static void load_wifi_results(void) {
     ap_count = 0;
-    FILE *f = fopen("/tmp/flx_wifi_scan.txt", "r");
+    FILE *f = fopen(scan_path, "r");
     if (!f) return;
 
     char line[256];
@@ -316,7 +336,7 @@ static void connect_selected_wifi(void) {
     
     char *argv_pw[] = { "/sbin/flxwifi", "connect", ap->ssid, wifi_pass, NULL };
     char *argv_open[] = { "/sbin/flxwifi", "connect", ap->ssid, NULL };
-    run_argv(strlen(wifi_pass) > 0 ? argv_pw : argv_open, "/tmp/flx_wifi_conn.log", 0);
+    run_argv(strlen(wifi_pass) > 0 ? argv_pw : argv_open, conn_path, 0);
 }
 
 static void disconnect_wifi(void) {
@@ -597,6 +617,10 @@ static void draw_ui(cairo_t *cr) {
 }
 
 int main(int argc, char **argv) {
+    if (work_dir_init() != 0) {
+        fprintf(stderr, "flxnetmgr: cannot create a work directory: %s\n", strerror(errno));
+        return 1;
+    }
     Display *dpy = XOpenDisplay(NULL);
     if (!dpy) {
         fprintf(stderr, "flxnetmgr: cannot open X display\n");
@@ -755,7 +779,7 @@ int main(int argc, char **argv) {
         time_t now = time(NULL);
         if (now != last_check) {
             last_check = now;
-            if (current_tab == TAB_WIFI && access("/tmp/flx_wifi_scan.txt", F_OK) == 0) {
+            if (current_tab == TAB_WIFI && access(scan_path, F_OK) == 0) {
                 load_wifi_results();
                 draw_ui(cr);
                 cairo_surface_flush(surf);

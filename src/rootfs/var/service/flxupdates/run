@@ -1,0 +1,13 @@
+#!/bin/sh
+# Update check: refresh the package indexes now and then; the panel
+# (flxupdates) then compares them with what is installed.  Only on an installed system with network; nothing is
+# installed - upgrading stays the user's call.  Opt out: touch
+# /etc/flx-no-update-check.
+if [ ! -e /etc/flx-installed ] || [ -e /etc/flx-no-update-check ] || [ ! -x /usr/bin/xpkg ]; then
+    exec sleep 86400
+fi
+# give dhcpcd and ntpd time first (a wrong clock fails TLS)
+sleep 120
+xpkg --quiet update >/dev/null 2>&1 && : > /run/flx-updates-checked
+# runit restarts this script: check again in six hours
+exec sleep 21600

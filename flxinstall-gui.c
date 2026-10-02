@@ -266,8 +266,14 @@ static void log_puts(const char *s) {
     }
 }
 
+/* The presets carry the passwords: a private, unpredictable file (not a
+ * fixed, world-readable /tmp name), removed once the installer has read it. */
+static char preset_path[] = "/tmp/flxinstall-gui.XXXXXX";
+
 static void start_install(void) {
-    FILE *f = fopen("/tmp/flxinstall-gui.conf", "w");
+    memcpy(preset_path + sizeof(preset_path) - 7, "XXXXXX", 6);   /* a retry needs a fresh name */
+    int pfd = mkstemp(preset_path);   /* 0600, O_EXCL */
+    FILE *f = pfd >= 0 ? fdopen(pfd, "w") : NULL;
     if (!f) { snprintf(status_msg, sizeof(status_msg), "Cannot write presets file."); return; }
     shell_quote(f, "LANG_LC", sel_lang);
     shell_quote(f, "KBD_LAYOUT", sel_kbd);
@@ -294,7 +300,7 @@ static void start_install(void) {
         dup2(fds[1], 1);
         dup2(fds[1], 2);
         close(fds[0]);
-        execl("/sbin/flxinstall", "flxinstall", "-p", "/tmp/flxinstall-gui.conf",
+        execl("/sbin/flxinstall", "flxinstall", "-p", preset_path,
               "-y", target_disk, (char *)NULL);
         _exit(127);
     }
@@ -327,6 +333,7 @@ static void poll_install(void) {
         int st = 0;
         pid_t r = waitpid(inst_pid, &st, WNOHANG);
         if (r == inst_pid) {
+            unlink(preset_path);
             inst_state = (WIFEXITED(st) && WEXITSTATUS(st) == 0) ? INST_DONE : INST_ERROR;
             if (inst_state == INST_DONE) {
                 log_puts("\n>>> Installation finished successfully.\n");

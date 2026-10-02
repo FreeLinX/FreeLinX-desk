@@ -1,7 +1,7 @@
 # FreeLinX panel: launchers, task list, tray, clock (bottom edge)
 # No *_background_id settings: with GLX active, tint2 (17.0.2) painted a
 # panel whose items name a background id as a black bar.
-panel_items = LTSC
+panel_items = LTSEC
 panel_position = bottom center horizontal
 panel_size = 100% 30
 panel_margin = 0 0
@@ -45,6 +45,20 @@ task_maximum_size = 200 26
 task_padding = 6 2 4
 task_font = sans 9
 task_font_color = #e8ece8 100
+
+# package updates found by the update check (empty when up to date);
+# a click opens the package manager
+execp = new
+execp_command = flxupdates
+execp_interval = 300
+execp_has_icon = 0
+execp_continuous = 0
+execp_markup = 0
+execp_lclick_command = flxpkg
+execp_font = sans bold 9
+execp_font_color = #f0d878 100
+execp_padding = 8 0
+execp_centered = 1
 
 systray_padding = 4 2 4
 systray_icon_size = 18

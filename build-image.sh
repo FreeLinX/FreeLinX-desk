@@ -26,7 +26,7 @@ STAGE="${BUILD_DIR}/stage"
 
 # Release firmware tarball. The kernel release it must match is read from
 # kernel/ if available, otherwise any firmware-*.tar.xz next to this script
-# is accepted (the blobs are per-kernel-version but compatible within 6.6.x).
+# is accepted (built for one kernel series; rebuild it with the kernel).
 FW_TARBALL="${FLX_FIRMWARE_TARBALL:-}"
 if [ -z "$FW_TARBALL" ]; then
     for cand in "$SCRIPT_DIR"/firmware-*.tar.xz; do

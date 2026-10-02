@@ -1,7 +1,7 @@
 #!/bin/sh
 # FreeLinX Desktop - kernel + modules with the FreeLinX LLVM toolchain
 #
-# Builds linux-$KVER (6.6 LTS) from the pristine kernel.org tarball with kernel/kernel.config (or
+# Builds linux-$KVER (6.18 LTS) from the pristine kernel.org tarball with kernel/kernel.config (or
 # an existing $STACK_WORK/build/kernel/.config), then installs kernel/bzImage,
 # kernel/kernel.config and src/rootfs/lib/modules/<kver>.
 set -eu
@@ -9,9 +9,9 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 TOP="$(cd "$HERE/.." && pwd)"
 TC="${FREELINX_TOOLCHAIN_DIR:-$(cd "$TOP/../toolchain" && pwd)}"
 W="${STACK_WORK:-$HERE/work}"
-# kernel.org 6.6 LTS; the tarball is checked against kernel.org's sha256sums
-KVER="${KVER:-6.6.157}"
-KSHA="${KSHA:-b74a43d0630809b7871cc906ac155e956cbc0b2e78a7451f5e6c8bfcb1208c30}"
+# kernel.org 6.18 LTS; the tarball is checked against kernel.org's sha256sums
+KVER="${KVER:-6.18.54}"
+KSHA="${KSHA:-9df30b02dd8102bbd0be52556288ef6889ddbe7f1ddb96fbf847d0becf3eacac}"
 TARBALL="${KERNEL_TARBALL:-$TOP/../kernel/linux-$KVER.tar.xz}"
 K="$W/src/linux/linux-$KVER"
 O="$W/build/kernel-$KVER"

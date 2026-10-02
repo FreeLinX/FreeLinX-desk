@@ -59,16 +59,22 @@ case "$ACTION" in
             exit 0
         fi
 
-        # Persistent /home: mount the FLX_HOME partition at /home (not /media)
-        if [ "$FS_LABEL" = "FLX_HOME" ]; then
+        # Persistent /home: the installed system's own FLX_HOME partition
+        # (pinned by UUID in /etc/flx-disk) goes to /home.  On the live
+        # system, or for any other disk that merely carries the label (a USB
+        # stick), it is ordinary removable media below.
+        HOME_PIN=$(sed -n 's/^FLX_HOME_UUID=\([0-9A-Fa-f-]*\)$/\1/p' /etc/flx-disk 2>/dev/null | head -1)
+        FS_UUID=$(echo "$OUT" | grep -o ' UUID="[^"]*"' | cut -d'"' -f2 || true)
+        if [ "$FS_LABEL" = "FLX_HOME" ] && [ -e /etc/flx-installed ] &&
+           { [ -z "$HOME_PIN" ] || [ "$FS_UUID" = "$HOME_PIN" ]; }; then
             mkdir -p /home
             if ! grep -qs ' /home ' /proc/mounts; then
                 # The bundled mount requires an explicit -t (no auto-detect);
                 # fall back to guessing from blkid, then common filesystems.
                 FSTYPE_OPT=""
                 [ -n "$FSTYPE" ] && FSTYPE_OPT="-t $FSTYPE"
-                if mount $FSTYPE_OPT -o defaults,noatime "$DEVNODE" /home 2>/dev/null ||
-                   mount -o defaults,noatime "$DEVNODE" /home 2>/dev/null; then
+                if mount $FSTYPE_OPT -o defaults,noatime,nodev,nosuid "$DEVNODE" /home 2>/dev/null ||
+                   mount -o defaults,noatime,nodev,nosuid "$DEVNODE" /home 2>/dev/null; then
                     log_msg "Mounted $DEVNODE (FSTYPE=$FSTYPE, LABEL=FLX_HOME) -> /home"
                 else
                     log_msg "Failed to mount FLX_HOME partition $DEVNODE at /home"
