@@ -1,6 +1,6 @@
 --- a/xinitrc.in	2026-10-04 21:18:56.159691698 +0400
-+++ b/xinitrc.in	2026-10-04 21:18:56.167691821 +0400
-@@ -49,8 +49,13 @@
++++ b/xinitrc.in	2026-10-04 21:48:50.442514387 +0400
+@@ -49,8 +49,24 @@
  	unset f
  fi
  
@@ -11,11 +11,22 @@
 -exec "$xterm" -geometry 80x66+0+0 -name login
 +# FreeLinX: a window manager and a terminal from what is installed, rather
 +# than twm, xclock and three xterms that a FreeLinX system does not have.
++#
++# The terminal starts after the window manager has taken over the screen.
++# Started together, a terminal that maps its window while the window manager
++# is still starting up can lose that map request and wait for it forever: the
++# session comes up with no terminal, some of the time.
++term=
 +for t in st urxvt xterm; do
-+	if command -v "$t" >/dev/null 2>&1; then "$t" & break; fi
++	if command -v "$t" >/dev/null 2>&1; then term=$t; break; fi
 +done
-+for wm in openbox dwm twm; do
++if command -v openbox >/dev/null 2>&1; then
++	# openbox runs --startup once it manages the screen
++	exec openbox ${term:+--startup "$term"}
++fi
++[ -n "$term" ] && (sleep 2; exec "$term") &
++for wm in dwm twm; do
 +	command -v "$wm" >/dev/null 2>&1 && exec "$wm"
 +done
 +echo "xinitrc: no window manager installed (xpkg install openbox)" >&2
-+exec st
++exec ${term:-st}

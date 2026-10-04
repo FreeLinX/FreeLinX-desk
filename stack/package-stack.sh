@@ -109,7 +109,7 @@ nnn|nnn|s:nnn:PREFIX=/usr install|Fast terminal file manager
 libXaw|libXaw|b:libXaw|X Athena widgets
 xcalc|xcalc|b:xcalc|Scientific calculator for X
 imlib2|imlib2|b:imlib2|Image loading and rendering library
-tint2|tint2|b:tint2|Desktop panel and taskbar
+tint2|tint2|b:tint2|Desktop panel and taskbar|fonts
 alsa-utils|alsa-utils|b:alsa-utils|ALSA tools: alsamixer, amixer, aplay
 libXxf86vm|libXxf86vm|b:libXxf86vm|XFree86 video mode extension library
 llvm|llvm18|b:llvm18|LLVM 18 runtime library (for Mesa radeonsi and llvmpipe)
@@ -129,10 +129,10 @@ flxnet|flxnet|f:sbin/flxifconfig,sbin/flxroute|FreeLinX netlink ifconfig and rou
 flx-apps|flxapps|f:usr/bin/flxinstall-gui,usr/bin/flxnetmgr,usr/bin/flxpkg|FreeLinX installer, network manager and package manager (GUI)
 xpkg|xpkg|f:usr/bin/xpkg|FreeLinX package manager
 firefox|firefox|x:|FreeLinX Web: web browser based on Firefox ESR|ffmpeg-libs
-openbox|openbox|b:openbox|Openbox window manager|imlib2
-dwm|dwm|f:usr/bin/dwm|dwm tiling window manager (suckless)
-dmenu|dmenu|f:usr/bin/dmenu,usr/bin/dmenu_path,usr/bin/dmenu_run,usr/bin/stest|dmenu application launcher (suckless)
-st|st|f:usr/bin/st|st terminal (suckless)
+openbox|openbox|b:openbox|Openbox window manager|imlib2,fonts,st
+dwm|dwm|f:usr/bin/dwm|dwm tiling window manager (suckless)|fonts
+dmenu|dmenu|f:usr/bin/dmenu,usr/bin/dmenu_path,usr/bin/dmenu_run,usr/bin/stest|dmenu application launcher (suckless)|fonts
+st|st|f:usr/bin/st|st terminal (suckless)|fonts
 slstatus|slstatus|f:usr/bin/slstatus|slstatus status bar for dwm (suckless)
 nsxiv|nsxiv|f:usr/bin/nsxiv|nsxiv image viewer
 xclip|xclip|f:usr/bin/xclip|xclip: X selection from the command line
@@ -142,7 +142,7 @@ xrandr|xrandr|f:usr/bin/xrandr|xrandr: screen size, rotation and outputs
 setxkbmap|setxkbmap|f:usr/bin/setxkbmap|setxkbmap: keyboard layout for X
 xinit|xinit|f:usr/bin/xinit,usr/bin/startx,etc/X11/xinit/xinitrc|xinit, startx and the default X session
 libptytty|libptytty|b:libptytty|Pseudo-terminal library (for urxvt)
-urxvt|rxvt-unicode|b:rxvt-unicode|rxvt-unicode terminal
+urxvt|rxvt-unicode|b:rxvt-unicode|rxvt-unicode terminal|fonts
 fltk|fltk|b:fltk|FLTK 1.3 GUI toolkit
 dillo|dillo|b:dillo|Dillo lightweight web browser
 mupdf|mupdf|f:usr/bin/mupdf-x11,usr/bin/mutool,usr/lib/libmupdf.so.28.5|MuPDF document viewer and mutool
@@ -163,7 +163,7 @@ yajl|yajl|b:yajl|JSON parser library
 i3status|i3status|f:usr/bin/i3status,etc/i3status.conf|i3status status line generator
 linux|linux|k:|Linux kernel and modules (installed systems: activated on the next boot)
 linux-firmware|linux-firmware|w:|Firmware for WiFi, Bluetooth, GPUs and audio (linux-firmware, Sound Open Firmware)
-xorg|xorg-server|e:|X Window System: server, input/video drivers, keymap compiler, OpenGL, video decoding|xorg-server,xf86-input-libinput,xf86-input-evdev,xf86-video-fbdev,xkbcomp,mesa,intel-media-driver,intel-vaapi-driver,libva-utils
+xorg|xorg-server|e:|X Window System: server, input/video drivers, keymap compiler, OpenGL, video decoding|xorg-server,xf86-input-libinput,xf86-input-evdev,xf86-video-fbdev,xkbcomp,xkeyboard-config,mesa,intel-media-driver,intel-vaapi-driver,libva-utils
 '
 
 # --- versions ------------------------------------------------------------------
@@ -179,12 +179,15 @@ pkg_rel() {
         toybox) echo 2 ;;        # 1.0.5: host helpers built without the host compiler
         ncurses) echo 3 ;;       # 1.0.2: transitional, GNU ncurses replaced by netbsd-curses
         nnn|alsa-utils|libedit) echo 2 ;;   # 1.0.2: linked to netbsd-curses
-        xorg) echo 2 ;;          # 1.0.2: pulls the VA-API drivers in
+        xorg) echo 3 ;;          # 1.0.2: pulls the VA-API drivers in; base 1.3: and xkeyboard-config
         linux) echo 2 ;;         # simpledrm takes the firmware framebuffer (SYSFB_SIMPLEFB), bochs built in
         linux-firmware) echo 2 ;;   # 1.0.7: Wi-Fi 7 (iwlmld, MT7925), Intel Xe, newest iwlwifi API
         xcalc|xclock|xf86-input-libinput|x11-apps) echo 2 ;;   # app-defaults / SDK header under /usr, not the build path
         flx-apps) echo 2 ;;      # 2026.10.02: rebuilt the same day (private temp files)
-        xinit|openbox) echo 2 ;;         # base 1.3: startx on NetBSD sh, default xinitrc; openbox ships rc.xml + a root menu
+        st|dwm|dmenu|urxvt|tint2) echo 2 ;;
+        xinit) echo 3 ;;         # base 1.3: the terminal starts after the window manager (openbox --startup)
+        openbox) echo 3 ;;       # base 1.3: ships rc.xml + a root menu (its Terminal is st), needs fonts and st
+        # base 1.3 (xinit): startx on NetBSD sh and a default xinitrc; (the rest) text needs fonts
         *) echo "$REL" ;;
     esac
 }
