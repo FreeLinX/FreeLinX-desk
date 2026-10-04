@@ -135,6 +135,7 @@ dmenu|dmenu|f:usr/bin/dmenu,usr/bin/dmenu_path,usr/bin/dmenu_run,usr/bin/stest|d
 st|st|f:usr/bin/st|st terminal (suckless)|fonts
 slstatus|slstatus|f:usr/bin/slstatus|slstatus status bar for dwm (suckless)
 nsxiv|nsxiv|f:usr/bin/nsxiv|nsxiv image viewer
+feh|feh|f:usr/bin/feh,usr/share/feh,usr/share/man/man1/feh.1,usr/share/applications/feh.desktop|feh image viewer and wallpaper setter
 xclip|xclip|f:usr/bin/xclip|xclip: X selection from the command line
 x11-apps|x11-apps|f:usr/bin/xeyes,usr/bin/xmag,usr/bin/xsetroot,usr/share/X11/app-defaults/Xmag|X11 programs: xeyes, xmag, xsetroot
 xclock|xclock|b:xclock|X clock
