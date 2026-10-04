@@ -640,72 +640,13 @@ step_toybox() {
 # OpenCL/LLVM toolchain; no LLVM: iris/crocus/i915 for Intel, nouveau,
 # r300/r600 for older AMD, virgl for VMs, softpipe as the CPU fallback) ------
 step_libXxf86vm() { auto libXxf86vm; }
-# Mesa's Intel drivers (iris, crocus) ship shaders written in OpenCL C,
-# compiled at build time by mesa_clc (clang + SPIRV-LLVM-Translator).  Those
-# are build machine tools, like llvm-tblgen: step_mesa_clc_host builds them
-# natively into $W/host-clc, and nothing from there goes into the image.
-step_mesa_clc_host() {
-    H="$W/host-clc"; rm -rf "$H"; mkdir -p "$H"
-    # LLVM + clang 18 for the build machine (the X86 backend only: clang
-    # needs one; SPIR-V comes from the translator)
-    s=$(unpack llvm18)
-    b="$W/build/llvm18-clc"; rm -rf "$b"
-    cmake -G Ninja -S "$s/llvm" -B "$b" -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_C_COMPILER=cc -DCMAKE_CXX_COMPILER=c++ -DCMAKE_INSTALL_PREFIX="$H" \
-        -DLLVM_ENABLE_PROJECTS=clang -DLLVM_TARGETS_TO_BUILD=X86 \
-        -DLLVM_BUILD_LLVM_DYLIB=ON -DLLVM_LINK_LLVM_DYLIB=ON -DCLANG_LINK_CLANG_DYLIB=ON \
-        -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF \
-        -DLLVM_INCLUDE_DOCS=OFF -DCLANG_INCLUDE_TESTS=OFF -DCLANG_INCLUDE_DOCS=OFF \
-        -DLLVM_ENABLE_ZLIB=OFF -DLLVM_ENABLE_ZSTD=OFF -DLLVM_ENABLE_LIBXML2=OFF \
-        -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_LIBEDIT=OFF -DLLVM_ENABLE_RTTI=ON \
-        -DLLVM_INSTALL_UTILS=ON -DLLVM_ENABLE_ASSERTIONS=OFF
-    ninja -C "$b" -j "$JOBS" install
-    # SPIR-V headers and tools
-    hs=$(unpack spirv-headers)
-    cmake -G Ninja -S "$hs" -B "$W/build/spirv-headers" -DCMAKE_INSTALL_PREFIX="$H"
-    ninja -C "$W/build/spirv-headers" install
-    ts=$(unpack spirv-tools)
-    cmake -G Ninja -S "$ts" -B "$W/build/spirv-tools" -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_C_COMPILER=cc -DCMAKE_CXX_COMPILER=c++ -DCMAKE_INSTALL_PREFIX="$H" \
-        -DCMAKE_INSTALL_LIBDIR=lib -DSPIRV-Headers_SOURCE_DIR="$hs" \
-        -DSPIRV_SKIP_TESTS=ON -DSPIRV_SKIP_EXECUTABLES=ON -DSPIRV_WERROR=OFF
-    ninja -C "$W/build/spirv-tools" -j "$JOBS" install
-    # SPIRV-LLVM-Translator, against the headers revision it pins
-    ls=$(unpack spirv-llvm-translator)
-    lh=$(unpack spirv-headers-llvmspirv)
-    cmake -G Ninja -S "$ls" -B "$W/build/spirv-llvm-translator" -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_C_COMPILER=cc -DCMAKE_CXX_COMPILER=c++ -DCMAKE_INSTALL_PREFIX="$H" \
-        -DCMAKE_INSTALL_LIBDIR=lib -DLLVM_DIR="$H/lib/cmake/llvm" \
-        -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR="$lh" -DLLVM_SPIRV_INCLUDE_TESTS=OFF \
-        -DBUILD_SHARED_LIBS=OFF
-    ninja -C "$W/build/spirv-llvm-translator" -j "$JOBS" install
-    # mesa_clc and vtn_bindgen2 themselves, from the same Mesa source
-    ms=$(unpack mesa)
-    mb="$W/build/mesa-clc-host"; rm -rf "$mb"
-    env -u CC -u CXX -u CFLAGS -u CXXFLAGS -u LDFLAGS -u PKG_CONFIG -u PKG_CONFIG_PATH \
-        -u PKG_CONFIG_LIBDIR -u PKG_CONFIG_SYSROOT_DIR \
-        PKG_CONFIG_PATH="$H/lib/pkgconfig:$H/share/pkgconfig" PATH="$H/bin:$PATH" \
-        "$MESON" setup "$mb" "$ms" --prefix="$H" --libdir=lib --buildtype=release \
-        -Dplatforms= -Dgallium-drivers= -Dvulkan-drivers= -Dglx=disabled -Degl=disabled \
-        -Dgbm=disabled -Dopengl=false -Dgles1=disabled -Dgles2=disabled \
-        -Dllvm=enabled -Dshared-llvm=enabled -Dmesa-clc=enabled -Dinstall-mesa-clc=true \
-        -Dvalgrind=disabled -Dlibunwind=disabled -Dzstd=disabled -Dbuild-tests=false \
-        -Dexpat=disabled -Dxmlconfig=disabled
-    env -u CC -u CXX -u CFLAGS -u CXXFLAGS -u LDFLAGS LD_LIBRARY_PATH="$H/lib" \
-        ninja -C "$mb" -j "$JOBS" install
-    test -x "$H/bin/mesa_clc" && test -x "$H/bin/vtn_bindgen2"
-}
 step_mesa() {
-    test -x "$W/host-clc/bin/mesa_clc" || { echo "build mesa_clc_host first" >&2; return 1; }
-    # mesa_clc runs on the build machine against its own LLVM/clang (in a
-    # subshell: no later step may find the host llvm-config)
-    ( export PATH="$W/host-clc/bin:$PATH" LD_LIBRARY_PATH="$W/host-clc/lib"
-    mes mesa -Dplatforms=x11 -Dgallium-drivers=iris,crocus,i915,nouveau,r300,r600,radeonsi,virgl,llvmpipe,softpipe \
+    mes mesa -Dplatforms=x11 -Dgallium-drivers=iris,crocus,i915,nouveau,r300,r600,radeonsi,virgl,swrast \
         -Dvulkan-drivers= -Dllvm=enabled -Dshared-llvm=enabled -Dglx=dri -Degl=enabled \
-        -Dgbm=enabled -Dgles1=disabled -Dgles2=enabled -Dopengl=true -Dglvnd=disabled \
+        -Dgbm=enabled -Dgles1=disabled -Dgles2=enabled -Dopengl=true -Dglvnd=false \
         -Dvalgrind=disabled -Dlibunwind=disabled -Dbuild-tests=false -Dgallium-va=enabled -Dva-libs-path=/usr/lib/dri \
-        -Dvideo-codecs=vc1dec,h264dec,h265dec,av1dec,vp9dec -Dlmsensors=disabled -Dzstd=disabled \
-        -Dmesa-clc=system -Dprecomp-compiler=system -Dmicrosoft-clc=disabled )
+        -Dgallium-vdpau=disabled -Dvideo-codecs=vc1dec,h264dec,h265dec,av1dec,vp9dec -Dlmsensors=disabled -Dzstd=disabled \
+        -Dintel-clc=disabled -Dmicrosoft-clc=disabled -Dosmesa=false
 }
 # --- LLVM 18 for Mesa (radeonsi needs the AMDGPU backend; llvmpipe the X86
 # JIT).  Mesa 24.0 does not build against LLVM 19+, hence 18, separate from
@@ -1025,7 +966,7 @@ step_hostapd() {
     make DESTDIR="$SYS" BINDIR=/sbin install
 }
 
-STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg netbsd_curses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm llvm18 libelf libva mesa_clc_host mesa mesa_demos libva_utils gmmlib media_driver intel_vaapi ffmpeg libedit bluez hostapd ca_certificates flx_x11_tools openbox xbitmaps xsetroot xrandr setxkbmap xinit xeyes xclock xmag xclip dwm dmenu st slstatus nsxiv feh libptytty rxvt_unicode doomgeneric libconfuse yajl i3status fltk dillo mupdf libXScrnSaver libXpresent libass vulkan_headers libplacebo mpv fox xcb_util xfe"
+STEPS_USER="tzdata flxapps toybox openssl sqlite libnl wpa_supplicant flxnet xpkg netbsd_curses musl_fts nnn libXaw xcalc imlib2 tint2 alsa_utils libXxf86vm llvm18 libelf libva mesa mesa_demos libva_utils gmmlib media_driver intel_vaapi ffmpeg libedit bluez hostapd ca_certificates flx_x11_tools openbox xbitmaps xsetroot xrandr setxkbmap xinit xeyes xclock xmag xclip dwm dmenu st slstatus nsxiv feh libptytty rxvt_unicode doomgeneric libconfuse yajl i3status fltk dillo mupdf libXScrnSaver libXpresent libass vulkan_headers libplacebo mpv fox xcb_util xfe"
 
 STEPS="musl kheaders cxxrt zlib libffi pcre2 expat libpng libjpeg freetype fontconfig
 pixman libmd util_macros xorgproto xcb_proto libXau libXdmcp xtrans libxcb libX11
