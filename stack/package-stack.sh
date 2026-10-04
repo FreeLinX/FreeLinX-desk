@@ -140,7 +140,7 @@ x11-apps|x11-apps|f:usr/bin/xeyes,usr/bin/xmag,usr/bin/xsetroot,usr/share/X11/ap
 xclock|xclock|b:xclock|X clock
 xrandr|xrandr|f:usr/bin/xrandr|xrandr: screen size, rotation and outputs
 setxkbmap|setxkbmap|f:usr/bin/setxkbmap|setxkbmap: keyboard layout for X
-xinit|xinit|f:usr/bin/xinit,usr/bin/startx|xinit and startx
+xinit|xinit|f:usr/bin/xinit,usr/bin/startx,etc/X11/xinit/xinitrc|xinit, startx and the default X session
 libptytty|libptytty|b:libptytty|Pseudo-terminal library (for urxvt)
 urxvt|rxvt-unicode|b:rxvt-unicode|rxvt-unicode terminal
 fltk|fltk|b:fltk|FLTK 1.3 GUI toolkit
@@ -184,6 +184,7 @@ pkg_rel() {
         linux-firmware) echo 2 ;;   # 1.0.7: Wi-Fi 7 (iwlmld, MT7925), Intel Xe, newest iwlwifi API
         xcalc|xclock|xf86-input-libinput|x11-apps) echo 2 ;;   # app-defaults / SDK header under /usr, not the build path
         flx-apps) echo 2 ;;      # 2026.10.02: rebuilt the same day (private temp files)
+        xinit|openbox) echo 2 ;;         # base 1.3: startx on NetBSD sh, default xinitrc; openbox ships rc.xml + a root menu
         *) echo "$REL" ;;
     esac
 }
@@ -448,9 +449,14 @@ echo "$PKGS" | while IFS='|' read -r name src how desc; do
         echo "$(find "$d" -type f -o -type l | wc -l) files (not trimmed)"; continue ;;
     esac
     # Xorg's input defaults (libinput, tapping) travel with the server
-    # upstream defaults must not replace FreeLinX's configuration (1.0.x
-    # systems have it unowned in /etc)
-    [ "$name" = openbox ] && rm -rf "$d/etc"
+    # rc.xml and the root menu (patches/openbox) ship, so openbox installed
+    # with xpkg on base has a menu; a system that already has these files keeps
+    # its own (xpkg writes .xpkgnew next to an existing /etc file).  autostart
+    # and environment do not: autostart runs a Python xdg helper that is not
+    # here, and the desktop has its own.
+    if [ "$name" = openbox ]; then
+        rm -f "$d/etc/xdg/openbox/autostart" "$d/etc/xdg/openbox/environment"
+    fi
     # the ffmpeg/ffprobe programs are their own package
     [ "$name" = ffmpeg-libs ] && rm -rf "$d/usr/bin"
     if [ "$name" = xorg-server ]; then

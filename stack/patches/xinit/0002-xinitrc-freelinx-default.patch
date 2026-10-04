@@ -1,0 +1,21 @@
+--- a/xinitrc.in	2026-10-04 21:18:56.159691698 +0400
++++ b/xinitrc.in	2026-10-04 21:18:56.167691821 +0400
+@@ -49,8 +49,13 @@
+ 	unset f
+ fi
+ 
+-"$twm" &
+-"$xclock" -geometry 50x50-1+1 &
+-"$xterm" -geometry 80x50+494+51 &
+-"$xterm" -geometry 80x20+494-0 &
+-exec "$xterm" -geometry 80x66+0+0 -name login
++# FreeLinX: a window manager and a terminal from what is installed, rather
++# than twm, xclock and three xterms that a FreeLinX system does not have.
++for t in st urxvt xterm; do
++	if command -v "$t" >/dev/null 2>&1; then "$t" & break; fi
++done
++for wm in openbox dwm twm; do
++	command -v "$wm" >/dev/null 2>&1 && exec "$wm"
++done
++echo "xinitrc: no window manager installed (xpkg install openbox)" >&2
++exec st

@@ -1,0 +1,71 @@
+--- a/startx.in	2026-10-04 21:18:56.159691698 +0400
++++ b/startx.in	2026-10-04 21:18:56.167691821 +0400
+@@ -24,6 +24,11 @@
+ libexecdir="@libexecdir@"
+ mk_cookie="@MCOOKIE@"
+ has_cookie_maker="@HAS_COOKIE_MAKER@"
++# FreeLinX: mcookie and xauth are optional.  Without a cookie maker the cookie
++# comes from /dev/urandom; without xauth the server runs without a cookie
++# file, as xinit does.  Nothing here may need expr or test -o, which this
++# system's sh (NetBSD sh, built small) does not have.
++[ -x "$mk_cookie" ] || has_cookie_maker=
+ 
+ unset SESSION_MANAGER
+ 
+@@ -142,10 +147,12 @@
+     enable_xauth=1
+ fi
+ 
++command -v "$xauth" >/dev/null 2>&1 || enable_xauth=0
++
+ # Automatically determine an unused $DISPLAY
+ d=0
+ while true ; do
+-    [ -e "/tmp/.X$d-lock" -o -S "/tmp/.X11-unix/X$d" ] || break
++    { [ -e "/tmp/.X$d-lock" ] || [ -S "/tmp/.X11-unix/X$d" ]; } || break
+     d=$(($d + 1))
+ done
+ defaultdisplay=":$d"
+@@ -178,8 +185,8 @@
+ 	    clientargs="$clientargs $1"
+ 	else
+ 	    # display must be the FIRST server argument
+-	    if [ "$serverargs" = "" ] && \
+-		 expr "$1" : ':[0-9][0-9]*$' > /dev/null 2>&1; then
++	    case $1 in :[0-9]*) is_display=1 ;; *) is_display= ;; esac
++	    if [ "$serverargs" = "" ] && [ -n "$is_display" ]; then
+ 		display="$1"
+ 	    else
+ 		serverargs="$serverargs $1"
+@@ -218,7 +225,8 @@
+     # the startx session being seen as inactive:
+     # "https://bugzilla.redhat.com/show_bug.cgi?id=806491"
+     tty=$(tty)
+-    if expr "$tty" : '/dev/tty[0-9][0-9]*$' > /dev/null; then
++    case $tty in /dev/tty[0-9]*) is_vt=1 ;; *) is_vt= ;; esac
++    if [ -n "$is_vt" ]; then
+         tty_num="${tty#/dev/tty}"
+         vtarg="vt$tty_num -keeptty"
+     fi
+@@ -242,7 +250,8 @@
+ # if no vt is specified add vtarg (which may be empty)
+ have_vtarg="no"
+ for i in $serverargs; do
+-    if expr "$i" : 'vt[0-9][0-9]*$' > /dev/null; then
++    case $i in vt[0-9]*) is_vtarg=1 ;; *) is_vtarg= ;; esac
++    if [ -n "$is_vtarg" ]; then
+         have_vtarg="yes"
+     fi
+ done
+@@ -271,9 +280,9 @@
+         mcookie=$($mk_cookie)
+     else
+         if [ -r /dev/urandom ]; then
+-            mcookie=$(dd if=/dev/urandom bs=16 count=1 2>/dev/null | hexdump -e \"%08x\")
++            mcookie=$(od -An -v -tx1 -N16 /dev/urandom | tr -d ' \n')
+         else
+-            mcookie=$(dd if=/dev/random bs=16 count=1 2>/dev/null | hexdump -e \"%08x\")
++            mcookie=$(od -An -v -tx1 -N16 /dev/random | tr -d ' \n')
+         fi
+     fi
+     if [ "$mcookie" = "" ]; then
