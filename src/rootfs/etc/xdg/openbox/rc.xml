@@ -233,6 +233,14 @@
     <action name="ToggleShowDesktop"/>
   </keybind>
 
+  <!-- Keybindings for launching: dmenu_run lists what is installed.
+       (A-p matches the dwm binding, so the key is the same everywhere.) -->
+  <keybind key="A-p">
+    <action name="Execute">
+      <command>dmenu_run</command>
+    </action>
+  </keybind>
+
   <!-- Keybindings for windows -->
   <keybind key="A-F4">
     <action name="Close"/>
